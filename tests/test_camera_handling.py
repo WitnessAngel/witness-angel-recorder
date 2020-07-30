@@ -1,6 +1,8 @@
 import pytest
-from client.camera_handling import capturing_video
+from client.camera_handling import display_video_stream
 
 
 def test_capturing_video():
-    capturing_video()
+    camera_url = "rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa"  # Public video stream
+    # camera_url = "rtsp://192.168.1.37:8554/screen"
+    display_video_stream(camera_url)
