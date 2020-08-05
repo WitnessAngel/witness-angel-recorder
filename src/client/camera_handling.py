@@ -19,8 +19,8 @@ class VideoStream:
                 cap.release()
                 cv2.destroyAllWindows()
                 raise ValueError
-            cv2.imshow('frame', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imshow("frame", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
         cap.release()
@@ -32,7 +32,10 @@ class VideoStream:
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
         out = cv2.VideoWriter(
-            'saved_video_stream/outpy.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (frame_width, frame_height)
+            "saved_video_stream/outpy.avi",
+            cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+            10,
+            (frame_width, frame_height),
         )
 
         while cap.isOpened():
@@ -42,8 +45,8 @@ class VideoStream:
                 cv2.destroyAllWindows()
                 raise ValueError
             out.write(frame)
-            cv2.imshow('frame', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imshow("frame", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
         cap.release()

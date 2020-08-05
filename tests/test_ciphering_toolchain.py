@@ -142,4 +142,6 @@ def test_encrypt_video_stream(container_conf):
         [None, uuid.UUID("450fc293-b702-42d3-ae65-e9cc58e5a62a")]
     )
 
-    encrypt_video_stream(path=path, conf=container_conf, keychain_uid=keychain_uid, metadata=metadata)
+    encrypt_video_stream(
+        path=path, conf=container_conf, keychain_uid=keychain_uid, metadata=metadata
+    )
