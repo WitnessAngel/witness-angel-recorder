@@ -1,7 +1,7 @@
 import pytest
 import random
 import uuid
-from client.ciphering_toolchain import encrypt_video_stream
+from client.ciphering_toolchain import encrypt_video_stream, decrypt_video_stream
 
 from wacryptolib.container import LOCAL_ESCROW_PLACEHOLDER
 
@@ -142,6 +142,14 @@ def test_encrypt_video_stream(container_conf):
         [None, uuid.UUID("450fc293-b702-42d3-ae65-e9cc58e5a62a")]
     )
 
-    encrypt_video_stream(
+    ciphered_data = encrypt_video_stream(
         path=path, conf=container_conf, keychain_uid=keychain_uid, metadata=metadata
     )
+    assert isinstance(ciphered_data, dict)
+
+    result_data = decrypt_video_stream(container=ciphered_data)
+    assert isinstance(result_data, bytes)
+    with open(path, "rb") as video_stream:
+        data = video_stream.read()
+
+    assert result_data == data
