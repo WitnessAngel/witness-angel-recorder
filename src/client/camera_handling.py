@@ -10,8 +10,13 @@ logger = logging.getLogger()
 
 class VideoStream:
     def __init__(self, timeout, video_stream_url=None):
+        """
+        Initialize VideoStream class
+        :param video_stream_url: rtsp url to video stream (h264)
+        :param timeout: duration in seconds of a .avi saved files
+        """
         self.video_stream_url = video_stream_url
-        self.on_pause = False
+        self.timeout = timeout        self.on_pause = False
         self.quit = False
         self.timeout = timeout
 
@@ -58,9 +63,8 @@ class VideoStream:
         while cap.isOpened():
             self.get_state()
             ret, frame = cap.read()
-
-            if not ret:
-                logger.debug("No image retrieved")
+            if not ret:                
+				logger.debug("No image retrieved")
                 cap.release()
                 cv2.destroyAllWindows()
                 raise ValueError
@@ -110,6 +114,5 @@ class VideoStream:
             fps,
             (frame_width, frame_height),
         )
-        
         return out
 
