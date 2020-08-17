@@ -16,7 +16,8 @@ class VideoStream:
         :param timeout: duration in seconds of a .avi saved files
         """
         self.video_stream_url = video_stream_url
-        self.timeout = timeout        self.on_pause = False
+        self.timeout = timeout
+        self.on_pause = False
         self.quit = False
         self.timeout = timeout
 
@@ -64,7 +65,7 @@ class VideoStream:
             self.get_state()
             ret, frame = cap.read()
             if not ret:                
-				logger.debug("No image retrieved")
+                logger.debug("No image retrieved")
                 cap.release()
                 cv2.destroyAllWindows()
                 raise ValueError
@@ -115,4 +116,3 @@ class VideoStream:
             (frame_width, frame_height),
         )
         return out
-
