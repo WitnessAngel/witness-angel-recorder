@@ -7,13 +7,15 @@ import time
 
 logger = logging.getLogger()
 
+
 class VideoStream:
     def __init__(self, timeout, video_stream_url=None):
         """
         Initialize VideoStream class
         :param video_stream_url: rtsp url to video stream (h264)
         :param timeout: duration in seconds of a .avi saved files
-        """        self.video_stream_url = video_stream_url
+        """
+        self.video_stream_url = video_stream_url
         self.timeout = timeout
         self.on_pause = False
         self.quit = False
@@ -56,10 +58,14 @@ class VideoStream:
 
         if not cap.isOpened():
             cap.open()
-        frame_count = 0        while cap.isOpened():
+
+        frame_count = 0
+        while cap.isOpened():
             self.get_state()
             ret, frame = cap.read()
-				logger.debug("No image retrieved")                cap.release()
+            if not ret:
+                logger.debug("No image retrieved")
+                cap.release()
                 cv2.destroyAllWindows()
                 raise ValueError
 
@@ -96,7 +102,8 @@ class VideoStream:
             self.on_pause = False
         if key_pressed == ord("q"):
             self.quit = True
- def change_recording_file(self, frame_width, frame_height):
+
+    def change_recording_file(self, frame_width, frame_height):
         logger.debug("Changing recording file")
         filename = "saved_video_stream/" + str(time.strftime("%m-%d-%Y_%H-%M-%S")) + ".avi"
         fps = 10
