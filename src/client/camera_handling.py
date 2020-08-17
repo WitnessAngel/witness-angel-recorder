@@ -25,11 +25,10 @@ class VideoStream:
         cap = cv2.VideoCapture(self.video_stream_url)
         if not cap.isOpened():
             logger.debug("Opening video capture")
-            cap.open()
+            cap.open(self.video_stream_url)
 
         while cap.isOpened():
             ret, frame = cap.read()
-
             if not ret:
                 logger.debug("No image retrieved")
                 cap.release()
@@ -48,20 +47,22 @@ class VideoStream:
         cap = cv2.VideoCapture(self.video_stream_url)
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
+
         if not os.path.isdir("saved_video_stream"):
             logger.debug("Creating directory 'saved_video_stream'")
             os.mkdir("saved_video_stream")
+
         fps = 10
         out = self.change_recording_file(
             frame_width=frame_width, frame_height=frame_height
             )
 
         if not cap.isOpened():
-            cap.open()
+            cap.open(self.video_stream_url)
 
         frame_count = 0
         while cap.isOpened():
-            self.get_state()
+            self._simulate_gui()
             ret, frame = cap.read()
             if not ret:
                 logger.debug("No image retrieved")
@@ -94,14 +95,24 @@ class VideoStream:
 
         cv2.destroyAllWindows()
 
-    def get_state(self):
+    def pause(self):
+        self.on_pause = True
+
+    def unpause(self):
+        self.on_pause = False
+
+    def exit_cap(self):
+        self.quit = True
+
+    def _simulate_gui(self):
+        """Test function which will disappear when GUI will be done"""
         key_pressed = cv2.waitKey(1) & 0xFF
         if key_pressed == ord("p"):
-            self.on_pause = True
+            self.pause()
         if key_pressed == ord("c"):
-            self.on_pause = False
+            self.unpause()
         if key_pressed == ord("q"):
-            self.quit = True
+            self.exit_cap()
 
     def change_recording_file(self, frame_width, frame_height):
         logger.debug("Changing recording file")
