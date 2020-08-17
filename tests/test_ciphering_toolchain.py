@@ -1,10 +1,12 @@
 import pytest
 import random
 import uuid
+from os import listdir
+
 from client.ciphering_toolchain import encrypt_video_stream, decrypt_video_stream
 
 from wacryptolib.container import LOCAL_ESCROW_PLACEHOLDER, encrypt_data_into_container, decrypt_data_from_container
-from wacryptolib.key_generation import generate_asymmetric_keypair
+from wacryptolib.key_generation import generate_asymmetric_keypair, load_asymmetric_key_from_pem_bytestring
 from wacryptolib.utilities import generate_uuid0
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -20,29 +22,29 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
                     key_shared_secret_threshold=3,
                     key_shared_secret_escrows=[
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                     ],
                 ),
@@ -92,24 +94,24 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
                     key_shared_secret_threshold=2,
                     key_shared_secret_escrows=[
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
                         ),
                     ],
                 ),
@@ -138,32 +140,40 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
     "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF, COMPLEX_SHAMIR_CONTAINER_CONF]
 )
 def test_encrypt_video_stream(container_conf):
-    path = "saved_video_stream/outpy.avi"
+    video_files = listdir("saved_video_stream")
+    path = "saved_video_stream/" + str(random.choice(video_files))
     encryption_algo = "RSA_OAEP"
-    keypair = generate_asymmetric_keypair(key_type=encryption_algo)
+    key_length_bits = random.choice([2048, 3072, 4096])
 
-    metadata = random.choice([None, dict(a=[123])])
-    keychain_uid = random.choice(
-        [None, uuid.UUID("450fc293-b702-42d3-ae65-e9cc58e5a62a")]
+    keypair = generate_asymmetric_keypair(
+        key_type=encryption_algo, serialize=False, key_length_bits=key_length_bits
     )
 
     ciphered_data = encrypt_video_stream(
         path=path, encryption_algo=encryption_algo, key=keypair["public_key"]
     )
+
     assert isinstance(ciphered_data, dict)
 
+    bytes_private_key = keypair["private_key"].export_key()
+    keychain_uid = generate_uuid0()
+    metadata = random.choice([None, dict(a=[123])])
+
     container_private_key = encrypt_data_into_container(
-        data=keypair["private_key"], conf=container_conf, metadata=metadata, keychain_uid=keychain_uid
+        data=bytes_private_key, conf=container_conf, metadata=metadata, keychain_uid=keychain_uid
     )
 
     assert isinstance(container_private_key, dict)
 
     deciphered_private_key = decrypt_data_from_container(container=container_private_key)
 
-    assert deciphered_private_key == keypair["private_key"]
+    decoded_private_key = load_asymmetric_key_from_pem_bytestring(
+        key_pem=deciphered_private_key, key_type=encryption_algo
+    )
+    assert decoded_private_key == keypair["private_key"]
 
     result_data = decrypt_video_stream(
-        cipherdict=ciphered_data, encryption_algo=encryption_algo, key=deciphered_private_key
+        cipherdict=ciphered_data, encryption_algo=encryption_algo, key=keypair["private_key"]
     )
 
     assert isinstance(result_data, bytes)
