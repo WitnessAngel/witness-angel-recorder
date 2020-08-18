@@ -21,19 +21,27 @@ class VideoStream:
         self.quit = False
         self.timeout = timeout
 
-    def display_video_stream(self):
+    def _get_video_capture(self):
         cap = cv2.VideoCapture(self.video_stream_url)
         if not cap.isOpened():
             logger.debug("Opening video capture")
             cap.open(self.video_stream_url)
+        return cap
+
+    def _read_video_capture(self, cap):
+        ret, frame = cap.read()
+        if not ret:
+            logger.debug("No image retrieved")
+            cap.release()
+            cv2.destroyAllWindows()
+            raise ValueError
+        return frame
+
+    def display_video_stream(self):
+        cap = self._get_video_capture()
 
         while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                logger.debug("No image retrieved")
-                cap.release()
-                cv2.destroyAllWindows()
-                raise ValueError
+            frame = self._read_video_capture(cap=cap)
 
             cv2.imshow("frame", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -41,58 +49,6 @@ class VideoStream:
 
         logger.debug("Closing video capture")
         cap.release()
-        cv2.destroyAllWindows()
-
-    def write_video_stream(self):
-        cap = cv2.VideoCapture(self.video_stream_url)
-        frame_width = int(cap.get(3))
-        frame_height = int(cap.get(4))
-
-        if not os.path.isdir("saved_video_stream"):
-            logger.debug("Creating directory 'saved_video_stream'")
-            os.mkdir("saved_video_stream")
-
-        fps = 10
-        out = self.change_recording_file(
-            frame_width=frame_width, frame_height=frame_height
-            )
-
-        if not cap.isOpened():
-            cap.open(self.video_stream_url)
-
-        frame_count = 0
-        while cap.isOpened():
-            self._simulate_gui()
-            ret, frame = cap.read()
-            if not ret:
-                logger.debug("No image retrieved")
-                cap.release()
-                cv2.destroyAllWindows()
-                raise ValueError
-
-            if not self.on_pause:
-                out.write(frame)
-
-            frame_count += 1
-            duration = frame_count/fps
-            if duration >= self.timeout:
-                logger.debug("Closing video writer")
-                out.release()
-                out = self.change_recording_file(
-                    frame_width=frame_width, frame_height=frame_height 
-                )
-                frame_count = 0
-
-            cv2.imshow("frame", frame)
-            if self.quit:
-                break
-
-        logger.debug("Closing video capture")
-        cap.release()
-
-        logger.debug("Closing video writer")
-        out.release()
-
         cv2.destroyAllWindows()
 
     def pause(self):
@@ -128,3 +84,47 @@ class VideoStream:
         )
         
         return out
+
+    def write_video_stream(self):
+        cap = self._get_video_capture()
+        frame_width = int(cap.get(3))
+        frame_height = int(cap.get(4))
+
+        if not os.path.isdir("saved_video_stream"):
+            logger.debug("Creating directory 'saved_video_stream'")
+            os.mkdir("saved_video_stream")
+
+        fps = 10
+        out = self.change_recording_file(
+            frame_width=frame_width, frame_height=frame_height
+            )
+
+        frame_count = 0
+        while cap.isOpened():
+            self._simulate_gui()
+            frame = self._read_video_capture(cap=cap)
+
+            if not self.on_pause:
+                out.write(frame)
+
+            frame_count += 1
+            duration = frame_count/fps
+            if duration >= self.timeout:
+                logger.debug("Closing video writer")
+                out.release()
+                out = self.change_recording_file(
+                    frame_width=frame_width, frame_height=frame_height
+                )
+                frame_count = 0
+
+            cv2.imshow("frame", frame)
+            if self.quit:
+                break
+
+        logger.debug("Closing video capture")
+        cap.release()
+
+        logger.debug("Closing video writer")
+        out.release()
+
+        cv2.destroyAllWindows()
