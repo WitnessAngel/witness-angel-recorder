@@ -1,7 +1,7 @@
 import pytest
 from client.camera_handling import VideoStream
-from os.path import isdir, isfile
-from os import listdir
+from os.path import isdir
+from PIL import Image
 
 
 def test_display_video_stream():
@@ -11,8 +11,6 @@ def test_display_video_stream():
     video_stream = VideoStream(timeout=10.0, video_stream_url=camera_url)
     video_stream.display_video_stream()
 
-    assert isdir("saved_video_stream")
-
 
 def test_write_video_stream():
     camera_url = (
@@ -20,10 +18,9 @@ def test_write_video_stream():
     )  # Public video stream
     timeout = 10.0
     video_stream = VideoStream(timeout=timeout, video_stream_url=camera_url)
-    video_stream.write_video_stream()
+    entire_videos = video_stream.write_video_stream()
 
-    assert isdir("saved_video_stream")
-    video_files = listdir("saved_video_stream")
-    for file in video_files:
-        filename = f"saved_video_stream/{file}"
-        assert isfile(filename)
+    for video in entire_videos.values():
+        for frame in video:
+            img = Image.fromarray(frame)
+            assert img

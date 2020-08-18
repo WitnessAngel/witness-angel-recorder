@@ -1,5 +1,5 @@
 import cv2
-import numpy as np
+from numpy import asarray
 import logging
 import pytest
 import os
@@ -70,51 +70,34 @@ class VideoStream:
         if key_pressed == ord("q"):
             self.exit_cap()
 
-    def change_recording_file(self, frame_width, frame_height):
+    @staticmethod
+    def _change_recording_array(entire_videos, video):
         logger.debug("Changing recording file")
         time_beginning_video = time.strftime("%m-%d-%Y_%H-%M-%S")
-        filename = f"saved_video_stream/{time_beginning_video}.avi"
-        fps = 10
-
-        out = cv2.VideoWriter(
-            filename,
-            cv2.VideoWriter_fourcc("M", "J", "P", "G"),
-            fps,
-            (frame_width, frame_height),
-        )
-        
-        return out
+        entire_videos[time_beginning_video] = video
 
     def write_video_stream(self):
         cap = self._get_video_capture()
-        frame_width = int(cap.get(3))
-        frame_height = int(cap.get(4))
-
-        if not os.path.isdir("saved_video_stream"):
-            logger.debug("Creating directory 'saved_video_stream'")
-            os.mkdir("saved_video_stream")
 
         fps = 10
-        out = self.change_recording_file(
-            frame_width=frame_width, frame_height=frame_height
-            )
-
+        entire_videos = {}
+        video = []
         frame_count = 0
+
         while cap.isOpened():
             self._simulate_gui()
             frame = self._read_video_capture(cap=cap)
 
             if not self.on_pause:
-                out.write(frame)
+                data = asarray(frame)
+                video.append(data)
+                frame_count += 1
 
-            frame_count += 1
             duration = frame_count/fps
             if duration >= self.timeout:
                 logger.debug("Closing video writer")
-                out.release()
-                out = self.change_recording_file(
-                    frame_width=frame_width, frame_height=frame_height
-                )
+                self._change_recording_array(entire_videos=entire_videos, video=video)
+                video = []
                 frame_count = 0
 
             cv2.imshow("frame", frame)
@@ -123,8 +106,7 @@ class VideoStream:
 
         logger.debug("Closing video capture")
         cap.release()
-
-        logger.debug("Closing video writer")
-        out.release()
-
         cv2.destroyAllWindows()
+        self._change_recording_array(entire_videos=entire_videos, video=video)
+
+        return entire_videos
