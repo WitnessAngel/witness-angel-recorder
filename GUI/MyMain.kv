@@ -1,0 +1,615 @@
+#:import KivyConsole waclient.utilities.widgets.KivyConsole
+WindowManager:
+    MainWindow:
+    SecondWindow:
+    ThirdWindow:
+    FourthWindow:
+<ListItemWithCheckbox@ThreeLineIconListItem>:
+
+
+
+<Lists@BoxLayout>
+
+    name: "lists"
+    orientation: "vertical"
+
+    canvas.before:
+        Color:
+            rgba: 0.1372, 0.2862, 0.5294, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        size_hint: 1, 0.25
+        Button:
+            id: btn
+            background_color: (51, 23, 186.0, 1)
+            color: 0.1372, 0.2862, 0.5294, 1
+            text: "Import new keys"
+            size: 250, 50
+            size_hint: None, None
+            on_release:
+                self.import_keys()
+
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        size_hint: 1, 0.10
+        MDToolbar:
+            title:"List USB keys"
+            size_hint: 1, 0.5
+            md_bg_color: [0.1372, 0.2862, 0.5294, 1]
+            elevation: 2
+
+    GridLayout:
+        rows: 3
+        GridLayout:
+            size_hint: 1, 1
+            rows:5
+            id: grid
+
+            ScrollView:
+                id: table
+                size_hint: 1, 0.5
+                MDList:
+                    id: scroll
+                    bg_color: [1, 0, 0, 1]
+        GridLayout:
+            rows:3
+            size_hint: 0.1, 0.1
+            AnchorLayout:
+                padding: [20,20]
+                size_hint: 0.4, 0.3
+                id: labelInfoUsb1
+            AnchorLayout:
+                padding: [20,20]
+                size_hint: 0.4, 0.3
+                id: label_alert
+
+<ConsoleOutput>:
+    readonly: True
+    padding: 6, 6
+    size_hint: (1, None)
+
+<KivyConsole>:
+    console_output: console_output
+    scroll_view: scroll_view
+    ScrollView:
+        id: scroll_view
+        bar_width: 10
+        ConsoleOutput:
+            id: console_output
+            height: max(self.parent.height, self.minimum_height)
+            font_name: root.font_name
+            font_size: root.font_size
+            foreground_color: 1, 0, 0, 1
+
+            background_color: 0.1372, 0.2862, 0.5294, 1
+
+
+
+<ItemDrawer>:
+    theme_text_color: "Custom"
+    on_release:
+        self.parent.set_color_item(self)
+        app.root.current = app.navigation_draw_menu(self)
+
+
+
+
+
+    IconLeftWidget:
+        id: icon
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: root.text_color
+
+<ContentNavigationDrawer>:
+    orientation: "vertical"
+    padding: "8dp"
+    spacing: "8dp"
+
+    AnchorLayout:
+        size_hint_y: None
+        height: avatar.height
+        anchor_x: 'center'
+        anchor_y: 'center'
+
+        Image:
+            id: avatar
+            size_hint: None, None
+            size: "150dp", "150dp"
+            source: "Witness_Angel_Logotype4.png"
+
+    MDLabel:
+        text: "WitnessAngel"
+        font_style: "Button"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+    MDLabel:
+        text: "WitnessWard"
+        font_style: "Caption"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+    ScrollView:
+
+        DrawerList:
+            id: md_list
+
+<MainWindow>:
+    name: "MainMenu"
+    orientation: "vertical"
+    canvas.before:
+        Color:
+            rgba: 0.1372, 0.2862, 0.5294, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    GridLayout:
+        rows:6
+
+        GridLayout:
+            size_hint: 1, 0.35
+            spacing:  [90,120]
+            padding: [20,20]
+            cols:2
+            BoxLayout:
+                Label:
+                    size_hint: 0.4, 0.3
+                    text: 'Recording'
+                Switch:
+                    size: 150, 50
+                    size_hint: 0.4, 0.3
+                    id: switch
+
+        GridLayout:
+            size_hint: 1, 1
+            rows:2
+            padding:20,10,20,10
+
+            Label:
+                size_hint: 0.4, 0.10
+                text: 'Low resolution overview :'
+
+            BoxLayout:
+                size_hint: 1, 1
+
+                VideoPlayer:
+                    size_hint: 0.8, 1
+                    source: "tortoiseGitRunesPuzzle.mp4"
+        GridLayout:
+            size_hint: 1, 0.30
+            cols:1
+            padding:20,10,20,10
+
+            KivyConsole:
+                id: kivy_console
+                canvas.after:
+                    Color:
+                        rgba: 0.1372, 0.2862, 0.5294, 1
+
+
+    NavigationLayout:
+
+        ScreenManager:
+
+            Screen:
+
+                BoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+                        title: "Witness Angel"
+                        elevation: 10
+                        left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
+
+                        ActionButton:
+                            text: 'Settings'
+
+                            on_release:
+                                app.root.current = "Settings"
+                                root.manager.transition.direction = "left"
+                                app.draw_menu("Settings")
+
+                    Widget:
+
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        ContentNavigationDrawer:
+            id: content_drawer
+
+<SecondWindow>:
+    name: "Settings"
+
+    orientation: "vertical"
+    canvas.before:
+        Color:
+            rgba: 0.1372, 0.2862, 0.5294, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        padding: [20, 60, 20, 0]
+        MDLabel:
+            text: "Settings :"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: 24
+            size_hint: None, None
+            size: 350, 100
+
+    GridLayout:
+        rows:8
+        spacing:  [0,20]
+        padding: [20, 120, 20, 0]
+
+        GridLayout:
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:2
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "URL IP Camera"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+
+                MDTextFieldRound:
+                    id: url_ip_camera
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [1, 1, 1, 1]
+                    icon_type: "left"
+                    size_hint: None, None
+                    size: 400,100
+                    pos_hint: {"center_x": .5}
+                    theme_text_color: 'Custom'
+                    hint_text: "URL IP Camera"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+
+        GridLayout:
+
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:2
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "Numbers of escrows"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+                MDTextFieldRound:
+                    id: number_of_escrows
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [0, 0, 0, 0.2]
+                    icon_type: "left"
+                    size_hint: None, None
+                    size: 400,100
+                    pos_hint: {"center_x": .5}
+                    hint_text: "Numbers of escrows"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+        GridLayout:
+
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:2
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "Minimum number of shares"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+                MDTextFieldRound:
+                    id: minimum_number_of_shares
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [0, 0, 0, 0.2]
+                    icon_type: "left"
+                    size_hint: None, None
+                    size: 400,100
+                    pos_hint: {"center_x": .5}
+                    hint_text: "Minimum number of shares"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+        GridLayout:
+
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:2
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "Number of escrows"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+                MDTextFieldRound:
+                    id: number_of_escrows
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [0, 0, 0, 0.2]
+                    icon_type: "left"
+                    size_hint: None, None
+                    size: 400,100
+                    pos_hint: {"center_x": .5}
+                    hint_text: "Number of escrows"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+        GridLayout:
+
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:3
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "Retention time"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+                MDTextFieldRound:
+                    size_hint: None, None
+                    size: 400,100
+                    id: password_input
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [0, 0, 0, 0.2]
+                    icon_type: "left"
+                    pos_hint: {"center_x": .5}
+                    hint_text: "Retention time in days"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+
+        GridLayout:
+            spacing:  [20,0]
+            padding: [20,0]
+            cols:2
+            BoxLayout:
+                MDLabel:
+                    size_hint: None, None
+                    size: 300,100
+                    text: "Recording directory"
+                    font_style: "Caption"
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: 18
+
+                MDTextFieldRound:
+                    id: recording_directory
+                    normal_color: [1, 1, 1, 0.5]
+                    active_color: [0, 0, 0, 0.2]
+                    icon_type: "left"
+                    size_hint: None, None
+                    size: 400,100
+                    pos_hint: {"center_x": .5}
+                    hint_text: "Recording directory"
+                    mode: "fill"
+                    fill_color: 0.3, 0.3, 0.3, 0.4
+                    hint_text_color: 1, 1, 1, 1
+                    foreground_color: 1,1,1,1
+
+
+    NavigationLayout:
+
+        ScreenManager:
+
+            Screen:
+
+                BoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+                        title: "Witness Angel"
+                        elevation: 10
+                        left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
+
+                        ActionButton:
+                            text: 'Home'
+
+                            on_release:
+                                app.root.current = "MainMenu"
+                                root.manager.transition.direction = "right"
+
+                    Widget:
+
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        ContentNavigationDrawer:
+            id: content_drawer
+<ThirdWindow>:
+
+    name: "Keys_management"
+
+
+    orientation: "vertical"
+    canvas.before:
+        Color:
+            rgba: 0.1372, 0.2862, 0.5294, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        padding: [20, 60, 20, 0]
+
+        MDLabel:
+            text: "Keys management :"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: 24
+            size_hint: None, None
+            size: 350, 100
+
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+
+
+
+        GridLayout:
+            rows:3
+            spacing:  [0,0]
+            BoxLayout:
+                padding: [140,0]
+                pos_hint:{"center": 0, "top": 0}
+                Button:
+
+                    id: btn
+                    background_color: (51, 23, 186.0, 1)
+                    color: 0.1372, 0.2862, 0.5294, 1
+                    text: "Import new keys"
+                    size: 250, 50
+                    size_hint: 0.4, 0.2
+                    on_release:
+                        app.import_keys()
+            BoxLayout:
+                padding: [0,0]
+                pos_hint:{"center": 0, "top": 0}
+                orientation: 'horizontal'
+
+    ScrollView:
+
+        id: table
+        size_hint: 1, 1
+
+
+
+
+
+
+
+
+    NavigationLayout:
+
+        ScreenManager:
+
+            Screen:
+
+                BoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+                        title: "Witness Angel"
+                        elevation: 10
+                        left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
+
+                        ActionButton:
+                            text: 'Home'
+
+                            on_release:
+                                app.root.current = "MainMenu"
+                                root.manager.transition.direction = "right"
+
+                    Widget:
+
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        ContentNavigationDrawer:
+            id: content_drawer
+
+<FourthWindow>:
+    name: "Container_management"
+
+    orientation: "vertical"
+    canvas.before:
+        Color:
+            rgba: 0.1372, 0.2862, 0.5294, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        padding: [20, 60, 20, 0]
+        MDLabel:
+            text: "Container management :"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: 24
+            size_hint: None, None
+            size: 350, 100
+
+
+
+    NavigationLayout:
+
+        ScreenManager:
+
+            Screen:
+
+                BoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+                        title: "Witness Angel"
+                        elevation: 10
+                        left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
+
+                        ActionButton:
+                            text: 'Home'
+
+                            on_release:
+                                app.root.current = "MainMenu"
+                                root.manager.transition.direction = "right"
+
+                    Widget:
+
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        ContentNavigationDrawer:
+            id: content_drawer
+
+
+
