@@ -116,7 +116,8 @@ class VideoStream:
 
     def change_recording_file(self, frame_width, frame_height):
         logger.debug("Changing recording file")
-        filename = "saved_video_stream/" + str(time.strftime("%m-%d-%Y_%H-%M-%S")) + ".avi"
+        time_beginning_video = time.strftime("%m-%d-%Y_%H-%M-%S")
+        filename = f"saved_video_stream/{time_beginning_video}.avi"
         fps = 10
 
         out = cv2.VideoWriter(

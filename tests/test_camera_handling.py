@@ -25,5 +25,5 @@ def test_write_video_stream():
     assert isdir("saved_video_stream")
     video_files = listdir("saved_video_stream")
     for file in video_files:
-        filename = "saved_video_stream/" + str(file)
+        filename = f"saved_video_stream/{file}"
         assert isfile(filename)

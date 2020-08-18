@@ -141,7 +141,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
 )
 def test_encrypt_video_stream(container_conf):
     video_files = listdir("saved_video_stream")
-    path = "saved_video_stream/" + str(random.choice(video_files))
+    path = f"saved_video_stream/{random.choice(video_files)}"
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
 
