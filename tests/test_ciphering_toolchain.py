@@ -5,8 +5,15 @@ from os import listdir
 
 from client.ciphering_toolchain import encrypt_video_stream, decrypt_video_stream
 
-from wacryptolib.container import LOCAL_ESCROW_PLACEHOLDER, encrypt_data_into_container, decrypt_data_from_container
-from wacryptolib.key_generation import generate_asymmetric_keypair, load_asymmetric_key_from_pem_bytestring
+from wacryptolib.container import (
+    LOCAL_ESCROW_PLACEHOLDER,
+    encrypt_data_into_container,
+    decrypt_data_from_container,
+)
+from wacryptolib.key_generation import (
+    generate_asymmetric_keypair,
+    load_asymmetric_key_from_pem_bytestring,
+)
 from wacryptolib.utilities import generate_uuid0
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -160,12 +167,17 @@ def test_encrypt_video_stream(container_conf):
     metadata = random.choice([None, dict(a=[123])])
 
     container_private_key = encrypt_data_into_container(
-        data=bytes_private_key, conf=container_conf, metadata=metadata, keychain_uid=keychain_uid
+        data=bytes_private_key,
+        conf=container_conf,
+        metadata=metadata,
+        keychain_uid=keychain_uid,
     )
 
     assert isinstance(container_private_key, dict)
 
-    deciphered_private_key = decrypt_data_from_container(container=container_private_key)
+    deciphered_private_key = decrypt_data_from_container(
+        container=container_private_key
+    )
 
     decoded_private_key = load_asymmetric_key_from_pem_bytestring(
         key_pem=deciphered_private_key, key_type=encryption_algo
@@ -173,7 +185,9 @@ def test_encrypt_video_stream(container_conf):
     assert decoded_private_key == keypair["private_key"]
 
     result_data = decrypt_video_stream(
-        cipherdict=ciphered_data, encryption_algo=encryption_algo, key=keypair["private_key"]
+        cipherdict=ciphered_data,
+        encryption_algo=encryption_algo,
+        key=keypair["private_key"],
     )
 
     assert isinstance(result_data, bytes)

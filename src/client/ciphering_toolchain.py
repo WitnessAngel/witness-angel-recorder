@@ -1,11 +1,12 @@
 from wacryptolib.encryption import encrypt_bytestring
-from wacryptolib.container import encrypt_data_into_container, decrypt_data_from_container
+from wacryptolib.container import (
+    encrypt_data_into_container,
+    decrypt_data_from_container,
+)
 from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 
 
-def encrypt_video_stream(
-    path: str, encryption_algo: str, key
-) -> dict:
+def encrypt_video_stream(path: str, encryption_algo: str, key) -> dict:
     """
     Put the video stream data saved in an .avi files into a container
 
@@ -18,7 +19,9 @@ def encrypt_video_stream(
     with open(path, "rb") as video_stream:
         data = video_stream.read()
 
-    cipherdict = encrypt_bytestring(plaintext=data, encryption_algo=encryption_algo, key=key)
+    cipherdict = encrypt_bytestring(
+        plaintext=data, encryption_algo=encryption_algo, key=key
+    )
     return cipherdict
 
 
@@ -32,5 +35,7 @@ def decrypt_video_stream(cipherdict: dict, encryption_algo: str, key) -> bytes:
 
     :return: initial data decrypted
     """
-    initial_data = decrypt_bytestring(cipherdict=cipherdict, encryption_algo=encryption_algo, key=key)
+    initial_data = decrypt_bytestring(
+        cipherdict=cipherdict, encryption_algo=encryption_algo, key=key
+    )
     return initial_data
