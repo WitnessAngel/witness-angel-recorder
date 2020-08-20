@@ -119,6 +119,9 @@ class VideoStream:
 class VideoStreamWriterFfmpeg(Thread):
     def __init__(self, video_stream_url):
         Thread.__init__(self)
+        if not os.path.isdir("ffmpeg_video_stream"):
+            logger.debug("Creating directory 'ffmpeg_video_stream'")
+            os.mkdir("ffmpeg_video_stream")
         self.video_stream_url = video_stream_url
         self.done = False
         self.process = None
@@ -142,15 +145,16 @@ class VideoStreamWriterFfmpeg(Thread):
             "10",
             "-segment_format",
             "mp4",
-            "ffmpeg_capture-%03d.mp4",
+            "ffmpeg_video_stream/ffmpeg_capture-%03d.mp4",
         ]
 
         logger.debug("Calling command: {}".format(pipeline))
-        self.process = subprocess.Popen(pipeline)
+        self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
         while not self.done:
             self.process.wait()
 
     def stop(self):
         self.done = True
+        self.process.communicate(input=b'q')
         self.process.terminate()
         Thread.join(self)
