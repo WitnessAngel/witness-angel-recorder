@@ -4,8 +4,8 @@ import logging
 import pytest
 import os
 import time
-import subprocess, shlex
-from multiprocessing.dummy import Pool
+import subprocess
+from threading import Thread
 
 logger = logging.getLogger()
 
@@ -115,18 +115,42 @@ class VideoStream:
             if self.quit:
                 break
 
-    def write_video_stream_ffmpeg(self):
-        pipeline = f"ffmpeg -rtsp_transport tcp -i {self.video_stream_url} " \
-                   "-vcodec copy -acodec copy -map 0 -f segment -segment_time 10 -segment_format mp4 " \
-                   "ffmpeg_capture-%03d.mp4 "
-        pipeline = shlex.split(pipeline)  # Transform string command into  correct list of parameters
 
-        p = subprocess.Popen(pipeline)
-        while p.poll() is None:
-            time.sleep(0.5)
-            p.poll()
-        result, errors = p.communicate()
-        if errors == '':
-            return result
-        else:
-            raise IOError(errors)
+class VideoStreamWriterFfmpeg(Thread):
+    def __init__(self, video_stream_url):
+        Thread.__init__(self)
+        self.video_stream_url = video_stream_url
+        self.done = False
+        self.process = None
+
+    def run(self):
+        pipeline = [
+            "ffmpeg",
+            "-rtsp_transport",
+            "tcp",
+            "-i",
+            self.video_stream_url,
+            "-vcodec",
+            "copy",
+            "-acodec",
+            "copy",
+            "-map",
+            "0",
+            "-f",
+            "segment",
+            "-segment_time",
+            "10",
+            "-segment_format",
+            "mp4",
+            "ffmpeg_capture-%03d.mp4",
+        ]
+
+        logger.debug("Calling command: {}".format(pipeline))
+        self.process = subprocess.Popen(pipeline)
+        while not self.done:
+            self.process.wait()
+
+    def stop(self):
+        self.done = True
+        self.process.terminate()
+        Thread.join(self)
