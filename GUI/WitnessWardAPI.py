@@ -1,30 +1,24 @@
 from kivy.uix.screenmanager import ScreenManager
-from kivy.factory import Factory
-from kivy.uix.image import Image
-from kivymd.uix.list import IRightBodyTouch, ILeftBody
-from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.screen import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, ListProperty
-from kivymd.uix.label import Label
 from kivy.uix.button import Button
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivy.uix.checkbox import CheckBox
 from pathlib import Path
+from kivymd.uix.button import  MDFlatButton
+from kivymd.uix.dialog import MDDialog
+from pathlib import PurePath
 
-from key_device import (
-    list_available_key_devices,
-    initialize_key_device,
-    _get_metadata_file_path,
-)
 
+from key_device import list_available_key_devices
+from wacryptolib.key_storage import FilesystemKeyStorage
 from wacryptolib.utilities import load_from_json_file, dump_to_json_file
 
 
-from kivymd.uix.datatables import MDDataTable
-from kivy.metrics import dp
+
 
 
 class ContentNavigationDrawer(BoxLayout):
@@ -38,15 +32,10 @@ class ItemDrawer(OneLineIconListItem):
 
 class DrawerList(ThemableBehavior, MDList):
     def set_color_item(self, instance_item):
-        """Called when tap on a menu item."""
-
-        # Set the color of the icon and text for the menu item.
-        for item in self.children:
-            if item.text_color == self.theme_cls.primary_color:
-                item.text_color = self.theme_cls.text_color
-                break
-        instance_item.text_color = self.theme_cls.primary_color
-
+        """
+        Called when tap on a menu item.
+        """
+        pass
 
 class MainWindow(Screen):
     def __init__(self, **kwargs):
@@ -77,9 +66,9 @@ class MyMainApp(MDApp):
 
     def build(self):
         pass
-
     def log_output(self, msg):
         self._console_output = self.root.get_screen("MainMenu").ids.kivy_console.ids.console_output
+        #to simulate log
         for i in range(100):
             self._console_output.add_text(
                 msg + ' ' + str(i + 1) + ' ' + msg + msg + ' ' + str(i + 1) + ' ' + msg + msg + ' ' + str(
@@ -104,180 +93,290 @@ class MyMainApp(MDApp):
         self.log_output("Ceci est un message de log ")
 
     def navigation_draw_menu(self, item_drawer):
+
+
         if item_drawer.text == "Main page":
             destination = "MainMenu"
-            # item_drawer.color à rechercher
+
         elif item_drawer.text == "Keys management":
             destination = "Keys_management"
             self.draw_menu("Keys_management")
             self.get_detected_devices()
+
         elif item_drawer.text == "Container management":
             self.draw_menu("Container_management")
             destination = "Container_management"
+            self.get_detected_container()
+
         elif item_drawer.text == "Settings":
             self.draw_menu("Settings")
             destination = "Settings"
 
-        return destination
+        self.root.current= destination
 
-    def fct1(self, event):
-        print("ok 1")
-    def fct2(self, event):
-        print("ok 2")
+
+    def get_list_keys(self, path):
+        """
+        list keys from key device (USB)
+        """
+        key_pairs_dir = Path(path).joinpath(".key_storage", "crypto_keys")
+        object_FilesystemKeyStorage = FilesystemKeyStorage(key_pairs_dir)
+        return object_FilesystemKeyStorage.list_keys()
+
+    def info_keys_stored(self, btn_selected):
+
+        """
+        display the information of the keys stored in the selected usb
+
+        """
+
+        # get num of key device and user info
+        info_usb_user = btn_selected.text.split('|      UUID device:')[0]
+        #search for files that match with the selected device_uuid
+        fichiers = [f for f in Path(r".keys_storage_ward").iterdir() if str(PurePath(f).name) ==str(self.btn_lbls[btn_selected])]
+
+        for usb_dir in fichiers:
+            object_FilesystemKeyStorage = FilesystemKeyStorage(usb_dir)
+            public_key_list=object_FilesystemKeyStorage.list_keys()
+            message = ""
+            private_key_present = ""
+            for index, key in enumerate(public_key_list):
+                if key["private_key_present"]:
+                    private_key_present="X"
+                message += " key  N°:  %s        keychain_uid:  %s      type:    %s    private_key:    %s\n" % (
+                str(index + 1), (str(key["keychain_uid"]).split('-'))[0],str(key["key_type"]),private_key_present)
+            self.open_dialog_display_keys_in_key_device(message, info_usb_user)
+
+    def open_dialog_display_keys_in_key_device(self, message ,info_usb_user):
+
+        self.dialog = MDDialog(title="%s" %info_usb_user,
+                               text=message, size_hint=(0.8, 1),
+                               buttons=[MDFlatButton(text='Close', on_release=self.close_dialog)]
+                               )
+        self.dialog.open()
+
+    def close_dialog(self, obj):
+        self.dialog.dismiss()
+
+
+    def check_box_key_device_checked(self, check_box_checked):
+        print(self.chbx_lbls[check_box_checked])
+
+    def radio_box_container_checked(self, radio_box_checked,value):
+        print(self.chbx_box_dict[radio_box_checked])
+        for chbx in self.chbx_box_dict:
+            if chbx.active:
+                self.root.get_screen("Container_management").ids.delete.disabled = False
+                self.root.get_screen("Container_management").ids.decipher.disabled = False
+                break
+            else:
+                self.root.get_screen("Container_management").ids.delete.disabled = True
+                self.root.get_screen("Container_management").ids.decipher.disabled = True
+
+
+
     def import_keys(self):
         """
-
-       quand on clique sur “import keys”, ça doit boucler sur les “key_devices” présents,
-        et pour ceux qui sont initialiser, copier (avec différents KeyStorage pour chaque dossier)
-        leur contenu dans un dossier <KEYS_ROOT>/<device_uid>/  (en reprenant le device_uid du metadata.json),
-        en copiant y compris ledit fichier metadata.json
-        (pour l’instant mettons KEYS_ROOT en dur à “~/.keys_storage_ward/”
-        en crééant ce dossier s’il n’existe pas, tout cela sera normalisé avec common_config.py du witness-angel-client)
-        le GUI doit rafraîchir automatiquement à chaque retour sur ce Screen : il boucle alors sur les dossiers de KEYS_ROOT/,
-        et lit leur metadata.json, pour afficher dans l’interface leur USER et le début de leur UUID
-        Quand on clique sur une clef, le popup charge la liste des clefs en utilisant le list_keys() d’un “key storage”
-        initialisé sur ce dossier, et affiche le début de leur uid, leur type (rsa_oaep…),
-        et une croix suivant que la clef privée correspondante existe aussi
-
+        loop through the “key_devices” present,
+        and for those who are initialize, copy (with different KeyStorage for each folder)
+        their content in a <KEYS_ROOT> / <device_uid> / folder (taking the device_uid from metadata.json)
         """
-        from wacryptolib.key_storage import FilesystemKeyStorage
         list_devices = list_available_key_devices()
         for index, key_device in enumerate(list_devices):
             if str(key_device["is_initialized"]) == "True":
-
-
                 if not Path(".keys_storage_ward").exists():
                     Path(".keys_storage_ward").mkdir()
                 device_dir = str(key_device["device_uid"])
-                #KEYS_ROOT = Path(".keys_storage_ward").joinpath(device_dir)
                 file_metadata=Path(".keys_storage_ward").joinpath(device_dir, ".metadata.json")
                 metadata_file_path=Path(key_device["path"]).joinpath(".key_storage", ".metadata.json")
                 if not Path(file_metadata.parent).exists():
                     Path(file_metadata.parent).mkdir()
                 metadata = load_from_json_file(metadata_file_path)
-                print(metadata)
                 dump_to_json_file(file_metadata, metadata)
-
-                #list public keys in device
-                # key_pairs_dir=Path(key_device["path"]).joinpath("private_key")
-                metadata_file = _get_metadata_file_path(key_device)
-                metadata_folder = metadata_file.parent
-                key_pairs_dir = metadata_folder.joinpath("private_key")
-                object_FilesystemKeyStorage = FilesystemKeyStorage(key_pairs_dir)
-                public_key_list = object_FilesystemKeyStorage.list_keys()
-                print(public_key_list)
-
-                #copy key storage to <KEYS_ROOT>/<device_uid>
                 dst = Path(".keys_storage_ward").joinpath(device_dir)
-                #copy contents of key_pairs_dir to dst
-                self.copytree(key_pairs_dir, dst)
+                key_pairs_dir = Path(key_device["path"]).joinpath(".key_storage", "crypto_keys")
+                #copy contents keys of key_pairs_dir to dst(copy key storage to <KEYS_ROOT>/<device_uid>)
+                self.Copy_list_keys(key_pairs_dir, dst)
+        # update the display of key_device saved in the local folder .keys_storage_ward
+        self.get_detected_devices()
 
-    def copytree( self,src, dst, symlinks=False, ignore=None):
+
+    def Copy_list_keys(self, src, dst):
+        """
+        copy the keys of a src directory and put it in the a dst directory
 
         """
-        This is an improved version of shutil.copytree which allows writing to
-        existing folders and does not overwrite existing files .
-        """
-        import shutil
-        import os
+        object_Filesystem_destination = FilesystemKeyStorage(dst)
+        list_keys_destination = object_Filesystem_destination.list_keys()
+        object_Filesystem_source = FilesystemKeyStorage(src)
+        list_keys_source=object_Filesystem_source.list_keys()
 
-        names = os.listdir(src)
-        if ignore is not None:
-            ignored_names = ignore(src, names)
-        else:
-            ignored_names = set()
-
-        if not os.path.exists(dst):
-            os.makedirs(dst)
-            shutil.copystat(src, dst)
-        errors = []
-        for name in names:
-            if name in ignored_names:
-                continue
-            srcname = os.path.join(src, name)
-            dstname = os.path.join(dst, name)
-
-            try:
-                if symlinks and os.path.islink(srcname):
-                    linkto = os.readlink(srcname)
-                    os.symlink(linkto, dstname)
-                elif os.path.isdir(srcname):
-                    self.copytree(srcname, dstname, symlinks, ignore)
-                else:
-                    shutil.copy2(srcname, dstname)
-
-            except (IOError, os.error) as why:
-                errors.append((srcname, dstname, str(why)))
-
-            # catch the Error from the recursive copytree so that we can
-            # continue with other files
-            except BaseException as err:
-                errors.extend(err.args[0])
-        try:
-            shutil.copystat(src, dst)
-        except WindowsError:
-            # can't copy file access times on Windows
-            pass
-        except OSError as why:
-            errors.extend((src, dst, str(why)))
-        if errors:
-            raise BaseException(errors)
-
+        for key in list_keys_source:
+            if key not in list_keys_destination:
+                public_key=object_Filesystem_source.get_public_key(keychain_uid=key['keychain_uid'] , key_type=key['key_type'] )
+                if key['private_key_present']:
+                    private_key=object_Filesystem_source.get_private_key(keychain_uid=key['keychain_uid'], key_type=key['key_type'])
+                object_Filesystem_destination.set_keys(
+                    keychain_uid=key['keychain_uid'],
+                    key_type="RSA_OAEP",
+                    public_key=public_key,
+                    private_key=private_key,
+                )
 
     def get_detected_devices(self):
-        list_devices = list_available_key_devices()
-        for index, usb in enumerate(list_devices):
-            self.my_check_box = CheckBox(active=False, size_hint= (0.2, 0.2), on_release=self.fct1)
+        """
+        loop through the KEYS_ROOT / files, and read their metadata.json,
+        to display in the interface their USER and the start of their UUID
+
+        KEYS_ROOT = “~/.keys_storage_ward/”
+        """
+        if not Path(r".keys_storage_ward").exists():
+            # "no key found"
             self.my_check_box_label = Button(
-                text=" key N°:  %s        Path:  %s       |      Label:  %s "  %((str(index+1)) , (str(usb["path"])), (str(usb["label"]))), size_hint= (0.8, 0.2), background_color= (1, 1, 1, .01), on_press=self.fct2)
-                #text=" [color=#FFFFFF][b]Path:[/b] %s[/color]" % (str(usb["path"])))
+                text=" no key found ",
+                background_color=(1, 0, 0, .01), font_size="28sp", color=[0, 1, 0, 1] )
             self.root.get_screen("Keys_management").ids.table.clear_widgets()
-            self.layout = BoxLayout(orientation='horizontal', pos_hint={"center": 1, "top": 1},padding=[140,0])
-            self.layout.add_widget(self.my_check_box)
+            self.layout = BoxLayout(orientation='horizontal', padding=[140, 0])
             self.layout.add_widget(self.my_check_box_label)
             self.root.get_screen("Keys_management").ids.table.add_widget(self.layout)
+        else:
+            result=[f for f in Path(r".keys_storage_ward").iterdir() ]
+            index=0
+            self.root.get_screen("Keys_management").ids.table.clear_widgets()
+            self.chbx_lbls = {}
+            self.btn_lbls = {}
+            for dir_key_sorage in result:
+                file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
+                metadata = load_from_json_file(file_metadata)
+                b=str(metadata["device_uid"])
+                b = b.split('-')
+                b = b[0].lstrip()
+                UUID1 = b.rstrip()
+                self.my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2), on_release=self.check_box_key_device_checked)
+                self.my_check_btn = Button(
+                    text=" key N°:  %s        User:  %s      |      UUID device:  %s " % (
+                    (str(index + 1)), str(metadata["user"]), UUID1), size_hint=(0.8, 0.2),
+                    background_color=(1, 1, 1, .01), on_press=self.info_keys_stored)
+                self.chbx_lbls[self.my_check_box] = str(metadata["device_uid"])
+                self.btn_lbls[self.my_check_btn] = str(metadata["device_uid"])
+                self.layout = BoxLayout(orientation='horizontal', pos_hint={"center": 1, "top": 1}, padding=[140, 10], spacing=[0, 10])
+                self.layout.add_widget(self.my_check_box)
+                self.layout.add_widget(self.my_check_btn)
+                self.root.get_screen("Keys_management").ids.table.add_widget(self.layout)
+                index+=1
 
 
-    def get_info_key_selected(self, linelist):
-        list_devices = list_available_key_devices()
-        for i in self.list.ids.scroll.children:
-            i.bg_color = [0.1372, 0.2862, 0.5294, 1]
-        linelist.bg_color = [0.6, 0.6, 0.6, 1]
 
-        self.l = Label(text="")
-        self.alertMessage = Label(text="")
-        self.list.ids.labelInfoUsb1.clear_widgets()
-        self.list.ids.label_alert.clear_widgets()
-        self.list.ids.labelInfoUsb1.add_widget(self.l)
-        self.list.ids.label_alert.add_widget(self.alertMessage)
-        for index, key_device in enumerate(list_devices):
-            if linelist.text == "[color=#FFFFFF][b]Path:[/b] " + str(key_device["path"]) + "[/color]":
-                self.key_device_selected = key_device
-                if str(key_device["is_initialized"]) == "True":
 
-                    self.l = Label(
-                        text="USB information : Size %s   |   Fst :%s | and it is initialized"
-                             % (str(key_device["size"]), str(key_device["format"]))
-                    )
-                    self.alertMessage = Label(
-                        text="You have to format the key or manually delete the private folder"
-                    )
-                    meta = load_from_json_file(
-                        key_device["path"] + "\.key_storage\.metadata.json"
-                    )
+    def get_detected_container(self):
+        """
 
-                else:
-                    self.l = Label(
-                        text="USB information : Size %s   |   Fst :%s | and it is not initialized"
-                             % (str(key_device["size"]), str(key_device["format"]))
-                    )
-                    self.alertMessage = Label(
-                        text="Please fill in the username and passphrase to initialize the usb key"
-                    )
+        """
+        if not Path(r".keys_storage_ward").exists():
+            # "no container found"
+            self.my_check_box_label = Button(
+                text=" no container found ",
+                background_color=(1, 0, 0, .01), font_size="28sp", color=[0, 1, 0, 1] )
+            self.root.get_screen("Container_management").ids.table.clear_widgets()
+            self.layout = BoxLayout(orientation='horizontal')
+            self.layout.add_widget(self.my_check_box_label)
+            self.root.get_screen("Container_management").ids.table.add_widget(self.layout)
+        else:
+            result=[f for f in Path(r".keys_storage_ward").iterdir() ]
+            index=0
+            self.root.get_screen("Container_management").ids.table.clear_widgets()
+            self.chbx_box_dict = {}
+            self.chbx_btn_dict = {}
+            for dir_key_sorage in result:
+                file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
+                metadata = load_from_json_file(file_metadata)
+                b=str(metadata["device_uid"])
+                b = b.split('-')
+                b = b[0].lstrip()
+                UUID1 = b.rstrip()
+                self.my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
+                self.my_check_box.bind(active=self.radio_box_container_checked)
+                self.my_check_btn = Button(text=" Container N°:  %s        %s      |      ID container :  %s " % ((str(index + 1)), "", UUID1), size_hint=(0.8, 0.2), background_color=(1, 1, 1, .01), on_press=self.info_container_stored)
+                self.chbx_box_dict[self.my_check_box] = str(metadata["device_uid"])
+                self.chbx_btn_dict[self.my_check_btn] = str(metadata["device_uid"])
+                self.layout = BoxLayout(orientation='horizontal', pos_hint={"center": 1, "top": 1},padding=[140, 0])
+                self.layout.add_widget(self.my_check_box)
+                self.layout.add_widget(self.my_check_btn)
+                self.root.get_screen("Container_management").ids.table.add_widget(self.layout)
+                index+=1
 
-                self.list.ids.labelInfoUsb1.add_widget(self.l)
-                self.list.ids.label_alert.add_widget(self.alertMessage)
 
+
+
+
+
+    def info_container_stored(self, btn_selected):
+
+        """
+
+        """
+
+        info_container_and_user = btn_selected.text.split('|      ID container :')[0]
+
+        fichiers = [f for f in Path(r".keys_storage_ward").iterdir() if PurePath(f).name==self.chbx_btn_dict[btn_selected]]
+
+        for usb_dir in fichiers:
+            # get num of key device
+
+            message = r" container composition"
+            self.open_dialog_container(message, info_container_and_user)
+
+    def open_dialog_container(self, message, info_container_and_user):
+        self.dialog = MDDialog(title=" %s" %info_container_and_user ,
+                               text=message, size_hint=(0.8, 1),
+                               buttons=[MDFlatButton(text='Close', on_release=self.close_dialog)]
+                               )
+        self.dialog.open()
+
+
+    def open_dialog_delete_container(self):
+        count_container_checked = 0
+        for chbx in self.chbx_box_dict:
+            if chbx.active:
+                count_container_checked+=1
+
+
+        if count_container_checked==1:
+            messge=" do you want to delete these container?"
+        elif count_container_checked > 1:
+            messge = " do you want to delete these %d containers" % count_container_checked
+        self.dialog = MDDialog(title=" Delete containers confirmation " ,
+                               text=messge, size_hint=(0.8, 1),
+                               buttons=[MDFlatButton(text='Confirm delete', on_release=self.close_dialog_delete_container),MDFlatButton(text='Cancel', on_release=self.close_dialog)]
+                               )
+        self.dialog.open()
+
+    def close_dialog_delete_container(self, obj):
+        for chbx in self.chbx_box_dict:
+            if chbx.active:
+                print("delete container | with ID_container %s",self.chbx_box_dict[chbx])
+        self.dialog.dismiss()
+
+    def open_dialog_decipher_container(self):
+        count_container_checked = 0
+        for chbx in self.chbx_box_dict:
+            if chbx.active:
+                count_container_checked+=1
+
+        if count_container_checked==1:
+            messge=" do you want to decipher these container?"
+        elif count_container_checked > 1:
+            messge = " do you want to decipher these %d containers" % count_container_checked
+        self.dialog = MDDialog(title=" Decipher containers confirmation " ,
+                               text=messge, size_hint=(0.8, 1),
+                               buttons=[MDFlatButton(text='Confirm  decipher', on_release=self.close_dialog_decipher_container),MDFlatButton(text='Cancel', on_release=self.close_dialog)]
+                               )
+        self.dialog.open()
+    def close_dialog_decipher_container(self, obj):
+        for chbx in self.chbx_box_dict:
+            if chbx.active:
+                print("decipher container | with ID_container %s",self.chbx_box_dict[chbx])
+        self.dialog.dismiss()
 
 if __name__ == "__main__":
     MyMainApp().run()
