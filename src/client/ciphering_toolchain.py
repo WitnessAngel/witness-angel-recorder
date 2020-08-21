@@ -1,3 +1,9 @@
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import logging
+import time
+import os
+
 from wacryptolib.container import (
     encrypt_data_into_container,
     decrypt_data_from_container,
@@ -8,6 +14,43 @@ from wacryptolib.key_generation import (
 )
 from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.utilities import generate_uuid0
+
+logger = logging.getLogger()
+
+
+class NewVideoHandler(FileSystemEventHandler):
+    def __init__(self):
+        self.files = []
+
+    def on_created(self, event):
+        print(f"New video {event.src_path} recording")
+        self.files.append(event.src_path)
+        if self.files[1]:
+            data = get_data_from_video(self.files[0])
+            os.remove(self.files[0])
+            del self.files[0]
+
+
+def get_data_from_video(path: str) -> bytes:
+    with open(path, 'rb') as file:
+        data = file.read()
+    return data
+
+
+def create_observer_thread():
+    """
+    Create a thread where an observer check recursively a new file in the directory /ffmpeg_video_stream
+    """
+    observer = Observer()
+    new_video_handler = NewVideoHandler()
+    observer.schedule(new_video_handler, path='ffmpeg_video_stream/', recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(5)
+    except:
+        observer.stop()
+        print("Observer Stopped")
 
 
 def get_uuid0(ts=None):
@@ -34,11 +77,11 @@ def get_assymetric_keypair(key_type: str, key_length_bits=2048) -> dict:
     return keypair
 
 
-def encrypt_video_stream(path: str, encryption_algo: str, key) -> dict:
+def encrypt_video_stream(path: str, encryption_algo: str, keypair: dict) -> dict:
     """
     Put the video stream data saved in an .avi files into a container
 
-    :param key: assymetric key which must be used to encrypt video stream
+    :param key: assymetric keypair which must be used to encrypt/decrypt video stream
     :param encryption_algo: name of algorithm used to encrypt
     :param path: str with relative path to .avi video stream file
 
@@ -48,7 +91,7 @@ def encrypt_video_stream(path: str, encryption_algo: str, key) -> dict:
         data = video_stream.read()
 
     cipherdict = encrypt_bytestring(
-        plaintext=data, encryption_algo=encryption_algo, key=key
+        plaintext=data, encryption_algo=encryption_algo, key=keypair["public_key"]
     )
     return cipherdict
 
@@ -69,18 +112,18 @@ def decrypt_video_stream(cipherdict: dict, encryption_algo: str, key) -> bytes:
     return initial_data
 
 
-def encrypt_symmetric_key(private_symmetric_key, conf: dict, metadata: dict, keychain_uid) -> dict:
+def encrypt_symmetric_key(keypair: dict, conf: dict, metadata: dict, keychain_uid) -> dict:
     """
     Permits to encrypt the private symmetric key.
 
-    :param private_symmetric_key: private symmetric key
+    :param keypair: symmetric keypair
     :param conf: configuration tree
     :param metadata: optional metadata
     :param keychain_uid: optional ID of a keychain to reuse
 
     :return: dict of container
     """
-    bytes_private_key = private_symmetric_key.export_key()
+    bytes_private_key = keypair["private_key"].export_key()
 
     container_private_key = encrypt_data_into_container(
         data=bytes_private_key, conf=conf, keychain_uid=keychain_uid, metadata=metadata

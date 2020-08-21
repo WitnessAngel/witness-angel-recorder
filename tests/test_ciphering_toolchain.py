@@ -1,9 +1,9 @@
 import pytest
 import random
-import uuid
 from os import listdir
 
-from client.ciphering_toolchain import get_uuid0, get_assymetric_keypair, encrypt_video_stream, decrypt_video_stream, encrypt_symmetric_key, decrypt_symmetric_key
+from client.ciphering_toolchain import create_observer_thread, get_uuid0, get_assymetric_keypair, \
+    encrypt_video_stream, decrypt_video_stream, encrypt_symmetric_key, decrypt_symmetric_key
 
 from wacryptolib.container import (
     LOCAL_ESCROW_PLACEHOLDER,
@@ -147,17 +147,16 @@ def test_encrypt_video_stream(container_conf):
     )
 
     ciphered_data = encrypt_video_stream(
-        path=path, encryption_algo=encryption_algo, key=keypair["public_key"]
+        path=path, encryption_algo=encryption_algo, keypair=keypair
     )
 
     assert isinstance(ciphered_data, dict)
 
-    private_key = keypair["private_key"]
     keychain_uid = get_uuid0()
     metadata = random.choice([None, dict(a=[123])])
 
     container_private_key = encrypt_symmetric_key(
-        private_symmetric_key=private_key,
+        keypair=keypair,
         conf=container_conf,
         metadata=metadata,
         keychain_uid=keychain_uid,
@@ -182,3 +181,7 @@ def test_encrypt_video_stream(container_conf):
         data = video_stream.read()
 
     assert result_data == data
+
+
+def test_create_observer_thread():
+    create_observer_thread()
