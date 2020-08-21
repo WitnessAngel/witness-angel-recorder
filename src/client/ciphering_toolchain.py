@@ -37,6 +37,53 @@ def get_data_from_video(path: str) -> bytes:
     return data
 
 
+def apply_entire_encryption_algorithm(
+        key_type: str, conf: dict, path: str, key_length_bits=None, metadata=None
+) -> dict:
+    """
+    Apply entire encryption algorithm, from video data file to dictionary which contains ciphered data and container to
+    decipher private_key
+
+    :param key_type: symmetric algorithm used to cipher video data
+    :param conf: dictionary with configuration tree
+    :param path: relative path to video file
+    :param key_length_bits: size of returned key as bits
+    :param metadata: optional data to put into container
+
+    :return: dictionary which contains every information to decipher video file
+    """
+    keypair = get_assymetric_keypair(key_type=key_type, key_length_bits=key_length_bits)
+    ciphered_data = encrypt_video_stream(path=path, encryption_algo=key_type, keypair=keypair)
+
+    keychain_uid = get_uuid0()
+    container_private_key = encrypt_symmetric_key(
+        keypair=keypair, conf=conf, metadata=metadata, keychain_uid=keychain_uid
+    )
+    encryption_data = {"encryption_algo": key_type, "data": ciphered_data, "private_key": container_private_key}
+    return encryption_data
+
+
+def apply_entire_decryption_algorithm(encryption_data: dict) -> bytes:
+    """
+    Apply entire decryption algorithm, from ciphered data in dictionary to video file as bytes
+
+    :param encryption_data: dictionary returned by apply_entire_encryption_algorithm
+
+    :return: video file as bytes
+    """
+    deciphered_private_key = decrypt_symmetric_key(
+        container=encryption_data["private_key"], key_type=encryption_data["encryption_algo"]
+    )
+
+    data = decrypt_video_stream(
+        cipherdict=encryption_data["data"],
+        encryption_algo=encryption_data["encryption_algo"],
+        key=deciphered_private_key,
+    )
+
+    return data
+
+
 def create_observer_thread():
     """
     Create a thread where an observer check recursively a new file in the directory /ffmpeg_video_stream
@@ -83,12 +130,11 @@ def encrypt_video_stream(path: str, encryption_algo: str, keypair: dict) -> dict
 
     :param key: assymetric keypair which must be used to encrypt/decrypt video stream
     :param encryption_algo: name of algorithm used to encrypt
-    :param path: str with relative path to .avi video stream file
+    :param data: video files as bytes
 
     :return: dictionary which contains every information to decrypt container
     """
-    with open(path, "rb") as video_stream:
-        data = video_stream.read()
+    data = get_data_from_video(path=path)
 
     cipherdict = encrypt_bytestring(
         plaintext=data, encryption_algo=encryption_algo, key=keypair["public_key"]

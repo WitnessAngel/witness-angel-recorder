@@ -2,8 +2,8 @@ import pytest
 import random
 from os import listdir
 
-from client.ciphering_toolchain import create_observer_thread, get_uuid0, get_assymetric_keypair, \
-    encrypt_video_stream, decrypt_video_stream, encrypt_symmetric_key, decrypt_symmetric_key
+from client.ciphering_toolchain import create_observer_thread, apply_entire_encryption_algorithm, \
+    apply_entire_decryption_algorithm, get_data_from_video
 
 from wacryptolib.container import (
     LOCAL_ESCROW_PLACEHOLDER,
@@ -137,48 +137,25 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
     "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF, COMPLEX_SHAMIR_CONTAINER_CONF]
 )
 def test_encrypt_video_stream(container_conf):
-    video_files = listdir("saved_video_stream")
-    path = f"saved_video_stream/{random.choice(video_files)}"
+    video_files = listdir("ffmpeg_video_stream")
+    path = f"ffmpeg_video_stream/{random.choice(video_files)}"
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
-
-    keypair = get_assymetric_keypair(
-        key_type=encryption_algo, key_length_bits=key_length_bits
-    )
-
-    ciphered_data = encrypt_video_stream(
-        path=path, encryption_algo=encryption_algo, keypair=keypair
-    )
-
-    assert isinstance(ciphered_data, dict)
-
-    keychain_uid = get_uuid0()
     metadata = random.choice([None, dict(a=[123])])
 
-    container_private_key = encrypt_symmetric_key(
-        keypair=keypair,
-        conf=container_conf,
-        metadata=metadata,
-        keychain_uid=keychain_uid,
+    encryption_data = apply_entire_encryption_algorithm(
+        key_type=encryption_algo, conf=container_conf, path=path, key_length_bits=key_length_bits, metadata=metadata
     )
 
-    assert isinstance(container_private_key, dict)
+    assert isinstance(encryption_data, dict)
+    assert isinstance(encryption_data["private_key"], dict)
+    assert isinstance(encryption_data["encryption_algo"], str)
+    assert isinstance(encryption_data["data"], dict)
 
-    deciphered_private_key = decrypt_symmetric_key(
-        container=container_private_key, key_type=encryption_algo
-    )
-
-    assert deciphered_private_key == keypair["private_key"]
-
-    result_data = decrypt_video_stream(
-        cipherdict=ciphered_data,
-        encryption_algo=encryption_algo,
-        key=keypair["private_key"],
-    )
+    result_data = apply_entire_decryption_algorithm(encryption_data=encryption_data)
 
     assert isinstance(result_data, bytes)
-    with open(path, "rb") as video_stream:
-        data = video_stream.read()
+    data = get_data_from_video(path=path)
 
     assert result_data == data
 
