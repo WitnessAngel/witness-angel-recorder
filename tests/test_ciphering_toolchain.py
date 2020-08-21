@@ -3,18 +3,11 @@ import random
 import uuid
 from os import listdir
 
-from client.ciphering_toolchain import encrypt_video_stream, decrypt_video_stream
+from client.ciphering_toolchain import get_uuid0, get_assymetric_keypair, encrypt_video_stream, decrypt_video_stream, encrypt_symmetric_key, decrypt_symmetric_key
 
 from wacryptolib.container import (
     LOCAL_ESCROW_PLACEHOLDER,
-    encrypt_data_into_container,
-    decrypt_data_from_container,
 )
-from wacryptolib.key_generation import (
-    generate_asymmetric_keypair,
-    load_asymmetric_key_from_pem_bytestring,
-)
-from wacryptolib.utilities import generate_uuid0
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
     data_encryption_strata=[
@@ -122,9 +115,6 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
                         ),
                     ],
                 ),
-                # dict(
-                #     key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_PLACEHOLDER
-                # ),
             ],
             data_signatures=[
                 dict(
@@ -152,8 +142,8 @@ def test_encrypt_video_stream(container_conf):
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
 
-    keypair = generate_asymmetric_keypair(
-        key_type=encryption_algo, serialize=False, key_length_bits=key_length_bits
+    keypair = get_assymetric_keypair(
+        key_type=encryption_algo, key_length_bits=key_length_bits
     )
 
     ciphered_data = encrypt_video_stream(
@@ -162,12 +152,12 @@ def test_encrypt_video_stream(container_conf):
 
     assert isinstance(ciphered_data, dict)
 
-    bytes_private_key = keypair["private_key"].export_key()
-    keychain_uid = generate_uuid0()
+    private_key = keypair["private_key"]
+    keychain_uid = get_uuid0()
     metadata = random.choice([None, dict(a=[123])])
 
-    container_private_key = encrypt_data_into_container(
-        data=bytes_private_key,
+    container_private_key = encrypt_symmetric_key(
+        private_symmetric_key=private_key,
         conf=container_conf,
         metadata=metadata,
         keychain_uid=keychain_uid,
@@ -175,14 +165,11 @@ def test_encrypt_video_stream(container_conf):
 
     assert isinstance(container_private_key, dict)
 
-    deciphered_private_key = decrypt_data_from_container(
-        container=container_private_key
+    deciphered_private_key = decrypt_symmetric_key(
+        container=container_private_key, key_type=encryption_algo
     )
 
-    decoded_private_key = load_asymmetric_key_from_pem_bytestring(
-        key_pem=deciphered_private_key, key_type=encryption_algo
-    )
-    assert decoded_private_key == keypair["private_key"]
+    assert deciphered_private_key == keypair["private_key"]
 
     result_data = decrypt_video_stream(
         cipherdict=ciphered_data,
