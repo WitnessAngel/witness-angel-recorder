@@ -3,6 +3,7 @@ from watchdog.events import FileSystemEventHandler
 import logging
 import time
 import os
+from threading import Thread
 
 from wacryptolib.container import (
     encrypt_data_into_container,
@@ -19,21 +20,41 @@ logger = logging.getLogger()
 
 
 class NewVideoHandler(FileSystemEventHandler):
-    def __init__(self):
+    def __init__(self, key_type, conf, key_length_bits=2048, metadata=None):
         self.files = []
+        self.threads = []
+        self.key_type = key_type
+        self.conf = conf
+        self.key_length_bits = key_length_bits
+        self.metadata = metadata
 
     def on_created(self, event):
-        print(f"New video {event.src_path} recording")
-        self.files.append(event.src_path)
-        if self.files[1]:
-            data = get_data_from_video(self.files[0])
-            os.remove(self.files[0])
+        logger.debug("New video recording : {} ".format(event.src_path))
+        if len(self.files) == 0:
+            self.files.append(event.src_path)
+        else:
+            # TODO: essayer de récupérer les fichiers dès qu'ils popent, les transformer en bytes et les supp
+            # TODO: directement, puis avec un for, les chiffrer un par un
+            self.files.append(event.src_path)
+            logger.debug("files: {}".format(self.files))
+            thread = Thread(target=apply_entire_encryption_algorithm,
+                            args=(self.key_type, self.conf, self.files[0], self.key_length_bits,
+                                  self.metadata))
+            self.threads.append(thread)
+            thread.start()
+            logger.debug("Encryption has begun in a thread")
             del self.files[0]
+
+        for thread in self.threads:
+            thread.join()
+            del thread
 
 
 def get_data_from_video(path: str) -> bytes:
     with open(path, 'rb') as file:
         data = file.read()
+    os.remove(path=path)
+    logger.debug("file {} has been deleted from system".format(path))
     return data
 
 
@@ -52,10 +73,13 @@ def apply_entire_encryption_algorithm(
 
     :return: dictionary which contains every information to decipher video file
     """
+    logger.debug("Getting assymetric keypair")
     keypair = get_assymetric_keypair(key_type=key_type, key_length_bits=key_length_bits)
+    logger.debug("Ciphering data")
     ciphered_data = encrypt_video_stream(path=path, encryption_algo=key_type, keypair=keypair)
 
     keychain_uid = get_uuid0()
+    logger.debug("Encrypting symmetric key")
     container_private_key = encrypt_symmetric_key(
         keypair=keypair, conf=conf, metadata=metadata, keychain_uid=keychain_uid
     )
@@ -84,17 +108,17 @@ def apply_entire_decryption_algorithm(encryption_data: dict) -> bytes:
     return data
 
 
-def create_observer_thread():
+def create_observer_thread(encryption_algo: str, conf: dict):
     """
     Create a thread where an observer check recursively a new file in the directory /ffmpeg_video_stream
     """
     observer = Observer()
-    new_video_handler = NewVideoHandler()
+    new_video_handler = NewVideoHandler(key_type=encryption_algo, conf=conf)
     observer.schedule(new_video_handler, path='ffmpeg_video_stream/', recursive=True)
     observer.start()
     try:
         while True:
-            time.sleep(5)
+            time.sleep(.5)
     except:
         observer.stop()
         print("Observer Stopped")

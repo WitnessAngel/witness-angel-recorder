@@ -159,6 +159,9 @@ def test_encrypt_video_stream(container_conf):
 
     assert result_data == data
 
-
-def test_create_observer_thread():
-    create_observer_thread()
+@pytest.mark.parametrize(
+    "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF]
+)
+def test_create_observer_thread(container_conf):
+    encryption_algo = "RSA_OAEP"
+    create_observer_thread(encryption_algo=encryption_algo, conf=container_conf)
