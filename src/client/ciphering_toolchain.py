@@ -3,7 +3,8 @@ from watchdog.events import FileSystemEventHandler
 import logging
 import time
 import os
-from threading import Thread
+import threading
+from concurrent.futures.thread import ThreadPoolExecutor
 
 from wacryptolib.container import (
     encrypt_data_into_container,
@@ -17,44 +18,51 @@ from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.utilities import generate_uuid0
 
 logger = logging.getLogger()
+THREAD_POOL_EXECUTOR = ThreadPoolExecutor(
+    max_workers=4, thread_name_prefix="recording_worker"
+)
 
 
 class NewVideoHandler(FileSystemEventHandler):
     def __init__(self, key_type, conf, key_length_bits=2048, metadata=None):
         self.files = []
         self.threads = []
+        self._termination_event = threading.Event()
         self.key_type = key_type
         self.conf = conf
         self.key_length_bits = key_length_bits
         self.metadata = metadata
 
     def on_created(self, event):
-        logger.debug("New video recording : {} ".format(event.src_path))
+        print("New video recording : {} ".format(event.src_path))
+        self.start_encryption(path=event.src_path)
+
+    def start_encryption(self, path):
+        return self._offload_task(self._offloaded_start_encryption, path)
+        # return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_encryption, path)
+
+    def _offloaded_start_encryption(self, path):
         if len(self.files) == 0:
-            self.files.append(event.src_path)
+            self.files.append(path)
         else:
-            # TODO: essayer de récupérer les fichiers dès qu'ils popent, les transformer en bytes et les supp
-            # TODO: directement, puis avec un for, les chiffrer un par un
-            self.files.append(event.src_path)
+            self.files.append(path)
+            print(self.files[0])
             logger.debug("files: {}".format(self.files))
-            thread = Thread(target=apply_entire_encryption_algorithm,
-                            args=(self.key_type, self.conf, self.files[0], self.key_length_bits,
-                                  self.metadata))
-            self.threads.append(thread)
-            thread.start()
-            logger.debug("Encryption has begun in a thread")
+            print("Beginning encryption for {}".format(path))
+            apply_entire_encryption_algorithm(
+                self.key_type, self.conf, self.files[0], self.key_length_bits, self.metadata
+            )
             del self.files[0]
 
-        for thread in self.threads:
-            thread.join()
-            del thread
+    def _offload_task(self, method, *args, **kwargs):
+        return THREAD_POOL_EXECUTOR.submit(method, *args, **kwargs)
 
 
 def get_data_from_video(path: str) -> bytes:
     with open(path, 'rb') as file:
         data = file.read()
     os.remove(path=path)
-    logger.debug("file {} has been deleted from system".format(path))
+    print("file {} has been deleted from system".format(path))
     return data
 
 
@@ -73,13 +81,13 @@ def apply_entire_encryption_algorithm(
 
     :return: dictionary which contains every information to decipher video file
     """
-    logger.debug("Getting assymetric keypair")
+    print("Getting assymetric keypair")
     keypair = get_assymetric_keypair(key_type=key_type, key_length_bits=key_length_bits)
-    logger.debug("Ciphering data")
+    print("Ciphering data")
     ciphered_data = encrypt_video_stream(path=path, encryption_algo=key_type, keypair=keypair)
 
     keychain_uid = get_uuid0()
-    logger.debug("Encrypting symmetric key")
+    print("Encrypting symmetric key")
     container_private_key = encrypt_symmetric_key(
         keypair=keypair, conf=conf, metadata=metadata, keychain_uid=keychain_uid
     )
@@ -115,6 +123,7 @@ def create_observer_thread(encryption_algo: str, conf: dict):
     observer = Observer()
     new_video_handler = NewVideoHandler(key_type=encryption_algo, conf=conf)
     observer.schedule(new_video_handler, path='ffmpeg_video_stream/', recursive=True)
+    print("Observer started")
     observer.start()
     try:
         while True:
