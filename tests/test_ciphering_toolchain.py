@@ -1,12 +1,12 @@
 import pytest
 import random
-from os import listdir
+import os
 
 from client.ciphering_toolchain import create_observer_thread, apply_entire_encryption_algorithm, \
     apply_entire_decryption_algorithm, get_data_from_video
 
 from wacryptolib.container import (
-    LOCAL_ESCROW_PLACEHOLDER,
+    LOCAL_ESCROW_MARKER,
 )
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -15,7 +15,7 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
             data_encryption_algo="AES_CBC",
             key_encryption_strata=[
                 dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_PLACEHOLDER
+                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
                 ),
                 dict(
                     key_encryption_algo="SHARED_SECRET",
@@ -24,27 +24,27 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                     ],
                 ),
@@ -53,7 +53,7 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
                 dict(
                     message_prehash_algo="SHA256",
                     signature_algo="DSA_DSS",
-                    signature_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                    signature_escrow=LOCAL_ESCROW_MARKER,
                 )
             ],
         )
@@ -66,7 +66,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
             data_encryption_algo="AES_EAX",
             key_encryption_strata=[
                 dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_PLACEHOLDER
+                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
                 )
             ],
             data_signatures=[],
@@ -75,14 +75,14 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
             data_encryption_algo="AES_CBC",
             key_encryption_strata=[
                 dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_PLACEHOLDER
+                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
                 )
             ],
             data_signatures=[
                 dict(
                     message_prehash_algo="SHA3_512",
                     signature_algo="DSA_DSS",
-                    signature_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                    signature_escrow=LOCAL_ESCROW_MARKER,
                 )
             ],
         ),
@@ -96,22 +96,22 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                            share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                     ],
                 ),
@@ -120,12 +120,12 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
                 dict(
                     message_prehash_algo="SHA3_256",
                     signature_algo="RSA_PSS",
-                    signature_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                    signature_escrow=LOCAL_ESCROW_MARKER,
                 ),
                 dict(
                     message_prehash_algo="SHA512",
                     signature_algo="ECC_DSS",
-                    signature_escrow=LOCAL_ESCROW_PLACEHOLDER,
+                    signature_escrow=LOCAL_ESCROW_MARKER,
                 ),
             ],
         ),
@@ -137,7 +137,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
     "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF, COMPLEX_SHAMIR_CONTAINER_CONF]
 )
 def test_encrypt_video_stream(container_conf):
-    video_files = listdir("ffmpeg_video_stream")
+    video_files = os.listdir("ffmpeg_video_stream")
     path = f"ffmpeg_video_stream/{random.choice(video_files)}"
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
@@ -159,9 +159,13 @@ def test_encrypt_video_stream(container_conf):
 
     assert result_data == data
 
+
 @pytest.mark.parametrize(
     "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF]
 )
 def test_create_observer_thread(container_conf):
+    video_files = os.listdir("ffmpeg_video_stream")
+    for file in video_files:
+        os.remove("ffmpeg_video_stream/{}".format(file))
     encryption_algo = "RSA_OAEP"
     create_observer_thread(encryption_algo=encryption_algo, conf=container_conf)
