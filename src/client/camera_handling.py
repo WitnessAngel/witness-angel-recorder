@@ -5,6 +5,7 @@ import pytest
 import os
 import time
 import subprocess
+import signal
 from threading import Thread
 
 logger = logging.getLogger()
@@ -155,6 +156,5 @@ class VideoStreamWriterFfmpeg(Thread):
 
     def stop(self):
         self.done = True
-        self.process.communicate(input=b'q')
-        self.process.terminate()
+        self.process.send_signal(signal.CTRL_BREAK_EVENT)
         Thread.join(self)
