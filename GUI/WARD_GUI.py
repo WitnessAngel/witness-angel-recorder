@@ -170,7 +170,7 @@ class WARD_GUIApp(MDApp):
             self.video
         )
         # create container for tests
-        self.create_containers_for_test()
+        #self.create_containers_for_test()
 
     def draw_menu(self, ecran):
         icons_item = {
@@ -393,16 +393,7 @@ class WARD_GUIApp(MDApp):
         ).ids
         if not Path(r".keys_storage_ward").exists():
             # "no key found"
-            devices_display = Button(
-                text=" no key found ",
-                background_color=(1, 0, 0, 0.01),
-                font_size="28sp",
-                color=[0, 1, 0, 1],
-            )
-            containers_page_ids.table.clear_widgets()
-            Display_layout = BoxLayout(orientation="horizontal", padding=[140, 0])
-            Display_layout.add_widget(devices_display)
-            containers_page_ids.table.add_widget(Display_layout)
+            self.display_message_no_device_found()
         else:
             result = [f for f in Path(r".keys_storage_ward").iterdir()]
             index = 0
@@ -411,35 +402,54 @@ class WARD_GUIApp(MDApp):
             self.btn_lbls = {}
             for dir_key_sorage in result:
                 file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
-                metadata = load_from_json_file(file_metadata)
-                device_uid = str(metadata["device_uid"])
-                uuid = device_uid.split("-")
-                start_of_uuid = uuid[0].lstrip()
-                start_of_UUID = start_of_uuid.rstrip()
-                self.my_check_box = CheckBox(
-                    active=False,
-                    size_hint=(0.2, 0.2),
-                    on_release=self.check_box_key_device_checked,
-                )
-                self.my_check_btn = Button(
-                    text=" key N°:  %s        User:  %s      |      UUID device:  %s "
-                    % ((str(index + 1)), str(metadata["user"]), start_of_UUID),
-                    size_hint=(0.8, 0.2),
-                    background_color=(1, 1, 1, 0.01),
-                    on_press=self.info_keys_stored,
-                )
-                self.chbx_lbls[self.my_check_box] = str(metadata["device_uid"])
-                self.btn_lbls[self.my_check_btn] = str(metadata["device_uid"])
-                self.layout = BoxLayout(
-                    orientation="horizontal",
-                    pos_hint={"center": 1, "top": 1},
-                    padding=[140, 10],
-                    spacing=[0, 10],
-                )
-                self.layout.add_widget(self.my_check_box)
-                self.layout.add_widget(self.my_check_btn)
-                containers_page_ids.table.add_widget(self.layout)
-                index += 1
+                if file_metadata.exists():
+
+                    metadata = load_from_json_file(file_metadata)
+                    device_uid = str(metadata["device_uid"])
+                    uuid = device_uid.split("-")
+                    start_of_uuid = uuid[0].lstrip()
+                    start_of_UUID = start_of_uuid.rstrip()
+                    self.my_check_box = CheckBox(
+                        active=False,
+                        size_hint=(0.2, 0.2),
+                        on_release=self.check_box_key_device_checked,
+                    )
+                    self.my_check_btn = Button(
+                        text=" key N°:  %s        User:  %s      |      UUID device:  %s "
+                        % ((str(index + 1)), str(metadata["user"]), start_of_UUID),
+                        size_hint=(0.8, 0.2),
+                        background_color=(1, 1, 1, 0.01),
+                        on_press=self.info_keys_stored,
+                    )
+                    self.chbx_lbls[self.my_check_box] = str(metadata["device_uid"])
+                    self.btn_lbls[self.my_check_btn] = str(metadata["device_uid"])
+                    self.layout = BoxLayout(
+                        orientation="horizontal",
+                        pos_hint={"center": 1, "top": 1},
+                        padding=[140, 10],
+                        spacing=[0, 10],
+                    )
+                    self.layout.add_widget(self.my_check_box)
+                    self.layout.add_widget(self.my_check_btn)
+                    containers_page_ids.table.add_widget(self.layout)
+                    index += 1
+                else:
+                    self.display_message_no_device_found()
+
+    def display_message_no_device_found(self):
+        containers_page_ids = self.root.ids.screen_manager.get_screen(
+            "Keys_management"
+        ).ids
+        devices_display = Button(
+            text=" no key found ",
+            background_color=(1, 0, 0, 0.01),
+            font_size="28sp",
+            color=[0, 1, 0, 1],
+        )
+        containers_page_ids.table.clear_widgets()
+        Display_layout = BoxLayout(orientation="horizontal", padding=[140, 0])
+        Display_layout.add_widget(devices_display)
+        containers_page_ids.table.add_widget(Display_layout)
 
     def check_box_key_device_checked(self, check_box_checked):
         """
