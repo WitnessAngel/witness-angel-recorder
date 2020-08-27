@@ -170,7 +170,7 @@ class WARD_GUIApp(MDApp):
             self.video
         )
         # create container for tests
-        #self.create_containers_for_test()
+        self.create_containers_for_test()
 
     def draw_menu(self, ecran):
         icons_item = {
@@ -196,6 +196,8 @@ class WARD_GUIApp(MDApp):
             self.get_detected_container()
 
         self.root.ids.screen_manager.current = destination
+        self.root.ids.nav_drawer.set_state("close")
+
 
     def get_detected_container(self):
         """
@@ -409,7 +411,7 @@ class WARD_GUIApp(MDApp):
                     uuid = device_uid.split("-")
                     start_of_uuid = uuid[0].lstrip()
                     start_of_UUID = start_of_uuid.rstrip()
-                    self.my_check_box = CheckBox(
+                    self.my_check_box = CheckBox(#start
                         active=False,
                         size_hint=(0.2, 0.2),
                         on_release=self.check_box_key_device_checked,
@@ -426,8 +428,7 @@ class WARD_GUIApp(MDApp):
                     self.layout = BoxLayout(
                         orientation="horizontal",
                         pos_hint={"center": 1, "top": 1},
-                        padding=[140, 10],
-                        spacing=[0, 10],
+                        padding=[140, 0]
                     )
                     self.layout.add_widget(self.my_check_box)
                     self.layout.add_widget(self.my_check_btn)
@@ -436,8 +437,9 @@ class WARD_GUIApp(MDApp):
                 else:
                     self.display_message_no_device_found()
 
+
     def display_message_no_device_found(self):
-        containers_page_ids = self.root.ids.screen_manager.get_screen(
+        keys_page_ids = self.root.ids.screen_manager.get_screen(
             "Keys_management"
         ).ids
         devices_display = Button(
@@ -446,10 +448,10 @@ class WARD_GUIApp(MDApp):
             font_size="28sp",
             color=[0, 1, 0, 1],
         )
-        containers_page_ids.table.clear_widgets()
+        keys_page_ids.table.clear_widgets()
         Display_layout = BoxLayout(orientation="horizontal", padding=[140, 0])
         Display_layout.add_widget(devices_display)
-        containers_page_ids.table.add_widget(Display_layout)
+        keys_page_ids.table.add_widget(Display_layout)
 
     def check_box_key_device_checked(self, check_box_checked):
         """
