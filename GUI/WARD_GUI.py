@@ -3,7 +3,6 @@ from kivymd.uix.screen import Screen
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
-
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.list import OneLineIconListItem, MDList
@@ -170,7 +169,7 @@ class WARD_GUIApp(MDApp):
             self.video
         )
         # create container for tests
-        self.create_containers_for_test()
+        #self.create_containers_for_test()
 
     def draw_menu(self, ecran):
         icons_item = {
@@ -200,9 +199,6 @@ class WARD_GUIApp(MDApp):
 
 
     def get_detected_container(self):
-        """
-
-        """
         containers_page_ids = self.root.ids.screen_manager.get_screen(
             "Container_management"
         ).ids
@@ -228,36 +224,35 @@ class WARD_GUIApp(MDApp):
             index = 0
             containers_page_ids.table.clear_widgets()
             for container in container_local_list:
-                print(container[0]["container_uid"])
                 container_uid = str(container[0]["container_uid"])
                 container_uuid = container_uid.split("-")
                 start_of_uuid = container_uuid[0].lstrip()
                 start_of_UUID = start_of_uuid.rstrip()
-                self.my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
-                self.my_check_box.bind(active=self.check_box_container_checked)
-                self.my_check_btn = Button(
+                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
+                my_check_box.bind(active=self.check_box_container_checked)
+                my_check_btn = Button(
                     text=" Container N°:  %s        %s      |      ID container :  %s "
                     % ((str(index + 1)), "", start_of_UUID),
                     size_hint=(0.8, 0.2),
                     background_color=(1, 1, 1, 0.01),
                     on_press=self.show_container_details,
                 )
-                self.check_box_container_uuid_dict[self.my_check_box] = [
+                self.check_box_container_uuid_dict[my_check_box] = [
                     str(container[0]["container_uid"]),
                     str(container[1]),
                 ]
-                self.btn_container_uuid_dict[self.my_check_btn] = [
+                self.btn_container_uuid_dict[my_check_btn] = [
                     str(container[0]["container_uid"]),
                     str(container[1]),
                 ]
-                self.layout = BoxLayout(
+                layout = BoxLayout(
                     orientation="horizontal",
                     pos_hint={"center": 1, "top": 1},
                     padding=[140, 0],
                 )
-                self.layout.add_widget(self.my_check_box)
-                self.layout.add_widget(self.my_check_btn)
-                containers_page_ids.table.add_widget(self.layout)
+                layout.add_widget(my_check_box)
+                layout.add_widget(my_check_btn)
+                containers_page_ids.table.add_widget(layout)
                 index += 1
 
     def info_keys_stored(self, btn_selected):
@@ -315,7 +310,6 @@ class WARD_GUIApp(MDApp):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
             "Container_management"
         ).ids
-        print(self.check_box_container_uuid_dict[radio_box_checked])
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
                 containers_page_ids.delete.disabled = False
@@ -346,7 +340,6 @@ class WARD_GUIApp(MDApp):
                 if not Path(file_metadata.parent).exists():
                     Path(file_metadata.parent).mkdir()
                 metadata = load_from_json_file(metadata_file_path)
-                print(metadata)
                 dump_to_json_file(file_metadata, metadata)
                 dst = Path(".keys_storage_ward").joinpath(device_dir)
                 key_pairs_dir = Path(key_device["path"]).joinpath(
@@ -390,7 +383,7 @@ class WARD_GUIApp(MDApp):
 
         KEYS_ROOT = “~/.keys_storage_ward/”
         """
-        containers_page_ids = self.root.ids.screen_manager.get_screen(
+        Keys_page_ids = self.root.ids.screen_manager.get_screen(
             "Keys_management"
         ).ids
         if not Path(r".keys_storage_ward").exists():
@@ -399,7 +392,7 @@ class WARD_GUIApp(MDApp):
         else:
             result = [f for f in Path(r".keys_storage_ward").iterdir()]
             index = 0
-            containers_page_ids.table.clear_widgets()
+            Keys_page_ids.table.clear_widgets()
             self.chbx_lbls = {}
             self.btn_lbls = {}
             for dir_key_sorage in result:
@@ -411,28 +404,28 @@ class WARD_GUIApp(MDApp):
                     uuid = device_uid.split("-")
                     start_of_uuid = uuid[0].lstrip()
                     start_of_UUID = start_of_uuid.rstrip()
-                    self.my_check_box = CheckBox(#start
+                    my_check_box = CheckBox(#start
                         active=False,
                         size_hint=(0.2, 0.2),
                         on_release=self.check_box_key_device_checked,
                     )
-                    self.my_check_btn = Button(
+                    my_check_btn = Button(
                         text=" key N°:  %s        User:  %s      |      UUID device:  %s "
                         % ((str(index + 1)), str(metadata["user"]), start_of_UUID),
                         size_hint=(0.8, 0.2),
                         background_color=(1, 1, 1, 0.01),
                         on_press=self.info_keys_stored,
                     )
-                    self.chbx_lbls[self.my_check_box] = str(metadata["device_uid"])
-                    self.btn_lbls[self.my_check_btn] = str(metadata["device_uid"])
-                    self.layout = BoxLayout(
+                    self.chbx_lbls[my_check_box] = str(metadata["device_uid"])
+                    self.btn_lbls[my_check_btn] = str(metadata["device_uid"])
+                    layout = BoxLayout(
                         orientation="horizontal",
                         pos_hint={"center": 1, "top": 1},
                         padding=[140, 0]
                     )
-                    self.layout.add_widget(self.my_check_box)
-                    self.layout.add_widget(self.my_check_btn)
-                    containers_page_ids.table.add_widget(self.layout)
+                    layout.add_widget(my_check_box)
+                    layout.add_widget(my_check_btn)
+                    Keys_page_ids.table.add_widget(layout)
                     index += 1
                 else:
                     self.display_message_no_device_found()
@@ -465,9 +458,6 @@ class WARD_GUIApp(MDApp):
         Display the contents of container
         """
         info_container = btn_selected.text.split("|      ID container :")[0]
-        num_container = info_container.split("N°:")[1]
-        num_container = num_container.lstrip()
-        num_container = num_container.rstrip()
 
         container_selected_and_container_name = self.btn_container_uuid_dict[
             btn_selected
@@ -478,9 +468,9 @@ class WARD_GUIApp(MDApp):
         message = load_container_from_filesystem(container_dir)
         self.open_container_details_dialog(str(message), info_container)
 
-    def open_container_details_dialog(self, message, info_container_and_user):
+    def open_container_details_dialog(self, message, info_container):
         self.dialog = MDDialog(
-            title=" %s" % info_container_and_user,
+            title=" %s" % info_container,
             text=message,
             size_hint=(0.8, 1),
             buttons=[MDFlatButton(text="Close", on_release=self.close_dialog)],
@@ -488,20 +478,18 @@ class WARD_GUIApp(MDApp):
         self.dialog.open()
 
     def open_dialog_delete_container(self):
-        self.count_container_checked = 0
         self.list_chbx_active = []
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
                 self.list_chbx_active.append(chbx)
-                self.count_container_checked += 1
 
-        # len(self.list_chbx_active)
-        if len(self.list_chbx_active) == 1:
+        count_container_checked =len(self.list_chbx_active)
+        if count_container_checked == 1:
             messge = " do you want to delete these container?"
-        elif len(self.list_chbx_active) > 1:
+        elif count_container_checked > 1:
             messge = (
                 " do you want to delete these %d containers"
-                % self.count_container_checked
+                % count_container_checked
             )
         self.dialog = MDDialog(
             title=" Delete containers confirmation ",
@@ -520,7 +508,7 @@ class WARD_GUIApp(MDApp):
         for chbx in self.list_chbx_active:
 
             container_selected = self.check_box_container_uuid_dict[chbx]
-            print("delete container | with ID_container %s", container_selected)
+            print("delete container  with ID_container %s", container_selected)
             con_stor1 = ContainerStorage(
                 encryption_conf=self.CONFIG,
                 containers_dir=Path(".container_storage_ward"),
@@ -531,22 +519,24 @@ class WARD_GUIApp(MDApp):
         self.dialog.dismiss()
 
     def open_dialog_decipher_container(self):
-        count_container_checked = 0
+        self.list_chbx_active = []
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
-                count_container_checked += 1
+                self.list_chbx_active.append(chbx)
+
+        count_container_checked = len(self.list_chbx_active)
 
         if count_container_checked == 1:
             messge = " do you want to decipher these container?"
         elif count_container_checked > 1:
             messge = (
-                " Do you want to decipher these %d containers" % count_container_checked
+                    " Do you want to decipher these %d containers" % count_container_checked
             )
 
         self.dialog = MDDialog(
             title=" Decipher containers confirmation ",
             type="custom",
-            content_cls=Content(),
+            content_cls=Content(),#entering the passphrase
             text=messge,
             size_hint=(0.8, 1),
             buttons=[
@@ -611,7 +601,6 @@ class WARD_GUIApp(MDApp):
         )
 
         list_container_name = con_stor1.list_container_names(as_sorted=True)
-        print(list_container_name)  # returns an empty list?!
         containers_list = []
         for container_name in list_container_name:
             container_filepath = Path(".container_storage_ward").joinpath(
