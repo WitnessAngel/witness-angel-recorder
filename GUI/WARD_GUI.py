@@ -168,6 +168,7 @@ class WARD_GUIApp(MDApp):
         self.root.ids.screen_manager.get_screen("MainMenu").ids.player.add_widget(
             self.video
         )
+        self.get_detected_devices()
         # create container for tests
         #self.create_containers_for_test()
 
