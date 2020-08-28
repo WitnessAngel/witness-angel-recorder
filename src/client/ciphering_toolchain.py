@@ -1,5 +1,6 @@
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from pathlib import Path
 import logging
 import time
 import os
@@ -9,25 +10,28 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from wacryptolib.container import (
     encrypt_data_into_container,
     decrypt_data_from_container,
+    dump_container_to_filesystem,
+    load_container_from_filesystem
 )
 from wacryptolib.key_generation import (
     generate_asymmetric_keypair,
     load_asymmetric_key_from_pem_bytestring,
 )
+from wacryptolib.key_storage import FilesystemKeyStorage, DummyKeyStorage
 from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.utilities import generate_uuid0
 
 logger = logging.getLogger()
 THREAD_POOL_EXECUTOR = ThreadPoolExecutor(
-    max_workers=4, thread_name_prefix="recording_worker"
+    max_workers=1, thread_name_prefix="recording_worker"
 )
 
 
 class NewVideoHandler(FileSystemEventHandler):
     def __init__(self, key_type, conf, key_length_bits=2048, metadata=None):
         self.files = []
-        self.threads = []
         self._termination_event = threading.Event()
+
         self.key_type = key_type
         self.conf = conf
         self.key_length_bits = key_length_bits
@@ -35,27 +39,53 @@ class NewVideoHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         print("New video recording : {} ".format(event.src_path))
+
+    def on_modified(self, event):
         self.start_encryption(path=event.src_path)
 
     def start_encryption(self, path):
         return self._offload_task(self._offloaded_start_encryption, path)
-        # return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_encryption, path)
 
     def _offloaded_start_encryption(self, path):
-        if len(self.files) == 0:
-            self.files.append(path)
-        else:
-            self.files.append(path)
-            print(self.files[0])
-            logger.debug("files: {}".format(self.files))
-            print("Beginning encryption for {}".format(path))
-            apply_entire_encryption_algorithm(
-                self.key_type, self.conf, self.files[0], self.key_length_bits, self.metadata
-            )
-            del self.files[0]
+        self.files.append(path)
+        file = self.files[0]
+        del self.files[0]
+        print("Beginning encryption for {}".format(file))
+        data = get_data_from_video(path=file)
+        container = apply_entire_encryption_algorithm(
+            key_type=self.key_type,
+            conf=self.conf,
+            data=data,
+            key_length_bits=self.key_length_bits,
+            metadata=self.metadata
+        )
+        print("Saving container of {}".format(path))
+        save_container(video_filepath=path, container=container)
 
     def _offload_task(self, method, *args, **kwargs):
         return THREAD_POOL_EXECUTOR.submit(method, *args, **kwargs)
+
+
+def save_container(video_filepath: str, container: dict):
+    """
+    Save container of a video in a .txt file as bytes.
+
+    :param video_filepath: path to .avi video file
+    :param container: ciphered data to save of video stored at video_filepath
+    """
+    filename, extension = os.path.splitext(video_filepath)
+    dir_name, file = filename.split("/")
+    container_filepath = Path("ciphered_video_stream/{}.crypt".format(file))
+    print(container_filepath)
+    dump_container_to_filesystem(
+        container_filepath=container_filepath, container=container
+    )
+
+
+def get_container(container_filepath: str):
+    container_filepath = Path(container_filepath)
+    container = load_container_from_filesystem(container_filepath=container_filepath)
+    return container
 
 
 def get_data_from_video(path: str) -> bytes:
@@ -67,7 +97,7 @@ def get_data_from_video(path: str) -> bytes:
 
 
 def apply_entire_encryption_algorithm(
-        key_type: str, conf: dict, path: str, key_length_bits=None, metadata=None
+        key_type: str, conf: dict, data: bytes, key_length_bits=None, metadata=None
 ) -> dict:
     """
     Apply entire encryption algorithm, from video data file to dictionary which contains ciphered data and container to
@@ -82,16 +112,18 @@ def apply_entire_encryption_algorithm(
     :return: dictionary which contains every information to decipher video file
     """
     print("Getting assymetric keypair")
-    keypair = get_assymetric_keypair(key_type=key_type, key_length_bits=key_length_bits)
+    # keypair = get_assymetric_keypair(key_type=key_type, key_length_bits=key_length_bits)
     print("Ciphering data")
-    ciphered_data = encrypt_video_stream(path=path, encryption_algo=key_type, keypair=keypair)
-
+    ciphered_data = encrypt_video_stream(data=data, encryption_algo=key_type, keypair=keypair)
+    assert isinstance(ciphered_data, dict)
     keychain_uid = get_uuid0()
     print("Encrypting symmetric key")
     container_private_key = encrypt_symmetric_key(
         keypair=keypair, conf=conf, metadata=metadata, keychain_uid=keychain_uid
     )
-    encryption_data = {"encryption_algo": key_type, "data": ciphered_data, "private_key": container_private_key}
+    assert isinstance(container_private_key, dict)
+    encryption_data = {"encryption_algo": key_type, "data_ciphertext": ciphered_data, "private_key": container_private_key}
+    print("Data has been encrypted")
     return encryption_data
 
 
@@ -103,12 +135,14 @@ def apply_entire_decryption_algorithm(encryption_data: dict) -> bytes:
 
     :return: video file as bytes
     """
+    print("Deciphering private key")
     deciphered_private_key = decrypt_symmetric_key(
         container=encryption_data["private_key"], key_type=encryption_data["encryption_algo"]
     )
 
+    print("Deciphering data")
     data = decrypt_video_stream(
-        cipherdict=encryption_data["data"],
+        cipherdict=encryption_data["data_ciphertext"],
         encryption_algo=encryption_data["encryption_algo"],
         key=deciphered_private_key,
     )
@@ -157,7 +191,7 @@ def get_assymetric_keypair(key_type: str, key_length_bits=2048) -> dict:
     return keypair
 
 
-def encrypt_video_stream(path: str, encryption_algo: str, keypair: dict) -> dict:
+def encrypt_video_stream(data: bytes, encryption_algo: str, keypair: dict) -> dict:
     """
     Put the video stream data saved in an .avi files into a container
 
@@ -167,8 +201,6 @@ def encrypt_video_stream(path: str, encryption_algo: str, keypair: dict) -> dict
 
     :return: dictionary which contains every information to decrypt container
     """
-    data = get_data_from_video(path=path)
-
     cipherdict = encrypt_bytestring(
         plaintext=data, encryption_algo=encryption_algo, key=keypair["public_key"]
     )

@@ -1,12 +1,14 @@
 import pytest
 import random
 import os
+from pathlib import Path
 
 from client.ciphering_toolchain import create_observer_thread, apply_entire_encryption_algorithm, \
-    apply_entire_decryption_algorithm, get_data_from_video
+    apply_entire_decryption_algorithm, get_data_from_video, save_container, get_container
 
 from wacryptolib.container import (
     LOCAL_ESCROW_MARKER,
+    SHARED_SECRET_MARKER
 )
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -18,7 +20,7 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
                     key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
                 ),
                 dict(
-                    key_encryption_algo="SHARED_SECRET",
+                    key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
                     key_shared_secret_escrows=[
                         dict(
@@ -90,7 +92,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
             data_encryption_algo="CHACHA20_POLY1305",
             key_encryption_strata=[
                 dict(
-                    key_encryption_algo="SHARED_SECRET",
+                    key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=2,
                     key_shared_secret_escrows=[
                         dict(
@@ -142,20 +144,29 @@ def test_encrypt_video_stream(container_conf):
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
     metadata = random.choice([None, dict(a=[123])])
+    data = get_data_from_video(path=path)
 
     encryption_data = apply_entire_encryption_algorithm(
-        key_type=encryption_algo, conf=container_conf, path=path, key_length_bits=key_length_bits, metadata=metadata
+        data=data, key_type=encryption_algo, conf=container_conf, key_length_bits=key_length_bits, metadata=metadata
     )
 
     assert isinstance(encryption_data, dict)
     assert isinstance(encryption_data["private_key"], dict)
     assert isinstance(encryption_data["encryption_algo"], str)
-    assert isinstance(encryption_data["data"], dict)
+    assert isinstance(encryption_data["data_ciphertext"], dict)
 
-    result_data = apply_entire_decryption_algorithm(encryption_data=encryption_data)
+    save_container(video_filepath=path, container=encryption_data)
+
+    filename, extension = os.path.splitext(path)
+    dir_name, file = filename.split("/")
+    container_filepath = Path("ciphered_video_stream/{}.crypt".format(file))
+    assert os.path.exists(container_filepath)
+
+    container = get_container(container_filepath=container_filepath)
+
+    result_data = apply_entire_decryption_algorithm(encryption_data=container)
 
     assert isinstance(result_data, bytes)
-    data = get_data_from_video(path=path)
 
     assert result_data == data
 
@@ -167,5 +178,17 @@ def test_create_observer_thread(container_conf):
     video_files = os.listdir("ffmpeg_video_stream")
     for file in video_files:
         os.remove("ffmpeg_video_stream/{}".format(file))
+
     encryption_algo = "RSA_OAEP"
     create_observer_thread(encryption_algo=encryption_algo, conf=container_conf)
+
+
+def test_decipher_container():
+    # video_files = os.listdir("ciphered_video_stream/")
+    # for file in video_files:
+    #     if file.endswith(".crypt"):
+    #         container = get_container(container_filepath=Path("ciphered_video_stream/{}".format(file)))
+    #         apply_entire_decryption_algorithm(encryption_data=container)
+    container = get_container(container_filepath=Path("ciphered_video_stream/ffmpeg_capture-004.crypt"))
+    print(container)
+    apply_entire_decryption_algorithm(encryption_data=container)

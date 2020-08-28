@@ -43,5 +43,5 @@ def test_write_video_stream_ffmpeg():
     # )  # Public video stream
     writer_ffmpeg = VideoStreamWriterFfmpeg(video_stream_url=camera_url)
     writer_ffmpeg.start()
-    time.sleep(20)
+    time.sleep(50)
     writer_ffmpeg.stop()
