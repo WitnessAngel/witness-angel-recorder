@@ -3,22 +3,26 @@ import random
 import os
 from pathlib import Path
 
-from client.ciphering_toolchain import create_observer_thread, apply_entire_encryption_algorithm, \
-    apply_entire_decryption_algorithm, get_data_from_video, save_container, get_container
-
-from wacryptolib.container import (
-    LOCAL_ESCROW_MARKER,
-    SHARED_SECRET_MARKER
+from client.ciphering_toolchain import (
+    create_observer_thread,
+    apply_entire_encryption_algorithm,
+    apply_entire_decryption_algorithm,
+    get_data_from_video,
+    save_container,
+    get_container,
+    get_uuid0,
+    generate_asymmetric_keypair,
 )
+
+from wacryptolib.container import LOCAL_ESCROW_MARKER, SHARED_SECRET_MARKER
+from wacryptolib.key_storage import FilesystemKeyStorage
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
     data_encryption_strata=[
         dict(
             data_encryption_algo="AES_CBC",
             key_encryption_strata=[
-                dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
-                ),
+                dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER),
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
@@ -67,18 +71,14 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
         dict(
             data_encryption_algo="AES_EAX",
             key_encryption_strata=[
-                dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
-                )
+                dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
             data_signatures=[],
         ),
         dict(
             data_encryption_algo="AES_CBC",
             key_encryption_strata=[
-                dict(
-                    key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER
-                )
+                dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
             data_signatures=[
                 dict(
@@ -116,7 +116,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
                             share_escrow=LOCAL_ESCROW_MARKER,
                         ),
                     ],
-                ),
+                )
             ],
             data_signatures=[
                 dict(
@@ -141,13 +141,29 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
 def test_encrypt_video_stream(container_conf):
     video_files = os.listdir("ffmpeg_video_stream")
     path = f"ffmpeg_video_stream/{random.choice(video_files)}"
+
     encryption_algo = "RSA_OAEP"
     key_length_bits = random.choice([2048, 3072, 4096])
     metadata = random.choice([None, dict(a=[123])])
     data = get_data_from_video(path=path)
 
+    filesystem_key_storage = FilesystemKeyStorage(keys_dir="keys/")
+    key_pair = generate_asymmetric_keypair(key_type=encryption_algo)
+    keychain_uid = get_uuid0()
+    filesystem_key_storage.set_keys(
+        keychain_uid=keychain_uid,
+        key_type=encryption_algo,
+        public_key=key_pair["public_key"],
+        private_key=key_pair["private_key"],
+    )
+
     encryption_data = apply_entire_encryption_algorithm(
-        data=data, key_type=encryption_algo, conf=container_conf, key_length_bits=key_length_bits, metadata=metadata
+        data=data,
+        key_type=encryption_algo,
+        conf=container_conf,
+        key_length_bits=key_length_bits,
+        metadata=metadata,
+        keychain_uid=keychain_uid,
     )
 
     assert isinstance(encryption_data, dict)
@@ -171,9 +187,7 @@ def test_encrypt_video_stream(container_conf):
     assert result_data == data
 
 
-@pytest.mark.parametrize(
-    "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF]
-)
+@pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
 def test_create_observer_thread(container_conf):
     video_files = os.listdir("ffmpeg_video_stream")
     for file in video_files:
@@ -184,11 +198,10 @@ def test_create_observer_thread(container_conf):
 
 
 def test_decipher_container():
-    # video_files = os.listdir("ciphered_video_stream/")
-    # for file in video_files:
-    #     if file.endswith(".crypt"):
-    #         container = get_container(container_filepath=Path("ciphered_video_stream/{}".format(file)))
-    #         apply_entire_decryption_algorithm(encryption_data=container)
-    container = get_container(container_filepath=Path("ciphered_video_stream/ffmpeg_capture-004.crypt"))
-    print(container)
-    apply_entire_decryption_algorithm(encryption_data=container)
+    video_files = os.listdir("ciphered_video_stream/")
+    for file in video_files:
+        if file.endswith(".crypt"):
+            container = get_container(
+                container_filepath=Path("ciphered_video_stream/{}".format(file))
+            )
+            apply_entire_decryption_algorithm(encryption_data=container)
