@@ -35,9 +35,7 @@ def test_write_video_stream():
 
 
 def test_write_video_stream_ffmpeg():
-    camera_url = (
-        "rtsp://viewer:SomePwd8162@92.89.81.50:554/Streaming/Channels/101"
-    )
+    camera_url = "rtsp://viewer:SomePwd8162@92.89.81.50:554/Streaming/Channels/101"
     # camera_url = (
     #     "rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa"
     # )  # Public video stream
