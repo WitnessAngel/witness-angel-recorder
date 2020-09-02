@@ -4,9 +4,10 @@ from pathlib import Path
 import logging
 import time
 import os
-import threading
+from threading import Thread, Event
 from concurrent.futures.thread import ThreadPoolExecutor
 
+from client.camera_handling import VideoStreamWriterFfmpeg
 from wacryptolib.container import (
     encrypt_data_into_container,
     decrypt_data_from_container,
@@ -22,9 +23,7 @@ from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.utilities import generate_uuid0
 
 logger = logging.getLogger()
-THREAD_POOL_EXECUTOR = ThreadPoolExecutor(
-    max_workers=1, thread_name_prefix="recording_worker"
-)
+THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
 
 filesystem_key_storage = FilesystemKeyStorage(
     keys_dir="D:/Users/manon/Documents/GitHub/witness-ward-client/tests/keys"
@@ -32,60 +31,106 @@ filesystem_key_storage = FilesystemKeyStorage(
 
 
 class NewVideoHandler(FileSystemEventHandler):
-    def __init__(self, key_type, conf, key_length_bits=2048, metadata=None):
-        self.files = []
-        self._termination_event = threading.Event()
+    def __init__(self, recordings_folder, key_type, conf, metadata=None):
+        self.recordings_folder = recordings_folder
 
         self.key_type = key_type
         self.conf = conf
-        self.key_length_bits = key_length_bits
         self.metadata = metadata
-        self.keychain_uid = None
+
+        self._termination_event = Event()
+        self.pending_files = os.listdir(self.recordings_folder)
 
     def on_created(self, event):
-        logger.debug("New video recording : {} ".format(event.src_path))
+        self.pending_files.append(event.src_path)
+        try:
+            self.start_processing(path_file=self.pending_files[-2])
+        except IndexError:
+            pass
 
-    def on_modified(self, event):
-        self.start_encryption(path=event.src_path)
+    def start_processing(self, path_file):
+        return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_processing, path_file)
 
-    def start_encryption(self, path):
-        return self._offload_task(self._offloaded_start_encryption, path)
-
-    def _offloaded_start_encryption(self, path):
+    def _offloaded_start_processing(self, path_file):
+        logger.debug("Starting thread processing for {}".format(path_file))
         key_pair = generate_asymmetric_keypair(key_type=self.key_type)
         keychain_uid = get_uuid0()
-        logger.debug("UUID chiffrement : {}".format(keychain_uid))
-        try:
-            filesystem_key_storage.set_keys(
-                keychain_uid=keychain_uid,
-                key_type=self.key_type,
-                public_key=key_pair["public_key"],
-                private_key=key_pair["private_key"],
-            )
-        except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            logger.debug(message)
+        filesystem_key_storage.set_keys(
+            keychain_uid=keychain_uid,
+            key_type=self.key_type,
+            public_key=key_pair["public_key"],
+            private_key=key_pair["private_key"],
+        )
 
-        self.files.append(path)
-        file = self.files[0]
-        del self.files[0]
-        logger.debug("Beginning encryption for {}".format(file))
-        data = get_data_from_video(path=file)
+        logger.debug("Beginning encryption for {}".format(path_file))
+        data = get_data_from_video(path=path_file)
         container = apply_entire_encryption_algorithm(
             key_type=self.key_type,
             conf=self.conf,
             data=data,
-            key_length_bits=self.key_length_bits,
             metadata=self.metadata,
             keychain_uid=keychain_uid,
         )
 
-        logger.debug("Saving container of {}".format(path))
-        save_container(video_filepath=path, container=container)
+        logger.debug("Saving container of {}".format(path_file))
+        save_container(video_filepath=path_file, container=container)
+        logger.debug("Finished processing thread for {}".format(path_file))
+        if path_file == self.pending_files[-1]:
+            self._termination_event.set()
+            return self._termination_event.is_set()
 
-    def _offload_task(self, method, *args, **kwargs):
-        return THREAD_POOL_EXECUTOR.submit(method, *args, **kwargs)
+    def launch_termination(self):
+        last_path_file = self.pending_files[-1]
+        self.start_processing(last_path_file)
+
+
+class RtspVideoRecorder:
+    def __init__(self, camera_url, new_video_handler):
+        self.new_video_handler = new_video_handler
+        self.camera_url = camera_url
+
+    def start_recording(self):
+        return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_recording)
+
+    def _offloaded_start_recording(self):
+        logger.debug("Video stream writer thread started")
+        writer_ffmpeg = VideoStreamWriterFfmpeg(video_stream_url=self.camera_url)
+        writer_ffmpeg.start()
+
+        time.sleep(30)
+        # self.join()
+        logger.debug("Video stream writer thread stopped")
+        writer_ffmpeg.stop()
+        self.new_video_handler.launch_termination()
+        return True
+
+
+class RecordingToolchain(Thread):
+    def __init__(self, recordings_folder, conf, key_type, camera_url):
+        Thread.__init__(self)
+        self._termination_event = Event()
+        self.camera_url = camera_url
+        self.conf = conf
+        self.key_type = key_type
+        self.recordings_folder = recordings_folder
+
+    def _offloaded_launch_recording_toolchain(self):
+        logger.debug("Beginning recording toolchain thread")
+        new_video_handler = NewVideoHandler(
+            recordings_folder=self.recordings_folder, conf=self.conf, key_type=self.key_type
+        )
+        rtsp_video_recorder = RtspVideoRecorder(
+            camera_url=self.camera_url, new_video_handler=new_video_handler
+        )
+        self.observer_future = THREAD_POOL_EXECUTOR.submit(create_observer_thread, new_video_handler)
+        self.recorder_future = THREAD_POOL_EXECUTOR.submit(rtsp_video_recorder.start_recording)
+
+    def launch_recording_toolchain(self):
+        self.start()
+        self._offloaded_launch_recording_toolchain()
+        if self.recorder_future.result() and self.observer_future.result():
+            self.join()
+            logger.debug("End recording toolchain thread")
 
 
 def apply_entire_encryption_algorithm(
@@ -93,7 +138,6 @@ def apply_entire_encryption_algorithm(
     conf: dict,
     data: bytes,
     keychain_uid,
-    key_length_bits=None,
     metadata=None,
 ) -> dict:
     """
@@ -102,8 +146,8 @@ def apply_entire_encryption_algorithm(
 
     :param key_type: symmetric algorithm used to cipher video data
     :param conf: dictionary with configuration tree
-    :param path: relative path to video file
-    :param key_length_bits: size of returned key as bits
+    :param data: video file data
+    :param keychain_uid: unique uuid of used keypair
     :param metadata: optional data to put into container
 
     :return: dictionary which contains every information to decipher video file
@@ -184,21 +228,20 @@ def get_data_from_video(path: str) -> bytes:
     return data
 
 
-def create_observer_thread(encryption_algo: str, conf: dict):
+def create_observer_thread(new_video_handler: classmethod):
     """
     Create a thread where an observer check recursively a new file in the directory /ffmpeg_video_stream
     """
     observer = Observer()
-    new_video_handler = NewVideoHandler(key_type=encryption_algo, conf=conf)
     observer.schedule(new_video_handler, path="ffmpeg_video_stream/", recursive=True)
-    logger.debug("Observer started")
+    logger.debug("Observer thread started")
     observer.start()
     try:
         while True:
             time.sleep(0.5)
     except:
         observer.stop()
-        logger.debug("Observer Stopped")
+        logger.debug("Observer thread Stopped")
 
 
 def get_uuid0(ts=None):
@@ -231,7 +274,7 @@ def encrypt_video_stream(data: bytes, encryption_algo: str, keychain_uid) -> dic
     """
     Put the video stream data saved in an .avi files into a container
 
-    :param key: assymetric keypair which must be used to encrypt/decrypt video stream
+    :param keychain_uid: unique uuid of used keypair
     :param encryption_algo: name of algorithm used to encrypt
     :param data: video files as bytes
 
@@ -272,7 +315,7 @@ def encrypt_symmetric_key(
     """
     Permits to encrypt the private symmetric key.
 
-    :param keypair: symmetric keypair
+    :param keychain_uid: unique uuid of used keypair
     :param conf: configuration tree
     :param metadata: optional metadata
     :param keychain_uid: optional ID of a keychain to reuse
@@ -302,7 +345,6 @@ def decrypt_symmetric_key(container: dict, key_type: str) -> bytes:
 
     :return: private key as *key_type* key object
     """
-    logger.debug("UUID déchiffrement : {}".format(container["keychain_uid"]))
     bytes_private_key = decrypt_data_from_container(
         container=container, local_key_storage=filesystem_key_storage
     )

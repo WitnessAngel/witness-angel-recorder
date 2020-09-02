@@ -6,7 +6,7 @@ import os
 import time
 import subprocess
 import signal
-from threading import Thread
+import threading
 
 logger = logging.getLogger()
 
@@ -117,9 +117,10 @@ class VideoStream:
                 break
 
 
-class VideoStreamWriterFfmpeg(Thread):
+class VideoStreamWriterFfmpeg(threading.Thread):
     def __init__(self, video_stream_url):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
+        self._stop_event = threading.Event()
         if not os.path.isdir("ffmpeg_video_stream"):
             logger.debug("Creating directory 'ffmpeg_video_stream'")
             os.mkdir("ffmpeg_video_stream")
@@ -140,6 +141,8 @@ class VideoStreamWriterFfmpeg(Thread):
             "copy",
             "-map",
             "0",
+            "-t",
+            "30",
             "-f",
             "segment",
             "-segment_time",
@@ -151,10 +154,11 @@ class VideoStreamWriterFfmpeg(Thread):
 
         logger.debug("Calling command: {}".format(pipeline))
         self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
-        while not self.done:
+        while not self._stop_event.is_set():
             self.process.wait()
 
     def stop(self):
         self.done = True
-        self.process.send_signal(signal.CTRL_BREAK_EVENT)
-        Thread.join(self)
+        self._stop_event.set()
+        # self.process.send_signal(signal.CTRL_BREAK_EVENT)
+        threading.Thread.join(self)

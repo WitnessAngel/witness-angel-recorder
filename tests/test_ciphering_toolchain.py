@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 
 from client.ciphering_toolchain import (
+    RecordingToolchain,
+    NewVideoHandler,
     create_observer_thread,
     apply_entire_encryption_algorithm,
     apply_entire_decryption_algorithm,
@@ -161,7 +163,6 @@ def test_encrypt_video_stream(container_conf):
         data=data,
         key_type=encryption_algo,
         conf=container_conf,
-        key_length_bits=key_length_bits,
         metadata=metadata,
         keychain_uid=keychain_uid,
     )
@@ -194,7 +195,8 @@ def test_create_observer_thread(container_conf):
         os.remove("ffmpeg_video_stream/{}".format(file))
 
     encryption_algo = "RSA_OAEP"
-    create_observer_thread(encryption_algo=encryption_algo, conf=container_conf)
+    new_video_handler = NewVideoHandler(conf=container_conf, key_type=encryption_algo, recordings_folder="ffmpeg_video_stream/")
+    create_observer_thread(new_video_handler)
 
 
 def test_decipher_container():
@@ -205,3 +207,11 @@ def test_decipher_container():
                 container_filepath=Path("ciphered_video_stream/{}".format(file))
             )
             apply_entire_decryption_algorithm(encryption_data=container)
+
+
+@pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
+def test_recording_toolchain(container_conf):
+    key_type = "RSA_OAEP"
+    camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+    recording_toolchain = RecordingToolchain(recordings_folder="ffmpeg_video_stream/", conf=container_conf, key_type=key_type, camera_url=camera_url)
+    recording_toolchain.launch_recording_toolchain()
