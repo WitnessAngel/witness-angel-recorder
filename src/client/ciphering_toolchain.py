@@ -104,8 +104,8 @@ class RtspVideoRecorder:
         time.sleep(30)
         # self.join()
         logger.debug("Video stream writer thread stopped")
-        writer_ffmpeg.stop()
         self.new_video_handler.launch_termination()
+        writer_ffmpeg.stop()
         return writer_ffmpeg.done
 
 
