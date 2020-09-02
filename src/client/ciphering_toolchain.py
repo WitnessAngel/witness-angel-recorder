@@ -117,13 +117,19 @@ class RecordingToolchain(Thread):
     def _offloaded_launch_recording_toolchain(self):
         logger.debug("Beginning recording toolchain thread")
         new_video_handler = NewVideoHandler(
-            recordings_folder=self.recordings_folder, conf=self.conf, key_type=self.key_type
+            recordings_folder=self.recordings_folder,
+            conf=self.conf,
+            key_type=self.key_type,
         )
         rtsp_video_recorder = RtspVideoRecorder(
             camera_url=self.camera_url, new_video_handler=new_video_handler
         )
-        self.observer_future = THREAD_POOL_EXECUTOR.submit(create_observer_thread, new_video_handler)
-        self.recorder_future = THREAD_POOL_EXECUTOR.submit(rtsp_video_recorder.start_recording)
+        self.observer_future = THREAD_POOL_EXECUTOR.submit(
+            create_observer_thread, new_video_handler
+        )
+        self.recorder_future = THREAD_POOL_EXECUTOR.submit(
+            rtsp_video_recorder.start_recording
+        )
 
     def launch_recording_toolchain(self):
         self.start()
@@ -134,11 +140,7 @@ class RecordingToolchain(Thread):
 
 
 def apply_entire_encryption_algorithm(
-    key_type: str,
-    conf: dict,
-    data: bytes,
-    keychain_uid,
-    metadata=None,
+    key_type: str, conf: dict, data: bytes, keychain_uid, metadata=None
 ) -> dict:
     """
     Apply entire encryption algorithm, from video data file to dictionary which contains ciphered data and container to

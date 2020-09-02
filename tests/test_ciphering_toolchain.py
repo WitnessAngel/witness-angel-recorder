@@ -195,7 +195,11 @@ def test_create_observer_thread(container_conf):
         os.remove("ffmpeg_video_stream/{}".format(file))
 
     encryption_algo = "RSA_OAEP"
-    new_video_handler = NewVideoHandler(conf=container_conf, key_type=encryption_algo, recordings_folder="ffmpeg_video_stream/")
+    new_video_handler = NewVideoHandler(
+        conf=container_conf,
+        key_type=encryption_algo,
+        recordings_folder="ffmpeg_video_stream/",
+    )
     create_observer_thread(new_video_handler)
 
 
@@ -213,5 +217,10 @@ def test_decipher_container():
 def test_recording_toolchain(container_conf):
     key_type = "RSA_OAEP"
     camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
-    recording_toolchain = RecordingToolchain(recordings_folder="ffmpeg_video_stream/", conf=container_conf, key_type=key_type, camera_url=camera_url)
+    recording_toolchain = RecordingToolchain(
+        recordings_folder="ffmpeg_video_stream/",
+        conf=container_conf,
+        key_type=key_type,
+        camera_url=camera_url,
+    )
     recording_toolchain.launch_recording_toolchain()
