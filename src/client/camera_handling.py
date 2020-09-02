@@ -118,13 +118,15 @@ class VideoStream:
 
 
 class VideoStreamWriterFfmpeg(threading.Thread):
-    def __init__(self, video_stream_url):
+    def __init__(self, video_stream_url, recording_time, segment_time):
         threading.Thread.__init__(self)
         self._stop_event = threading.Event()
         if not os.path.isdir("ffmpeg_video_stream"):
             logger.debug("Creating directory 'ffmpeg_video_stream'")
             os.mkdir("ffmpeg_video_stream")
         self.video_stream_url = video_stream_url
+        self.recording_time = recording_time
+        self.segment_time = segment_time
         self.done = False
         self.process = None
 
@@ -142,11 +144,11 @@ class VideoStreamWriterFfmpeg(threading.Thread):
             "-map",
             "0",
             "-t",
-            "30",
+            self.recording_time,
             "-f",
             "segment",
             "-segment_time",
-            "10",
+            self.segment_time,
             "-segment_format",
             "mp4",
             "ffmpeg_video_stream/ffmpeg_capture-%03d.mp4",

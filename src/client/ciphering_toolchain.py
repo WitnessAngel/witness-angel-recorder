@@ -85,16 +85,20 @@ class NewVideoHandler(FileSystemEventHandler):
 
 
 class RtspVideoRecorder:
-    def __init__(self, camera_url, new_video_handler):
+    def __init__(self, camera_url, new_video_handler, recording_time, segment_time):
         self.new_video_handler = new_video_handler
         self.camera_url = camera_url
+        self.recording_time = recording_time
+        self.segment_time = segment_time
 
     def start_recording(self):
         return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_recording)
 
     def _offloaded_start_recording(self):
         logger.debug("Video stream writer thread started")
-        writer_ffmpeg = VideoStreamWriterFfmpeg(video_stream_url=self.camera_url)
+        writer_ffmpeg = VideoStreamWriterFfmpeg(
+            video_stream_url=self.camera_url, recording_time=self.recording_time, segment_time=self.segment_time
+        )
         writer_ffmpeg.start()
 
         time.sleep(30)
@@ -102,17 +106,19 @@ class RtspVideoRecorder:
         logger.debug("Video stream writer thread stopped")
         writer_ffmpeg.stop()
         self.new_video_handler.launch_termination()
-        return True
+        return writer_ffmpeg.done
 
 
 class RecordingToolchain(Thread):
-    def __init__(self, recordings_folder, conf, key_type, camera_url):
+    def __init__(self, recordings_folder, conf, key_type, camera_url, recording_time, segment_time):
         Thread.__init__(self)
         self._termination_event = Event()
         self.camera_url = camera_url
         self.conf = conf
         self.key_type = key_type
         self.recordings_folder = recordings_folder
+        self.recording_time = recording_time
+        self.segment_time = segment_time
 
     def _offloaded_launch_recording_toolchain(self):
         logger.debug("Beginning recording toolchain thread")
@@ -122,7 +128,10 @@ class RecordingToolchain(Thread):
             key_type=self.key_type,
         )
         rtsp_video_recorder = RtspVideoRecorder(
-            camera_url=self.camera_url, new_video_handler=new_video_handler
+            camera_url=self.camera_url,
+            new_video_handler=new_video_handler,
+            recording_time=self.recording_time,
+            segment_time=self.segment_time
         )
         self.observer_future = THREAD_POOL_EXECUTOR.submit(
             create_observer_thread, new_video_handler

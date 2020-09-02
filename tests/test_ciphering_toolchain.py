@@ -217,10 +217,14 @@ def test_decipher_container():
 def test_recording_toolchain(container_conf):
     key_type = "RSA_OAEP"
     camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+    recording_time = "30"
+    segment_time = "10"
     recording_toolchain = RecordingToolchain(
         recordings_folder="ffmpeg_video_stream/",
         conf=container_conf,
         key_type=key_type,
         camera_url=camera_url,
+        recording_time=recording_time,
+        segment_time=segment_time
     )
     recording_toolchain.launch_recording_toolchain()
