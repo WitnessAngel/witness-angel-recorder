@@ -23,10 +23,11 @@ from wacryptolib.encryption import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.utilities import generate_uuid0
 
 logger = logging.getLogger()
-THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
+
+THREAD_POOL_EXECUTOR = ThreadPoolExecutor()  # FIXME make this an instance attribute of NewVideoHandler
 
 filesystem_key_storage = FilesystemKeyStorage(
-    keys_dir="D:/Users/manon/Documents/GitHub/witness-ward-client/tests/keys"
+    keys_dir="D:/Users/manon/Documents/GitHub/witness-ward-client/tests/keys"  # TODO remove asap
 )
 
 
@@ -39,9 +40,13 @@ class NewVideoHandler(FileSystemEventHandler):
         self.metadata = metadata
 
         self._termination_event = Event()
-        self.pending_files = os.listdir(self.recordings_folder)
+        self.pending_files = os.listdir(self.recordings_folder)  # TODO later : sort by date and treat [:-1]
+
+    def process_pending_files(self):
+        pass  # TODO - This utility would be useful both to on_created() and stop_observer()
 
     def on_created(self, event):
+        # FIXME just pop() and treat ALL entries which might be here, THEN append new path (it's more resilient this way)
         self.pending_files.append(event.src_path)
         try:
             self.start_processing(path_file=self.pending_files[-2])
@@ -81,7 +86,7 @@ class NewVideoHandler(FileSystemEventHandler):
 
     def launch_termination(self):
         last_path_file = self.pending_files[-1]
-        self.start_processing(last_path_file)
+        self.start_processing(last_path_file)  # FIXME someone must wait this job too
 
 
 class RtspVideoRecorder:
@@ -92,7 +97,7 @@ class RtspVideoRecorder:
         self.segment_time = segment_time
 
     def start_recording(self):
-        return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_recording)
+        return THREAD_POOL_EXECUTOR.submit(self._offloaded_start_recording)  # FIXME no need for this
 
     def _offloaded_start_recording(self):
         logger.debug("Video stream writer thread started")
@@ -109,7 +114,7 @@ class RtspVideoRecorder:
         return writer_ffmpeg.done
 
 
-class RecordingToolchain(Thread):
+class RecordingToolchain(Thread):  # FIXME - doesn't have to be a thread
     def __init__(self, recordings_folder, conf, key_type, camera_url, recording_time, segment_time):
         Thread.__init__(self)
         self._termination_event = Event()
@@ -120,7 +125,7 @@ class RecordingToolchain(Thread):
         self.recording_time = recording_time
         self.segment_time = segment_time
 
-    def _offloaded_launch_recording_toolchain(self):
+    def _offloaded_launch_recording_toolchain(self):  #FIXME - this is not an offloaded method here
         logger.debug("Beginning recording toolchain thread")
         new_video_handler = NewVideoHandler(
             recordings_folder=self.recordings_folder,
@@ -133,10 +138,10 @@ class RecordingToolchain(Thread):
             recording_time=self.recording_time,
             segment_time=self.segment_time
         )
-        self.observer_future = THREAD_POOL_EXECUTOR.submit(
+        self.observer_future = THREAD_POOL_EXECUTOR.submit(  # FIXME Excessive creation of intermediate thread
             create_observer_thread, new_video_handler
         )
-        self.recorder_future = THREAD_POOL_EXECUTOR.submit(
+        self.recorder_future = THREAD_POOL_EXECUTOR.submit(  # FIXME Excessive creation of intermediate thread
             rtsp_video_recorder.start_recording
         )
 
@@ -148,7 +153,7 @@ class RecordingToolchain(Thread):
             logger.debug("End recording toolchain thread")
 
 
-def apply_entire_encryption_algorithm(
+def apply_entire_encryption_algorithm(  # TODO replace by container system
     key_type: str, conf: dict, data: bytes, keychain_uid, metadata=None
 ) -> dict:
     """
@@ -185,7 +190,7 @@ def apply_entire_encryption_algorithm(
     return encryption_data
 
 
-def apply_entire_decryption_algorithm(encryption_data: dict) -> bytes:
+def apply_entire_decryption_algorithm(encryption_data: dict) -> bytes:  # TODO replace by container system
     """
     Apply entire decryption algorithm, from ciphered data in dictionary to video file as bytes
 
@@ -218,20 +223,21 @@ def save_container(video_filepath: str, container: dict):
     """
     filename, extension = os.path.splitext(video_filepath)
     dir_name, file = filename.split("/")
-    container_filepath = Path("ciphered_video_stream/{}.crypt".format(file))
+    container_filepath = Path("ciphered_video_stream/{}.crypt".format(file))  # TODO - we should use absolute paths asap
     logger.debug(container_filepath)
     dump_container_to_filesystem(
         container_filepath=container_filepath, container=container
     )
 
+# TODO - maybe we should tweak all Wacryptolib utils so that they coerce to Path() their inputs ? Or just raise instead...
 
-def get_container(container_filepath: str):
+def get_container(container_filepath: str):  # FIXME rather use Path objects everywhere and avoid such wrappers
     container_filepath = Path(container_filepath)
     container = load_container_from_filesystem(container_filepath=container_filepath)
     return container
 
 
-def get_data_from_video(path: str) -> bytes:
+def get_data_from_video(path: str) -> bytes:  # Fixme improve fallacious naming here
     with open(path, "rb") as file:
         data = file.read()
     os.remove(path=path)
@@ -247,6 +253,7 @@ def create_observer_thread(new_video_handler: classmethod):
     observer.schedule(new_video_handler, path="ffmpeg_video_stream/", recursive=True)
     logger.debug("Observer thread started")
     observer.start()
+    # FIXME - the observer should just be returned, so that the orchestrator of the system stop() it on shutdown ; no need to block current thread
     try:
         while True:
             time.sleep(0.5)
@@ -255,7 +262,7 @@ def create_observer_thread(new_video_handler: classmethod):
         logger.debug("Observer thread Stopped")
 
 
-def get_uuid0(ts=None):
+def get_uuid0(ts=None):  # FIXME - no need for this wrapper :?
     """
     Generate a random UUID according to current or given timestamp
 
@@ -266,7 +273,7 @@ def get_uuid0(ts=None):
     return generate_uuid0(ts=ts)
 
 
-def get_assymetric_keypair(key_type: str, key_length_bits=2048) -> dict:
+def get_assymetric_keypair(key_type: str, key_length_bits=2048) -> dict:  # FIXME - no need for this wrapper :?
     """
     Generate a (private_key, public_key) keypair
 
@@ -281,7 +288,7 @@ def get_assymetric_keypair(key_type: str, key_length_bits=2048) -> dict:
     return keypair
 
 
-def encrypt_video_stream(data: bytes, encryption_algo: str, keychain_uid) -> dict:
+def encrypt_video_stream(data: bytes, encryption_algo: str, keychain_uid) -> dict:  # FIXME - why reinvent this container subsystem?
     """
     Put the video stream data saved in an .avi files into a container
 
@@ -304,7 +311,7 @@ def encrypt_video_stream(data: bytes, encryption_algo: str, keychain_uid) -> dic
     return cipherdict
 
 
-def decrypt_video_stream(cipherdict: dict, encryption_algo: str, key) -> bytes:
+def decrypt_video_stream(cipherdict: dict, encryption_algo: str, key) -> bytes:  # FIXME - why reinvent this container subsystem?
     """
     Decipher container where a video stream saved as an .avi file has been ciphered
 
@@ -320,7 +327,7 @@ def decrypt_video_stream(cipherdict: dict, encryption_algo: str, key) -> bytes:
     return initial_data
 
 
-def encrypt_symmetric_key(
+def encrypt_symmetric_key(  # FIXME - why reinvent this container subsystem?
     conf: dict, encryption_algo: str, metadata: dict, keychain_uid
 ) -> dict:
     """
@@ -347,7 +354,7 @@ def encrypt_symmetric_key(
     return container_private_key
 
 
-def decrypt_symmetric_key(container: dict, key_type: str) -> bytes:
+def decrypt_symmetric_key(container: dict, key_type: str) -> bytes:  # FIXME - why reinvent this container subsystem?
     """
     Permits to decrypt the private symmetric key
 
