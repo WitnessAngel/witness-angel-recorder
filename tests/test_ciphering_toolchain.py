@@ -2,21 +2,17 @@ import pytest
 import random
 import os
 from pathlib import Path
+import time
 
 from client.ciphering_toolchain import (
     RecordingToolchain,
     NewVideoHandler,
-    create_observer_thread,
-    apply_entire_encryption_algorithm,
-    apply_entire_decryption_algorithm,
-    get_data_from_video,
     save_container,
-    get_container,
-    get_uuid0,
     generate_asymmetric_keypair,
 )
+from wacryptolib.utilities import generate_uuid0
 
-from wacryptolib.container import LOCAL_ESCROW_MARKER, SHARED_SECRET_MARKER
+from wacryptolib.container import LOCAL_ESCROW_MARKER, SHARED_SECRET_MARKER, decrypt_data_from_container, load_container_from_filesystem
 from wacryptolib.key_storage import FilesystemKeyStorage
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -137,86 +133,32 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
 )
 
 
-@pytest.mark.parametrize(
-    "container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF, COMPLEX_SHAMIR_CONTAINER_CONF]
-)
-def test_encrypt_video_stream(container_conf):
-    video_files = os.listdir("ffmpeg_video_stream")
-    path = f"ffmpeg_video_stream/{random.choice(video_files)}"
-
-    encryption_algo = "RSA_OAEP"
-    key_length_bits = random.choice([2048, 3072, 4096])
-    metadata = random.choice([None, dict(a=[123])])
-    data = get_data_from_video(path=path)
-
-    filesystem_key_storage = FilesystemKeyStorage(keys_dir="keys/")
-    key_pair = generate_asymmetric_keypair(key_type=encryption_algo)
-    keychain_uid = get_uuid0()
-    filesystem_key_storage.set_keys(
-        keychain_uid=keychain_uid,
-        key_type=encryption_algo,
-        public_key=key_pair["public_key"],
-        private_key=key_pair["private_key"],
-    )
-
-    encryption_data = apply_entire_encryption_algorithm(
-        data=data,
-        key_type=encryption_algo,
-        conf=container_conf,
-        metadata=metadata,
-        keychain_uid=keychain_uid,
-    )
-
-    assert isinstance(encryption_data, dict)
-    assert isinstance(encryption_data["private_key"], dict)
-    assert isinstance(encryption_data["encryption_algo"], str)
-    assert isinstance(encryption_data["data_ciphertext"], dict)
-
-    save_container(video_filepath=path, container=encryption_data)
-
-    filename, extension = os.path.splitext(path)
-    dir_name, file = filename.split("/")
-    container_filepath = Path("ciphered_video_stream/{}.crypt".format(file))
-    assert os.path.exists(container_filepath)
-
-    container = get_container(container_filepath=container_filepath)
-
-    result_data = apply_entire_decryption_algorithm(encryption_data=container)
-
-    assert isinstance(result_data, bytes)
-
-    assert result_data == data
-
-
 @pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
 def test_create_observer_thread(container_conf):
-    video_files = os.listdir("ffmpeg_video_stream")
-    for file in video_files:
-        os.remove("ffmpeg_video_stream/{}".format(file))
-
     encryption_algo = "RSA_OAEP"
     new_video_handler = NewVideoHandler(
         conf=container_conf,
         key_type=encryption_algo,
         recordings_folder="ffmpeg_video_stream/",
     )
-    create_observer_thread(new_video_handler)
+    new_video_handler.start_observer()
 
 
 def test_decipher_container():
     video_files = os.listdir("ciphered_video_stream/")
     for file in video_files:
         if file.endswith(".crypt"):
-            container = get_container(
+            container = load_container_from_filesystem(
                 container_filepath=Path("ciphered_video_stream/{}".format(file))
             )
-            apply_entire_decryption_algorithm(encryption_data=container)
+            decrypt_data_from_container(container=container)
 
 
 @pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
 def test_recording_toolchain(container_conf):
     key_type = "RSA_OAEP"
-    camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+    # camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+    camera_url = "rtsp://viewer:SomePwd8162@92.89.81.50:554/Streaming/Channels/101"
     recording_time = 30
     segment_time = 10
     recording_toolchain = RecordingToolchain(
@@ -228,7 +170,8 @@ def test_recording_toolchain(container_conf):
         segment_time=str(segment_time)
     )
     recording_toolchain.launch_recording_toolchain()
-
+    time.sleep(recording_time)
+    recording_toolchain.stop_recording_toolchain_and_wait()
     assert os.listdir("ffmpeg_video_stream/") == []
 
     # Assert every segment have been ciphered
@@ -238,4 +181,4 @@ def test_recording_toolchain(container_conf):
         if ciphered_video.endswith(".crypt"):
             ciphered_segment += 1
 
-    assert ciphered_segment == (recording_time/segment_time)
+    assert ciphered_segment >= (recording_time/segment_time)

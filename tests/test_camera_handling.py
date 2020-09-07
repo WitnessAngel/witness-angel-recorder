@@ -40,6 +40,6 @@ def test_write_video_stream_ffmpeg():
     #     "rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa"
     # )  # Public video stream
     writer_ffmpeg = VideoStreamWriterFfmpeg(video_stream_url=camera_url, recording_time="30", segment_time="10")
-    writer_ffmpeg.start()
-    time.sleep(50)
-    writer_ffmpeg.stop()
+    writer_ffmpeg.start_writing()
+    time.sleep(30)
+    writer_ffmpeg.stop_writing()

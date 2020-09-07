@@ -120,7 +120,6 @@ class VideoStream:
 class VideoStreamWriterFfmpeg(threading.Thread):
     def __init__(self, video_stream_url, recording_time, segment_time):
         threading.Thread.__init__(self)
-        self._stop_event = threading.Event() # FIXME - if you don't use event.wait(), a simple boolean does the job here
         if not os.path.isdir("ffmpeg_video_stream"):
             logger.debug("Creating directory 'ffmpeg_video_stream'")
             os.mkdir("ffmpeg_video_stream")
@@ -130,7 +129,8 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         self.done = False
         self.process = None
 
-    def run(self):
+    def start_writing(self):
+        self.start()
         pipeline = [
             "ffmpeg",
             "-rtsp_transport",
@@ -155,13 +155,11 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         ]
 
         logger.debug("Calling command: {}".format(pipeline))
-        self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
-        while not self._stop_event.is_set():
-            self.process.wait()  # FIXME why a loop here whereas wait() without timeout blocks forever ?
+        self.process = subprocess.Popen(pipeline)
 
-    def stop(self):
+    def stop_writing(self):
         # FIXME - for me stop() should send a signal to self.process here, to stop the recording gracefully
         self.done = True
-        self._stop_event.set()
+
+        self.join()  # FIXME - use self.join() (but you should let the caller decide if he wants to join() or not)
         # self.process.send_signal(signal.CTRL_BREAK_EVENT)
-        threading.Thread.join(self)  # FIXME - use self.join() (but you should let the caller decide if he wants to join() or not)
