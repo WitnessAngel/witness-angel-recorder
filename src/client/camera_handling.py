@@ -123,36 +123,40 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         if not os.path.isdir("ffmpeg_video_stream"):
             logger.debug("Creating directory 'ffmpeg_video_stream'")
             os.mkdir("ffmpeg_video_stream")
-        self.video_stream_url = video_stream_url
-        self.recording_time = recording_time
-        self.segment_time = segment_time
+
+        self.input = ["-i", video_stream_url]
+
+        if recording_time is None:  # Recording will never stop by himself
+            self.recording_duration = []
+        else:
+            self.recording_duration = ["-t", recording_time]
+
+        self.segment_duration = ["-segment_time", segment_time]
         self.process = None
 
     def start_writing(self):
         self.start()
-        pipeline = [
+        exec = [
             "ffmpeg",
             "-rtsp_transport",
-            "tcp",
-            "-i",
-            self.video_stream_url,
+            "tcp"]
+        codec = [
             "-vcodec",
             "copy",
             "-acodec",
             "copy",
             "-map",
-            "0",
-            "-t",
-            self.recording_time,
+            "0"]
+        segment = [
             "-f",
-            "segment",
-            "-segment_time",
-            self.segment_time,
+            "segment"]
+        format = [
             "-segment_format",
             "mp4",
-            "ffmpeg_video_stream/ffmpeg_capture-%03d.mp4",
+            "ffmpeg_video_stream/ffmpeg_capture-%03d.mp4"
         ]
 
+        pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format
         logger.debug("Calling command: {}".format(pipeline))
         self.process = subprocess.Popen(pipeline)
 
