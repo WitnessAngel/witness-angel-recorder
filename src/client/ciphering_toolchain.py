@@ -105,6 +105,9 @@ class RtspVideoRecorder:
         logger.debug("Video stream writing thread stopped and waiting")
         self.writer_ffmpeg.stop_writing()
 
+    def get_ffmpeg_status(self):
+        return self.writer_ffmpeg.is_alive()
+
 
 class RecordingToolchain:
     def __init__(self, recordings_folder, conf, key_type, camera_url, recording_time, segment_time):
@@ -129,8 +132,7 @@ class RecordingToolchain:
         self.new_video_handler.stop_new_files_processing_and_wait()
 
     def get_status(self):
-        """-> checks if ffmpeg process is alive
-        -> later : check status of encryption operations"""
+        self.rtsp_video_recorder.get_ffmpeg_status()
 
 
 def save_container(video_filepath: str, container: dict):
