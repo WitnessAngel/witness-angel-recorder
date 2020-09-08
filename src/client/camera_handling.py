@@ -11,7 +11,7 @@ import threading
 logger = logging.getLogger()
 
 
-class VideoStream:
+class VideoStreamWriterOpenCV:
     def __init__(self, timeout, video_stream_url=None):
         """
         Initialize VideoStream class
