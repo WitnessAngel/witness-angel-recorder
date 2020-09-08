@@ -1,5 +1,6 @@
 import logging
 import os
+import cv2
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 
@@ -40,6 +41,8 @@ class NewVideoHandler(FileSystemEventHandler):
         ]
         self.pending_files.sort(key=os.path.getmtime)
 
+        self.first_frame = None
+
     def start_observer(self):
         self.observer = Observer()
         self.observer.schedule(self, path="ffmpeg_video_stream/", recursive=True)
@@ -54,6 +57,14 @@ class NewVideoHandler(FileSystemEventHandler):
     def on_created(self, event):
         self.process_pending_files()
         self.pending_files.append(event.src_path)
+
+    def extract_first_frame(self, path):
+        cap = cv2.VideoCapture(path)
+        while self.first_frame is None:
+            ret, self.first_frame = cap.read()
+
+    def get_first_frame(self):
+        return self.first_frame
 
     @safe_catch_unhandled_exception
     def start_processing(self, path_file):
@@ -160,6 +171,9 @@ class RecordingToolchain:
     def get_status(self):
         """Check if recorder thread is alive (True) or not (False)"""
         self.rtsp_video_recorder.get_ffmpeg_status()
+
+    def get_first_frame(self):
+        return self.new_video_handler.get_first_frame()
 
 
 def save_container(video_filepath: str, container: dict):
