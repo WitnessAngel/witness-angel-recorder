@@ -1,31 +1,31 @@
-from kivy.uix.screenmanager import ScreenManager
-from kivymd.uix.screen import Screen
+import random
+from pathlib import Path
+from pathlib import PurePath
+
+from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
-from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.video import Video
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
-from kivymd.uix.list import OneLineIconListItem, MDList
-from kivy.uix.checkbox import CheckBox
-from pathlib import Path
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
-from pathlib import PurePath
-from kivy.uix.video import Video
+from kivymd.uix.list import OneLineIconListItem, MDList
+from kivymd.uix.screen import Screen
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
     load_container_from_filesystem,
     dump_container_to_filesystem,
+    LOCAL_ESCROW_MARKER
 )
-from wacryptolib.utilities import generate_uuid0
-import random
-from wacryptolib.escrow import LOCAL_ESCROW_MARKER
 from wacryptolib.key_device import list_available_key_devices
 from wacryptolib.key_storage import FilesystemKeyStorage
+from wacryptolib.utilities import generate_uuid0
 from wacryptolib.utilities import load_from_json_file, dump_to_json_file
-
-from kivy.config import Config
 
 Config.set("graphics", "fullscreen", "0")
 Config.set("graphics", "show_cursor", "1")
