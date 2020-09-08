@@ -126,7 +126,6 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         self.video_stream_url = video_stream_url
         self.recording_time = recording_time
         self.segment_time = segment_time
-        self.done = False
         self.process = None
 
     def start_writing(self):
@@ -158,8 +157,7 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         self.process = subprocess.Popen(pipeline)
 
     def stop_writing(self):
-        # FIXME - for me stop() should send a signal to self.process here, to stop the recording gracefully
-        self.done = True
+        self.join()
 
-        self.join()  # FIXME - use self.join() (but you should let the caller decide if he wants to join() or not)
-        # self.process.send_signal(signal.CTRL_BREAK_EVENT)
+    def get_writer_status(self):
+        return self.is_alive()
