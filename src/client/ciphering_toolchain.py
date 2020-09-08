@@ -32,6 +32,7 @@ class NewVideoHandler(FileSystemEventHandler):
         self.THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
         self.pending_files = os.listdir(self.recordings_folder)
         self.pending_files[:] = [os.path.join("ffmpeg_video_stream", filename) for filename in self.pending_files]
+        self.pending_files.sort(key=os.path.getmtime)
 
     def start_observer(self):
         self.observer = Observer()
@@ -141,8 +142,7 @@ def save_container(video_filepath: str, container: dict):
     """
     filename, extension = os.path.splitext(video_filepath)
     dir_name, file = filename.split("/")
-    container_filepath = os.getcwd() + Path("ciphered_video_stream/{}.crypt".format(file))
-    logger.debug(container_filepath)
+    container_filepath = Path(os.path.abspath("ciphered_video_stream/{}.crypt".format(file)))
     dump_container_to_filesystem(
         container_filepath=container_filepath, container=container
     )
