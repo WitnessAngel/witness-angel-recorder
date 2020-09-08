@@ -22,6 +22,7 @@ filesystem_key_storage = FilesystemKeyStorage(
 
 
 class NewVideoHandler(FileSystemEventHandler):
+    """Process each file in the directory where video files are stored"""
     def __init__(self, recordings_folder, key_type, conf, metadata=None):
         self.recordings_folder = recordings_folder
 
@@ -50,6 +51,7 @@ class NewVideoHandler(FileSystemEventHandler):
         self.pending_files.append(event.src_path)
 
     def start_processing(self, path_file):
+        """Launch a thread where a file will be ciphered"""
         return self.THREAD_POOL_EXECUTOR.submit(self._offloaded_start_processing, path_file)
 
     def _offloaded_start_processing(self, path_file):
@@ -90,6 +92,7 @@ class NewVideoHandler(FileSystemEventHandler):
 
 
 class RtspVideoRecorder:
+    """Generic wrapper around some actual recorder implementation"""
     def __init__(self, camera_url, recording_time, segment_time):
         self.writer_ffmpeg = VideoStreamWriterFfmpeg(
             video_stream_url=camera_url,
@@ -102,6 +105,7 @@ class RtspVideoRecorder:
         self.writer_ffmpeg.start_writing()
 
     def stop_recording_and_wait(self):
+        """Transmit stop call to VideoStreamWriterFfmpeg and wait on it"""
         logger.debug("Video stream writing thread stopped and waiting")
         self.writer_ffmpeg.stop_writing()
 
@@ -110,6 +114,7 @@ class RtspVideoRecorder:
 
 
 class RecordingToolchain:
+    """Permits to handle every threads implied in the recording toolchain"""
     def __init__(self, recordings_folder, conf, key_type, camera_url, recording_time, segment_time):
         self.new_video_handler = NewVideoHandler(
             recordings_folder=recordings_folder,
@@ -123,15 +128,18 @@ class RecordingToolchain:
         )
 
     def launch_recording_toolchain(self):
+        """Launch every threads"""
         logger.debug("Beginning recording toolchain thread")
         self.new_video_handler.start_observer()
         self.rtsp_video_recorder.start_recording()
 
     def stop_recording_toolchain_and_wait(self):
+        """Stop and wait every threads"""
         self.rtsp_video_recorder.stop_recording_and_wait()
         self.new_video_handler.stop_new_files_processing_and_wait()
 
     def get_status(self):
+        """Check if recorder thread is alive (True) or not (False)"""
         self.rtsp_video_recorder.get_ffmpeg_status()
 
 
@@ -153,6 +161,7 @@ def save_container(video_filepath: str, container: dict):
 
 
 def get_data_then_delete_videofile(path: str) -> bytes:
+    """Read video file's data then delete the file from system"""
     with open(path, "rb") as file:
         data = file.read()
     os.remove(path=path)
