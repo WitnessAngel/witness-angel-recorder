@@ -18,6 +18,7 @@ bson = "^0.5.10"
 ffmpeg-python = "^0.2.0"
 watchdog = "^0.10.3"
 kivy = "^1.11.1"
+wmi = "^1.5.1"
 
 [tool.poetry.dev-dependencies]
 
