@@ -4,6 +4,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 
 from client.camera_handling import VideoStreamWriterFfmpeg
+from client.utilities.misc import safe_catch_unhandled_exception
 from wacryptolib.container import (
     encrypt_data_into_container,
     dump_container_to_filesystem,
@@ -50,10 +51,12 @@ class NewVideoHandler(FileSystemEventHandler):
         self.process_pending_files()
         self.pending_files.append(event.src_path)
 
+    @safe_catch_unhandled_exception
     def start_processing(self, path_file):
         """Launch a thread where a file will be ciphered"""
         return self.THREAD_POOL_EXECUTOR.submit(self._offloaded_start_processing, path_file)
 
+    @safe_catch_unhandled_exception
     def _offloaded_start_processing(self, path_file):
         logger.debug("Starting thread processing for {}".format(path_file))
         key_pair = generate_asymmetric_keypair(key_type=self.key_type)
@@ -79,6 +82,7 @@ class NewVideoHandler(FileSystemEventHandler):
 
         logger.debug("Finished processing thread for {}".format(path_file))
 
+    @safe_catch_unhandled_exception
     def stop_new_files_processing_and_wait(self):
         logger.debug("Stop observer thread")
         self.observer.stop()
@@ -100,10 +104,12 @@ class RtspVideoRecorder:
             segment_time=segment_time
         )
 
+    @safe_catch_unhandled_exception
     def start_recording(self):
         logger.debug("Video stream writer thread started")
         self.writer_ffmpeg.start_writing()
 
+    @safe_catch_unhandled_exception
     def stop_recording_and_wait(self):
         """Transmit stop call to VideoStreamWriterFfmpeg and wait on it"""
         logger.debug("Video stream writing thread stopped and waiting")
@@ -127,12 +133,14 @@ class RecordingToolchain:
             segment_time=segment_time
         )
 
+    @safe_catch_unhandled_exception
     def launch_recording_toolchain(self):
         """Launch every threads"""
         logger.debug("Beginning recording toolchain thread")
         self.new_video_handler.start_observer()
         self.rtsp_video_recorder.start_recording()
 
+    @safe_catch_unhandled_exception
     def stop_recording_toolchain_and_wait(self):
         """Stop and wait every threads"""
         self.rtsp_video_recorder.stop_recording_and_wait()
