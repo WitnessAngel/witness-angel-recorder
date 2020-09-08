@@ -9,7 +9,7 @@ from wacryptolib.container import (
     encrypt_data_into_container,
     dump_container_to_filesystem,
 )
-from wacryptolib.key_generation import (generate_asymmetric_keypair)
+from wacryptolib.key_generation import generate_asymmetric_keypair
 from wacryptolib.key_storage import FilesystemKeyStorage
 from wacryptolib.utilities import generate_uuid0
 from watchdog.events import FileSystemEventHandler
@@ -24,6 +24,7 @@ filesystem_key_storage = FilesystemKeyStorage(
 
 class NewVideoHandler(FileSystemEventHandler):
     """Process each file in the directory where video files are stored"""
+
     def __init__(self, recordings_folder, key_type, conf, metadata=None):
         self.recordings_folder = recordings_folder
 
@@ -33,7 +34,10 @@ class NewVideoHandler(FileSystemEventHandler):
 
         self.THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
         self.pending_files = os.listdir(self.recordings_folder)
-        self.pending_files[:] = [os.path.join("ffmpeg_video_stream", filename) for filename in self.pending_files]
+        self.pending_files[:] = [
+            os.path.join("ffmpeg_video_stream", filename)
+            for filename in self.pending_files
+        ]
         self.pending_files.sort(key=os.path.getmtime)
 
     def start_observer(self):
@@ -54,7 +58,9 @@ class NewVideoHandler(FileSystemEventHandler):
     @safe_catch_unhandled_exception
     def start_processing(self, path_file):
         """Launch a thread where a file will be ciphered"""
-        return self.THREAD_POOL_EXECUTOR.submit(self._offloaded_start_processing, path_file)
+        return self.THREAD_POOL_EXECUTOR.submit(
+            self._offloaded_start_processing, path_file
+        )
 
     @safe_catch_unhandled_exception
     def _offloaded_start_processing(self, path_file):
@@ -71,10 +77,7 @@ class NewVideoHandler(FileSystemEventHandler):
         logger.debug("Beginning encryption for {}".format(path_file))
         data = get_data_then_delete_videofile(path=path_file)
         container = encrypt_data_into_container(
-            conf=self.conf,
-            data=data,
-            metadata=self.metadata,
-            keychain_uid=keychain_uid,
+            conf=self.conf, data=data, metadata=self.metadata, keychain_uid=keychain_uid
         )
 
         logger.debug("Saving container of {}".format(path_file))
@@ -97,11 +100,12 @@ class NewVideoHandler(FileSystemEventHandler):
 
 class RtspVideoRecorder:
     """Generic wrapper around some actual recorder implementation"""
+
     def __init__(self, camera_url, recording_time, segment_time):
         self.writer_ffmpeg = VideoStreamWriterFfmpeg(
             video_stream_url=camera_url,
             recording_time=recording_time,
-            segment_time=segment_time
+            segment_time=segment_time,
         )
 
     @safe_catch_unhandled_exception
@@ -121,16 +125,23 @@ class RtspVideoRecorder:
 
 class RecordingToolchain:
     """Permits to handle every threads implied in the recording toolchain"""
-    def __init__(self, recordings_folder, conf, key_type, camera_url, recording_time, segment_time):
+
+    def __init__(
+        self,
+        recordings_folder,
+        conf,
+        key_type,
+        camera_url,
+        recording_time,
+        segment_time,
+    ):
         self.new_video_handler = NewVideoHandler(
-            recordings_folder=recordings_folder,
-            conf=conf,
-            key_type=key_type,
+            recordings_folder=recordings_folder, conf=conf, key_type=key_type
         )
         self.rtsp_video_recorder = RtspVideoRecorder(
             camera_url=camera_url,
             recording_time=recording_time,
-            segment_time=segment_time
+            segment_time=segment_time,
         )
 
     @safe_catch_unhandled_exception
@@ -160,10 +171,13 @@ def save_container(video_filepath: str, container: dict):
     """
     filename, extension = os.path.splitext(video_filepath)
     dir_name, file = filename.split("/")
-    container_filepath = Path(os.path.abspath("ciphered_video_stream/{}.crypt".format(file)))
+    container_filepath = Path(
+        os.path.abspath("ciphered_video_stream/{}.crypt".format(file))
+    )
     dump_container_to_filesystem(
         container_filepath=container_filepath, container=container
     )
+
 
 # TODO - maybe we should tweak all Wacryptolib utils so that they coerce to Path() their inputs ? Or just raise instead...
 

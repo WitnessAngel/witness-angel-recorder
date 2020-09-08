@@ -12,7 +12,7 @@ def safe_catch_unhandled_exception(f, *args, **kwargs):
         try:
             logger.error(
                 f"Caught unhandled exception in call of function {f!r}: {exc!r}",
-                exc_info=True
+                exc_info=True,
             )
         except Exception as exc2:
             print(

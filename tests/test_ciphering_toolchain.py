@@ -12,7 +12,12 @@ from client.ciphering_toolchain import (
 )
 from wacryptolib.utilities import generate_uuid0
 
-from wacryptolib.container import LOCAL_ESCROW_MARKER, SHARED_SECRET_MARKER, decrypt_data_from_container, load_container_from_filesystem
+from wacryptolib.container import (
+    LOCAL_ESCROW_MARKER,
+    SHARED_SECRET_MARKER,
+    decrypt_data_from_container,
+    load_container_from_filesystem,
+)
 from wacryptolib.key_storage import FilesystemKeyStorage
 
 SIMPLE_SHAMIR_CONTAINER_CONF = dict(
@@ -167,7 +172,7 @@ def test_recording_toolchain(container_conf):
         key_type=key_type,
         camera_url=camera_url,
         recording_time=str(recording_time),
-        segment_time=str(segment_time)
+        segment_time=str(segment_time),
     )
     recording_toolchain.launch_recording_toolchain()
     time.sleep(recording_time)
@@ -181,4 +186,4 @@ def test_recording_toolchain(container_conf):
         if ciphered_video.endswith(".crypt"):
             ciphered_segment += 1
 
-    assert ciphered_segment >= (recording_time/segment_time)
+    assert ciphered_segment >= (recording_time / segment_time)
