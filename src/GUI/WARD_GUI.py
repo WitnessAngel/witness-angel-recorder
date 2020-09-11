@@ -1,4 +1,5 @@
 import random
+import os
 from pathlib import Path
 from pathlib import PurePath
 
@@ -15,15 +16,19 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
+from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, initialize_rsa_key
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
+    decrypt_data_from_container,
+    request_decryption_authorizations,
+    gather_escrow_dependencies,
     load_container_from_filesystem,
     dump_container_to_filesystem,
-    LOCAL_ESCROW_MARKER
+    LOCAL_ESCROW_MARKER,
 )
-from wacryptolib.key_device import list_available_key_devices
-from wacryptolib.key_storage import FilesystemKeyStorage
+from wacryptolib.key_device import initialize_key_device
+from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
 from wacryptolib.utilities import generate_uuid0
 from wacryptolib.utilities import load_from_json_file, dump_to_json_file
 
@@ -105,14 +110,27 @@ class WARD_GUIApp(MDApp):
                 )
             ]
         )
+        self.threshold = None
+        self.checked_devices = []
+        self.info_escrows = []
 
     def switch_callback(self, switchObject, switchValue):
-
-        video_widget = self.video
+        container_conf = _generate_encryption_conf(
+            threshold=int(self.get_threshold()), key_devices_used=self.checked_devices
+        )
+        self.info_escrows = container_conf.get("info_escrows")
+        recording_toolchain = RecordingToolchain(
+            recordings_folder="ffmpeg_video_stream/",
+            conf=container_conf.get("data_encryption_strata"),
+            key_type="RSA_OAEP",
+            camera_url=self.get_url_camera(),
+            recording_time="30",
+            segment_time="10",
+        )
         if switchValue:
-            video_widget.state = "play"
+            recording_toolchain.launch_recording_toolchain()
         else:
-            video_widget.state = "stop"
+            recording_toolchain.stop_recording_toolchain_and_wait()
 
     def build(self):
         pass
@@ -122,12 +140,18 @@ class WARD_GUIApp(MDApp):
             "example",
             {
                 "urlcamera": "/sme/path",
-                "number_escrow": 10,
-                "min_number_shares": 10,
+                "number_escrow": 9,
+                "min_number_shares": 7,
                 "retention_days": 10,
                 "recordingdirectory": "/dir_rec-parent/dir_rec",
             },
         )
+
+    def get_threshold(self):
+        return self.config.get("example", "min_number_shares")
+
+    def get_url_camera(self):
+        return self.config.get("example", "urlcamera")
 
     def build_settings(self, settings):
         settings.add_json_panel("Witness Angel", self.config, data=settings_json)
@@ -170,7 +194,7 @@ class WARD_GUIApp(MDApp):
         )
         self.get_detected_devices()
         # create container for tests
-        #self.create_containers_for_test()
+        # self.create_containers_for_test()
 
     def draw_menu(self, ecran):
         icons_item = {
@@ -197,7 +221,6 @@ class WARD_GUIApp(MDApp):
 
         self.root.ids.screen_manager.current = destination
         self.root.ids.nav_drawer.set_state("close")
-
 
     def get_detected_container(self):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
@@ -271,7 +294,6 @@ class WARD_GUIApp(MDApp):
             for f in Path(r".keys_storage_ward").iterdir()
             if str(PurePath(f).name) == str(self.btn_lbls[btn_selected])
         ]
-
         for usb_dir in files:
             object_FilesystemKeyStorage = FilesystemKeyStorage(usb_dir)
             public_key_list = object_FilesystemKeyStorage.list_keys()
@@ -292,7 +314,6 @@ class WARD_GUIApp(MDApp):
             self.open_dialog_display_keys_in_key_device(message, info_usb_user)
 
     def open_dialog_display_keys_in_key_device(self, message, info_usb_user):
-
         self.dialog = MDDialog(
             title="%s" % info_usb_user,
             text=message,
@@ -303,9 +324,6 @@ class WARD_GUIApp(MDApp):
 
     def close_dialog(self, obj):
         self.dialog.dismiss()
-
-    def check_box_key_device_checked(self, check_box_checked):
-        print(self.chbx_lbls[check_box_checked])
 
     def check_box_container_checked(self, radio_box_checked, value):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
@@ -326,32 +344,45 @@ class WARD_GUIApp(MDApp):
         and for those who are initialize, copy (with different KeyStorage for each folder)
         their content in a <KEYS_ROOT> / <device_uid> / folder (taking the device_uid from metadata.json)
         """
-        list_devices = list_available_key_devices()
-        for index, key_device in enumerate(list_devices):
-            if str(key_device["is_initialized"]) == "True":
-                if not Path(".keys_storage_ward").exists():
-                    Path(".keys_storage_ward").mkdir()
-                device_dir = str(key_device["device_uid"])
-                file_metadata = Path(".keys_storage_ward").joinpath(
-                    device_dir, ".metadata.json"
-                )
-                metadata_file_path = Path(key_device["path"]).joinpath(
-                    ".key_storage", ".metadata.json"
-                )
-                if not Path(file_metadata.parent).exists():
-                    Path(file_metadata.parent).mkdir()
-                metadata = load_from_json_file(metadata_file_path)
-                dump_to_json_file(file_metadata, metadata)
-                dst = Path(".keys_storage_ward").joinpath(device_dir)
-                key_pairs_dir = Path(key_device["path"]).joinpath(
-                    ".key_storage", "crypto_keys"
-                )
-                # copy contents keys of key_pairs_dir to dst(copy key storage to <KEYS_ROOT>/<device_uid>)
-                self._import_keys(key_pairs_dir, dst)
+        # list_devices = list_available_key_devices()
+        # print(list_devices)
+        # for index, key_device in enumerate(list_devices):
+        key_device = {
+            "drive_type": "USBSTOR",
+            "path": "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI",
+            "label": "TOSHIBA",
+            "size": 31000166400,
+            "format": "fat32",
+            "is_initialized": False,
+        }
+        initialize_key_device(key_device=key_device, user="Marty Mcfly")
+        initialize_rsa_key(keychain_uid=key_device["device_uid"])
+        if str(key_device["is_initialized"]) == "True":
+            if not Path(".keys_storage_ward").exists():
+                Path(".keys_storage_ward").mkdir()
+            if not Path(".keys_storage_ward/imported_key_storages").exists():
+                Path(".keys_storage_ward/imported_key_storages").mkdir()
+            device_dir = str(key_device["device_uid"])
+            file_metadata = Path(".keys_storage_ward/imported_key_storages").joinpath(
+                f"key_storage_{device_dir}", ".metadata.json"
+            )
+            metadata_file_path = Path(key_device["path"]).joinpath(  # FIXME: file_metadata & metadata_file_path
+                ".key_storage", ".metadata.json"
+            )
+            if not Path(file_metadata.parent).exists():
+                Path(file_metadata.parent).mkdir()
+            metadata = load_from_json_file(metadata_file_path)
+            dump_to_json_file(file_metadata, metadata)
+            dst = Path(".keys_storage_ward").joinpath("imported_key_storages", f"key_storage_{device_dir}")  # FIXME: dst ?
+            key_pairs_dir = Path(key_device["path"]).joinpath(
+                ".key_storage", "crypto_keys"
+            )
+            # copy contents keys of key_pairs_dir to dst(copy key storage to <KEYS_ROOT>/<device_uid>)
+            self._import_keys(key_pairs_dir, dst)
         # update the display of key_device saved in the local folder .keys_storage_ward
         self.get_detected_devices()
 
-    def _import_keys(self, src, dst):
+    def _import_keys(self, src, dst):  # FIXME: rename this func : move_keys_directory ?
         """
         copy the keys of a src directory and put it in the a dst directory
 
@@ -387,15 +418,15 @@ class WARD_GUIApp(MDApp):
         Keys_page_ids = self.root.ids.screen_manager.get_screen(
             "Keys_management"
         ).ids
-        if not Path(r".keys_storage_ward").exists():
+        if not Path(r".keys_storage_ward/imported_key_storages").exists():
             # "no key found"
             self.display_message_no_device_found()
         else:
-            result = [f for f in Path(r".keys_storage_ward").iterdir()]
+            result = [f for f in Path(r".keys_storage_ward/imported_key_storages").iterdir()]
             index = 0
             Keys_page_ids.table.clear_widgets()
-            self.chbx_lbls = {}
-            self.btn_lbls = {}
+            self.chbx_lbls = {}  # FIXME: lbls ?
+            self.btn_lbls = {}  # FIXME: lbls ?
             for dir_key_sorage in result:
                 file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
                 if file_metadata.exists():
@@ -431,7 +462,6 @@ class WARD_GUIApp(MDApp):
                 else:
                     self.display_message_no_device_found()
 
-
     def display_message_no_device_found(self):
         keys_page_ids = self.root.ids.screen_manager.get_screen(
             "Keys_management"
@@ -451,7 +481,10 @@ class WARD_GUIApp(MDApp):
         """
         Display the device checked
         """
-        print(self.chbx_lbls[check_box_checked])
+        if self.chbx_lbls[check_box_checked] in self.checked_devices:
+            self.checked_devices.remove(self.chbx_lbls[check_box_checked])
+        else:
+            self.checked_devices.append(self.chbx_lbls[check_box_checked])
 
     def show_container_details(self, btn_selected):
 
@@ -556,13 +589,30 @@ class WARD_GUIApp(MDApp):
         input = self.dialog.content_cls.ids.pass_text.text
 
         print("The written sentence is passphrase : %s" % input)
-
+        containers = []
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
                 print(
                     "Decipher container | with ID_container %s",
                     self.check_box_container_uuid_dict[chbx],
                 )
+                container = load_container_from_filesystem(
+                    container_filepath=Path(
+                        ".container_storage_ward".format(self.check_box_container_uuid_dict[chbx][1])
+                    )
+                )
+                containers.append(container)
+        escrow_dependencies = gather_escrow_dependencies(containers=containers)
+        file_system_key_storage_pool = FilesystemKeyStoragePool(
+            "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI/.keys_storage_ward"
+        )
+        decryption_authorizations = request_decryption_authorizations(
+            escrow_dependencies=escrow_dependencies,
+            key_storage_pool=file_system_key_storage_pool,
+            request_message="Need decryptions"
+        )
+        for container in containers:
+            decrypt_data_from_container(container=container)
         self.dialog.dismiss()
 
     def create_containers_for_test(self):

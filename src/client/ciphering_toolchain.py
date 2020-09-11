@@ -1,6 +1,8 @@
 import logging
 import os
+import uuid
 import cv2
+import random
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 
@@ -9,17 +11,19 @@ from client.utilities.misc import safe_catch_unhandled_exception
 from wacryptolib.container import (
     encrypt_data_into_container,
     dump_container_to_filesystem,
+    LOCAL_ESCROW_MARKER,
+    SHARED_SECRET_MARKER,
 )
 from wacryptolib.key_generation import generate_asymmetric_keypair
-from wacryptolib.key_storage import FilesystemKeyStorage
+from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
 from wacryptolib.utilities import generate_uuid0
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 logger = logging.getLogger()
 
-filesystem_key_storage = FilesystemKeyStorage(
-    keys_dir=os.environ.get("FILE_SYSTEM_KEY_STORAGE")
+filesystem_key_storage = FilesystemKeyStoragePool(
+    root_dir=os.environ.get("FILE_SYSTEM_KEY_STORAGE")
 )
 
 
@@ -28,6 +32,8 @@ class NewVideoHandler(FileSystemEventHandler):
 
     def __init__(self, recordings_folder, key_type, conf, metadata=None):
         self.recordings_folder = recordings_folder
+        if not os.path.exists(recordings_folder):
+            os.mkdir(recordings_folder)
 
         self.key_type = key_type
         self.conf = conf
@@ -36,16 +42,16 @@ class NewVideoHandler(FileSystemEventHandler):
         self.THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
         self.pending_files = os.listdir(self.recordings_folder)
         self.pending_files[:] = [
-            os.path.join("ffmpeg_video_stream", filename)
+            os.path.join(self.recordings_folder, filename)
             for filename in self.pending_files
         ]
         self.pending_files.sort(key=os.path.getmtime)
 
+        self.observer = Observer()
         self.first_frame = None
 
     def start_observer(self):
-        self.observer = Observer()
-        self.observer.schedule(self, path="ffmpeg_video_stream/", recursive=True)
+        self.observer.schedule(self, path=self.recordings_folder, recursive=True)
         logger.debug("Observer thread started")
         self.observer.start()
 
@@ -76,19 +82,22 @@ class NewVideoHandler(FileSystemEventHandler):
     @safe_catch_unhandled_exception
     def _offloaded_start_processing(self, path_file):
         logger.debug("Starting thread processing for {}".format(path_file))
-        key_pair = generate_asymmetric_keypair(key_type=self.key_type)
-        keychain_uid = generate_uuid0()
-        filesystem_key_storage.set_keys(
-            keychain_uid=keychain_uid,
-            key_type=self.key_type,
-            public_key=key_pair["public_key"],
-            private_key=key_pair["private_key"],
-        )
+        # key_pair = generate_asymmetric_keypair(key_type=self.key_type)
+        # keychain_uid = generate_uuid0()
+        # filesystem_key_storage.set_keys(
+        #     keychain_uid=keychain_uid,
+        #     key_type=self.key_type,
+        #     public_key=key_pair["public_key"],
+        #     private_key=key_pair["private_key"],
+        # )
 
         logger.debug("Beginning encryption for {}".format(path_file))
         data = get_data_then_delete_videofile(path=path_file)
         container = encrypt_data_into_container(
-            conf=self.conf, data=data, metadata=self.metadata, keychain_uid=keychain_uid
+            conf=self.conf,
+            data=data,
+            metadata=self.metadata,
+            key_storage_pool=filesystem_key_storage
         )
 
         logger.debug("Saving container of {}".format(path_file))
@@ -186,7 +195,7 @@ def save_container(video_filepath: str, container: dict):
     filename, extension = os.path.splitext(video_filepath)
     dir_name, file = filename.split("/")
     container_filepath = Path(
-        os.path.abspath("ciphered_video_stream/{}.crypt".format(file))
+        os.path.abspath(".container_storage_ward/{}.crypt".format(file))
     )
     dump_container_to_filesystem(
         container_filepath=container_filepath, container=container
@@ -203,3 +212,43 @@ def get_data_then_delete_videofile(path: str) -> bytes:
     os.remove(path=path)
     logger.debug("file {} has been deleted from system".format(path))
     return data
+
+
+def _generate_encryption_conf(threshold: int, key_devices_used: list):
+    info_escrows = []
+    for key_device in key_devices_used:
+        file_system_key_storage_pool = FilesystemKeyStoragePool(
+            "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI/.keys_storage_ward"
+        )
+        key_storage = file_system_key_storage_pool.get_imported_key_storage(key_storage_uid=key_device)
+        key_information_list = key_storage.list_keys()
+        key = random.choice(key_information_list)
+
+        info_escrows.append(
+            dict(
+                share_encryption_algo=key.get("key_type"),
+                keychain_uid=key.get("keychain_uid"),
+                share_escrow=LOCAL_ESCROW_MARKER,
+             )
+        )
+    shared_secret_encryption = [
+                                  dict(
+                                     key_encryption_algo=SHARED_SECRET_MARKER,
+                                     key_shared_secret_threshold=threshold,
+                                     key_shared_secret_escrows=info_escrows,
+                                  )
+                               ]
+    data_signatures = [
+                          dict(
+                              message_prehash_algo="SHA256",
+                              signature_algo="DSA_DSS",
+                              signature_escrow=LOCAL_ESCROW_MARKER,
+                          )
+                      ]
+    data_encryption_strata = [
+        dict(data_encryption_algo="AES_CBC",
+             key_encryption_strata=shared_secret_encryption,
+             data_signatures=data_signatures)
+    ]
+    container_conf = dict(info_escrows=info_escrows, data_encryption_strata=dict(data_encryption_strata=data_encryption_strata))
+    return container_conf
