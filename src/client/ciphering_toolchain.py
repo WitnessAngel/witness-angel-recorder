@@ -14,9 +14,7 @@ from wacryptolib.container import (
     LOCAL_ESCROW_MARKER,
     SHARED_SECRET_MARKER,
 )
-from wacryptolib.key_generation import generate_asymmetric_keypair
 from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
-from wacryptolib.utilities import generate_uuid0
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 

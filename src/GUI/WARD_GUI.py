@@ -27,11 +27,12 @@ from wacryptolib.container import (
     dump_container_to_filesystem,
     LOCAL_ESCROW_MARKER,
 )
-from wacryptolib.key_device import initialize_key_device
+from wacryptolib.authentication_device import initialize_authentication_device
 from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
 from wacryptolib.utilities import generate_uuid0
 from wacryptolib.utilities import load_from_json_file, dump_to_json_file
 
+# FIXME this happens too late I guess
 Config.set("graphics", "fullscreen", "0")
 Config.set("graphics", "show_cursor", "1")
 
@@ -116,7 +117,7 @@ class WARD_GUIApp(MDApp):
 
     def switch_callback(self, switchObject, switchValue):
         container_conf = _generate_encryption_conf(
-            threshold=int(self.get_threshold()), key_devices_used=self.checked_devices
+            threshold=int(self.get_threshold()), authentication_devices_used=self.checked_devices
         )
         self.info_escrows = container_conf.get("info_escrows")
         recording_toolchain = RecordingToolchain(
@@ -296,7 +297,7 @@ class WARD_GUIApp(MDApp):
         ]
         for usb_dir in files:
             object_FilesystemKeyStorage = FilesystemKeyStorage(usb_dir)
-            public_key_list = object_FilesystemKeyStorage.list_keys()
+            public_key_list = object_FilesystemKeyStorage.list_keypair_identifiers()
             message = ""
             private_key_present = ""
             for index, key in enumerate(public_key_list):
@@ -311,9 +312,9 @@ class WARD_GUIApp(MDApp):
                         private_key_present,
                     )
                 )
-            self.open_dialog_display_keys_in_key_device(message, info_usb_user)
+            self.open_dialog_display_keys_in_authentication_device(message, info_usb_user)
 
-    def open_dialog_display_keys_in_key_device(self, message, info_usb_user):
+    def open_dialog_display_keys_in_authentication_device(self, message, info_usb_user):
         self.dialog = MDDialog(
             title="%s" % info_usb_user,
             text=message,
@@ -340,14 +341,14 @@ class WARD_GUIApp(MDApp):
 
     def import_keys(self):
         """
-        loop through the “key_devices” present,
+        loop through the “authentication_devices” present,
         and for those who are initialize, copy (with different KeyStorage for each folder)
         their content in a <KEYS_ROOT> / <device_uid> / folder (taking the device_uid from metadata.json)
         """
-        # list_devices = list_available_key_devices()
+        # list_devices = list_available_authentication_devices()
         # print(list_devices)
-        # for index, key_device in enumerate(list_devices):
-        key_device = {
+        # for index, authentication_device in enumerate(list_devices):
+        authentication_device = {
             "drive_type": "USBSTOR",
             "path": "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI",
             "label": "TOSHIBA",
@@ -355,18 +356,18 @@ class WARD_GUIApp(MDApp):
             "format": "fat32",
             "is_initialized": False,
         }
-        initialize_key_device(key_device=key_device, user="Marty Mcfly")
-        initialize_rsa_key(keychain_uid=key_device["device_uid"])
-        if str(key_device["is_initialized"]) == "True":
+        initialize_authentication_device(authentication_device=authentication_device, user="Marty Mcfly")
+        initialize_rsa_key(keychain_uid=authentication_device["device_uid"])
+        if str(authentication_device["is_initialized"]) == "True":
             if not Path(".keys_storage_ward").exists():
                 Path(".keys_storage_ward").mkdir()
             if not Path(".keys_storage_ward/imported_key_storages").exists():
                 Path(".keys_storage_ward/imported_key_storages").mkdir()
-            device_dir = str(key_device["device_uid"])
+            device_dir = str(authentication_device["device_uid"])
             file_metadata = Path(".keys_storage_ward/imported_key_storages").joinpath(
                 f"key_storage_{device_dir}", ".metadata.json"
             )
-            metadata_file_path = Path(key_device["path"]).joinpath(  # FIXME: file_metadata & metadata_file_path
+            metadata_file_path = Path(authentication_device["path"]).joinpath(  # FIXME: file_metadata & metadata_file_path
                 ".key_storage", ".metadata.json"
             )
             if not Path(file_metadata.parent).exists():
@@ -374,12 +375,12 @@ class WARD_GUIApp(MDApp):
             metadata = load_from_json_file(metadata_file_path)
             dump_to_json_file(file_metadata, metadata)
             dst = Path(".keys_storage_ward").joinpath("imported_key_storages", f"key_storage_{device_dir}")  # FIXME: dst ?
-            key_pairs_dir = Path(key_device["path"]).joinpath(
+            key_pairs_dir = Path(authentication_device["path"]).joinpath(
                 ".key_storage", "crypto_keys"
             )
             # copy contents keys of key_pairs_dir to dst(copy key storage to <KEYS_ROOT>/<device_uid>)
             self._import_keys(key_pairs_dir, dst)
-        # update the display of key_device saved in the local folder .keys_storage_ward
+        # update the display of authentication_device saved in the local folder .keys_storage_ward
         self.get_detected_devices()
 
     def _import_keys(self, src, dst):  # FIXME: rename this func : move_keys_directory ?
@@ -388,12 +389,12 @@ class WARD_GUIApp(MDApp):
 
         """
         target_key_storage = FilesystemKeyStorage(dst)
-        list_keys_destination = target_key_storage.list_keys()
+        list_keypair_identifiers_destination = target_key_storage.list_keypair_identifiers()
         source_key_storage = FilesystemKeyStorage(src)
-        list_keys_source = source_key_storage.list_keys()
+        list_keypair_identifiers_source = source_key_storage.list_keypair_identifiers()
 
-        for key in list_keys_source:
-            if key not in list_keys_destination:
+        for key in list_keypair_identifiers_source:
+            if key not in list_keypair_identifiers_destination:
                 public_key = source_key_storage.get_public_key(
                     keychain_uid=key["keychain_uid"], key_type=key["key_type"]
                 )
@@ -439,7 +440,7 @@ class WARD_GUIApp(MDApp):
                     my_check_box = CheckBox(#start
                         active=False,
                         size_hint=(0.2, 0.2),
-                        on_release=self.check_box_key_device_checked,
+                        on_release=self.check_box_authentication_device_checked,
                     )
                     my_check_btn = Button(
                         text=" key N°:  %s        User:  %s      |      UUID device:  %s "
@@ -477,7 +478,7 @@ class WARD_GUIApp(MDApp):
         Display_layout.add_widget(devices_display)
         keys_page_ids.table.add_widget(Display_layout)
 
-    def check_box_key_device_checked(self, check_box_checked):
+    def check_box_authentication_device_checked(self, check_box_checked):
         """
         Display the device checked
         """
