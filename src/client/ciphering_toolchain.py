@@ -20,8 +20,10 @@ from watchdog.observers import Observer
 
 logger = logging.getLogger()
 
-filesystem_key_storage = FilesystemKeyStoragePool(
-    root_dir=os.environ.get("FILE_SYSTEM_KEY_STORAGE")
+_filesystem_key_storage = Path(os.environ.get("FILE_SYSTEM_KEY_STORAGE", "filesystem_key_storage"))
+_filesystem_key_storage.mkdir(exist_ok=True)
+filesystem_key_storage_pool = FilesystemKeyStoragePool(
+    root_dir=_filesystem_key_storage
 )
 
 
@@ -95,7 +97,7 @@ class NewVideoHandler(FileSystemEventHandler):
             conf=self.conf,
             data=data,
             metadata=self.metadata,
-            key_storage_pool=filesystem_key_storage
+            key_storage_pool=filesystem_key_storage_pool
         )
 
         logger.debug("Saving container of {}".format(path_file))
