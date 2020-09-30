@@ -1,3 +1,4 @@
+import pprint
 import random
 import os
 from functools import partial
@@ -17,7 +18,8 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
-from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool
+from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
+    filesystem_container_storage
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -229,41 +231,38 @@ class WARD_GUIApp(MDApp):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
             "Container_management"
         ).ids
-        if not Path(r".container_storage_ward").exists():
-            # "no container found"
+
+        container_names = filesystem_container_storage.list_container_names(as_sorted=True)
+
+        if not container_names:
             container_display = Button(
-                text=" no container found ",
+                text="No container found",
                 background_color=(1, 0, 0, 0.01),
                 font_size="28sp",
                 color=[0, 1, 0, 1],
             )
-
             containers_page_ids.table.clear_widgets()
             display_layout = BoxLayout(orientation="horizontal")
             display_layout.add_widget(container_display)
             containers_page_ids.table.add_widget(display_layout)
-        else:
-            container_local_list = (
-                self.list_containers_for_test()
-            )  # list of container and name of container
-            self.check_box_container_uuid_dict = {}
-            self.btn_container_uuid_dict = {}
-            index = 0
-            containers_page_ids.table.clear_widgets()
-            for container in container_local_list:
-                container_uid = str(container[0]["container_uid"])
-                container_uuid = container_uid.split("-")
-                start_of_uuid = container_uuid[0].lstrip()
-                start_of_UUID = start_of_uuid.rstrip()
-                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
-                my_check_box.bind(active=self.check_box_container_checked)
+            return
+
+        self.check_box_container_uuid_dict = {}
+        self.btn_container_uuid_dict = {}
+        containers_page_ids.table.clear_widgets()
+
+        for index, container_name in enumerate(container_names, start=1):
+
+                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2), on_reles)
+                #my_check_box.bind(active=self.check_box_container_checked)
                 my_check_btn = Button(
-                    text=" Container N°:  %s        %s      |      ID container :  %s "
-                    % ((str(index + 1)), "", start_of_UUID),
+                    text=" Container n° %s:  %s"
+                    % (index, container_name),
                     size_hint=(0.8, 0.2),
                     background_color=(1, 1, 1, 0.01),
-                    on_press=self.show_container_details,
+                    on_press=partial(self.show_container_details, container_name=container_name),
                 )
+                '''
                 self.check_box_container_uuid_dict[my_check_box] = [
                     str(container[0]["container_uid"]),
                     str(container[1]),
@@ -272,6 +271,7 @@ class WARD_GUIApp(MDApp):
                     str(container[0]["container_uid"]),
                     str(container[1]),
                 ]
+                '''
                 layout = BoxLayout(
                     orientation="horizontal",
                     pos_hint={"center": 1, "top": 1},
@@ -280,7 +280,6 @@ class WARD_GUIApp(MDApp):
                 layout.add_widget(my_check_box)
                 layout.add_widget(my_check_btn)
                 containers_page_ids.table.add_widget(layout)
-                index += 1
 
     def info_keys_stored(self, btn_selected, device_uid, user):
 
@@ -493,21 +492,13 @@ class WARD_GUIApp(MDApp):
             self.checked_devices.append(self.chbx_lbls[check_box_checked])
         print("self.checked_devices", self.checked_devices)
 
-    def show_container_details(self, btn_selected):
-
+    def show_container_details(self, btn_selected, container_name):
         """
         Display the contents of container
         """
-        info_container = btn_selected.text.split("|      ID container :")[0]
-
-        container_selected_and_container_name = self.btn_container_uuid_dict[
-            btn_selected
-        ]
-        container_dir = Path(".container_storage_ward").joinpath(
-            container_selected_and_container_name[1]
-        )
-        message = load_container_from_filesystem(container_dir)
-        self.open_container_details_dialog(str(message), info_container)
+        container = filesystem_container_storage.load_container_from_storage(container_name)
+        container_repr = pprint.pformat(container)
+        self.open_container_details_dialog(container_repr, info_container=container_name)
 
     def open_container_details_dialog(self, message, info_container):
         self.dialog = MDDialog(
@@ -551,7 +542,7 @@ class WARD_GUIApp(MDApp):
             container_selected = self.check_box_container_uuid_dict[chbx]
             print("delete container  with ID_container %s", container_selected)
             con_stor1 = ContainerStorage(
-                encryption_conf=self.CONFIG,
+                default_encryption_conf=self.CONFIG,
                 containers_dir=Path(".container_storage_ward"),
             )
 
@@ -649,13 +640,13 @@ class WARD_GUIApp(MDApp):
                 container_filepath, container=container, offload_data_ciphertext=False
             )
 
-    def list_containers_for_test(self):
+    def _OBSOLETE_list_containers_for_test(self):
         """
         Return a list of container and container name pair
         """
 
         con_stor1 = ContainerStorage(
-            encryption_conf=self.CONFIG, containers_dir=Path(".container_storage_ward")
+            default_encryption_conf=self.CONFIG, containers_dir=Path(".container_storage_ward")
         )
 
         list_container_name = con_stor1.list_container_names(as_sorted=True)

@@ -12,7 +12,7 @@ from wacryptolib.container import (
     encrypt_data_into_container,
     dump_container_to_filesystem,
     LOCAL_ESCROW_MARKER,
-    SHARED_SECRET_MARKER,
+    SHARED_SECRET_MARKER, ContainerStorage,
 )
 from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
 from watchdog.events import FileSystemEventHandler
@@ -20,11 +20,15 @@ from watchdog.observers import Observer
 
 logger = logging.getLogger()
 
-_filesystem_key_storage = Path(os.environ.get("FILE_SYSTEM_KEY_STORAGE", "filesystem_key_storage"))
-_filesystem_key_storage.mkdir(exist_ok=True)
+_filesystem_key_storage_path = Path(os.environ.get("FILE_SYSTEM_KEY_STORAGE", "filesystem_key_storage"))
+_filesystem_key_storage_path.mkdir(exist_ok=True)
 filesystem_key_storage_pool = FilesystemKeyStoragePool(
-    root_dir=_filesystem_key_storage
+    root_dir=_filesystem_key_storage_path
 )
+
+_filesystem_container_storage_path = Path(os.environ.get("CONTAINER_STORAGE", "container_storage"))
+_filesystem_container_storage_path.mkdir(exist_ok=True)
+filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool)
 
 
 class NewVideoHandler(FileSystemEventHandler):
