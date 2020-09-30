@@ -251,10 +251,15 @@ class WARD_GUIApp(MDApp):
         self.btn_container_uuid_dict = {}
         containers_page_ids.table.clear_widgets()
 
+        self.container_checkboxes = []
+
         for index, container_name in enumerate(container_names, start=1):
 
-                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2), on_reles)
+                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
+                my_check_box._container_name = container_name
                 #my_check_box.bind(active=self.check_box_container_checked)
+                self.container_checkboxes.append(my_check_box)
+
                 my_check_btn = Button(
                     text=" Container n° %s:  %s"
                     % (index, container_name),
@@ -280,6 +285,24 @@ class WARD_GUIApp(MDApp):
                 layout.add_widget(my_check_box)
                 layout.add_widget(my_check_btn)
                 containers_page_ids.table.add_widget(layout)
+
+        print("self.container_checkboxes", self.container_checkboxes)
+
+    def get_selected_container_names(self):
+
+        containers_page_ids = self.root.ids.screen_manager.get_screen(
+            "Container_management"
+        ).ids
+
+        container_names = []
+
+        for row in containers_page_ids.table.children:
+            checkbox = row.children[-1]  # Order is reversed compared to adding
+            if checkbox.active:
+                container_names.append(checkbox._container_name)
+
+        print("container_names", container_names)
+        return container_names
 
     def info_keys_stored(self, btn_selected, device_uid, user):
 
@@ -496,8 +519,12 @@ class WARD_GUIApp(MDApp):
         """
         Display the contents of container
         """
-        container = filesystem_container_storage.load_container_from_storage(container_name)
-        container_repr = pprint.pformat(container)
+        try:
+            container = filesystem_container_storage.load_container_from_storage(container_name)
+            container_repr = pprint.pformat(container)
+        except Exception as exc:
+            container_repr = repr(exc)
+
         self.open_container_details_dialog(container_repr, info_container=container_name)
 
     def open_container_details_dialog(self, message, info_container):
@@ -510,6 +537,13 @@ class WARD_GUIApp(MDApp):
         self.dialog.open()
 
     def open_dialog_delete_container(self):
+
+        container_names = self.get_selected_container_names()
+        if not container_names:
+            return
+
+        message = "Are you sure you want to delete %s container(s)?" % len(container_names)
+        """
         self.list_chbx_active = []
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
@@ -523,34 +557,37 @@ class WARD_GUIApp(MDApp):
                 " do you want to delete these %d containers"
                 % count_container_checked
             )
+        """
         self.dialog = MDDialog(
-            title=" Delete containers confirmation ",
-            text=messge,
+            title="Delete containers confirmation",
+            text=message,
             size_hint=(0.8, 1),
             buttons=[
                 MDFlatButton(
-                    text="Confirm delete", on_release=self.close_dialog_delete_container
+                    text="Confirm delete", on_release=partial(self.close_dialog_delete_container, container_names=container_names)
                 ),
                 MDFlatButton(text="Cancel", on_release=self.close_dialog),
             ],
         )
         self.dialog.open()
 
-    def close_dialog_delete_container(self, obj):
-        for chbx in self.list_chbx_active:
+    def close_dialog_delete_container(self, obj, container_names):
 
-            container_selected = self.check_box_container_uuid_dict[chbx]
-            print("delete container  with ID_container %s", container_selected)
-            con_stor1 = ContainerStorage(
-                default_encryption_conf=self.CONFIG,
-                containers_dir=Path(".container_storage_ward"),
-            )
+        for container_name in container_names:
+            filesystem_container_storage.delete_container(container_name)
 
-            con_stor1._delete_container(container_selected[1])
-        self.get_detected_container()
+        self.get_detected_container()  # FIXME rename
         self.dialog.dismiss()
 
     def open_dialog_decipher_container(self):
+
+        container_names = self.get_selected_container_names()
+        if not container_names:
+            return
+
+        message = "Are you sure you want to decrypt %s container(s)?" % len(container_names)
+
+        """
         self.list_chbx_active = []
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
@@ -564,17 +601,17 @@ class WARD_GUIApp(MDApp):
             messge = (
                     " Do you want to decipher these %d containers" % count_container_checked
             )
-
+        """
         self.dialog = MDDialog(
             title=" Decipher containers confirmation ",
             type="custom",
             content_cls=Content(),#entering the passphrase
-            text=messge,
+            text=message,
             size_hint=(0.8, 1),
             buttons=[
                 MDFlatButton(
-                    text="Confirm  decipher",
-                    on_release=self.close_dialog_decipher_container,
+                    text="Confirm decipher",
+                    on_release=partial(self.close_dialog_decipher_container, container_names=container_names),
                 ),
                 MDFlatButton(text="Cancel", on_release=self.close_dialog),
             ],
@@ -582,9 +619,13 @@ class WARD_GUIApp(MDApp):
 
         self.dialog.open()
 
-    def close_dialog_decipher_container(self, obj):
+    def close_dialog_decipher_container(self, obj, container_names):
 
         input = self.dialog.content_cls.ids.pass_text.text
+
+        for container_name in container_names:
+            container = filesystem_container_storage.decrypt_container_from_storage(container_name)
+
 
         print("The written sentence is passphrase : %s" % input)
         containers = []
