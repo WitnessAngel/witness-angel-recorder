@@ -2,6 +2,8 @@ import logging
 import os
 import pprint
 import uuid
+from uuid import UUID
+
 import cv2
 import random
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -29,7 +31,7 @@ filesystem_key_storage_pool = FilesystemKeyStoragePool(
 
 _filesystem_container_storage_path = Path(os.environ.get("CONTAINER_STORAGE", "container_storage"))
 _filesystem_container_storage_path.mkdir(exist_ok=True)
-filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool)
+filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=6)
 
 rtsp_recordings_folder = Path(os.environ.get("RECORDING_FOLDER", "ffmpeg_video_stream"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
@@ -228,7 +230,7 @@ def get_data_then_delete_videofile(path: str) -> bytes:
     """Read video file's data then delete the file from system"""
     with open(path, "rb") as file:
         data = file.read()
-    os.remove(path=path)
+    os.remove(path=path)  # FIXME what if it fails?
     logger.debug("file {} has been deleted from system".format(path))
     return data
 
@@ -241,7 +243,7 @@ def _generate_encryption_conf(shared_secret_threshold: int, authentication_devic
         key = random.choice(key_information_list)
 
         share_escrow = AUTHENTICATION_DEVICE_ESCROW_MARKER.copy()
-        share_escrow["authentication_device_uid"] = authentication_device_uid
+        share_escrow["authentication_device_uid"] = UUID(authentication_device_uid)
 
         info_escrows.append(
             dict(

@@ -6,6 +6,10 @@ from pathlib import Path
 from pathlib import PurePath
 from uuid import UUID
 
+# Tweak logging before Kivy breaks it
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -129,7 +133,7 @@ class WARD_GUIApp(MDApp):
     def switch_callback(self, switch_object, switch_value):
 
         if switch_value:
-            container_conf = _generate_encryption_conf(
+            container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
                     shared_secret_threshold=self.get_shared_secret_threshold(),
                     authentication_devices_used=self.selected_authentication_device_uids
             )
@@ -183,6 +187,9 @@ class WARD_GUIApp(MDApp):
         )
 
     def on_start(self):
+        import logging_tree
+        logging_tree.printout()
+
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
         '''
@@ -537,7 +544,7 @@ class WARD_GUIApp(MDApp):
         """
         try:
             container = filesystem_container_storage.load_container_from_storage(container_name)
-            container_repr = pprint.pformat(container)
+            container_repr = pprint.pformat(container)[:1000]  # LIMIT else pygame.error: Width or height is too large
         except Exception as exc:
             container_repr = repr(exc)
 
