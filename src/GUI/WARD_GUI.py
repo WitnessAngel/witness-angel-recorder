@@ -20,7 +20,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
 from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
-    filesystem_container_storage
+    filesystem_container_storage, rtsp_recordings_folder
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -134,12 +134,12 @@ class WARD_GUIApp(MDApp):
                     authentication_devices_used=self.selected_authentication_device_uids
             )
             recording_toolchain = RecordingToolchain(
-                recordings_folder="ffmpeg_video_stream/",
+                recordings_folder=rtsp_recordings_folder,
                 conf=container_conf,
                 key_type="RSA_OAEP",
                 camera_url=self.get_url_camera(),  # FIXME rename
-                recording_time="30",
-                segment_time="10",
+                recording_time=20,  # Fixme say "seconds"
+                segment_time=5,  # Fixme say "seconds"
             )
             recording_toolchain.launch_recording_toolchain()
             self.recording_toolchain = recording_toolchain
@@ -158,7 +158,7 @@ class WARD_GUIApp(MDApp):
                 "number_escrow": 9,
                 "min_number_shares": 7,
                 "retention_days": 10,
-                "recordingdirectory": "/dir_rec-parent/dir_rec",
+                ### "recordingdirectory": "/dir_rec-parent/dir_rec",
             },
         )
 

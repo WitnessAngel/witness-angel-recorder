@@ -31,39 +31,45 @@ _filesystem_container_storage_path = Path(os.environ.get("CONTAINER_STORAGE", "c
 _filesystem_container_storage_path.mkdir(exist_ok=True)
 filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool)
 
+rtsp_recordings_folder = Path(os.environ.get("RECORDING_FOLDER", "ffmpeg_video_stream"))
+rtsp_recordings_folder.mkdir(exist_ok=True)
+
 
 class NewVideoHandler(FileSystemEventHandler):
     """Process each file in the directory where video files are stored"""
 
     def __init__(self, recordings_folder, key_type, conf, metadata=None):
         self.recordings_folder = recordings_folder
-        if not os.path.exists(recordings_folder):
-            os.mkdir(recordings_folder)
+        assert os.path.exists(recordings_folder), recordings_folder
 
         self.key_type = key_type
         self.conf = conf
         self.metadata = metadata
 
-        self.THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
+        #self.THREAD_POOL_EXECUTOR = ThreadPoolExecutor()
         self.pending_files = os.listdir(self.recordings_folder)
         self.pending_files[:] = [
             os.path.join(self.recordings_folder, filename)
             for filename in self.pending_files
         ]
-        self.pending_files.sort(key=os.path.getmtime)
+        self.pending_files.sort(key=os.path.getmtime)  # FIXME we'd need immediate flush too here
 
         self.observer = Observer()
         self.first_frame = None
 
     def start_observer(self):
-        self.observer.schedule(self, path=self.recordings_folder, recursive=True)
+        self.observer.schedule(self, path=str(self.recordings_folder), recursive=True)
         logger.debug("Observer thread started")
         self.observer.start()
 
     def process_pending_files(self):
-        while self.pending_files:
-            last_file = self.pending_files.pop()
-            self.start_processing(path_file=last_file)
+        pending_files = self.pending_files[:]
+
+        logger.info("We process pending files %s", pending_files)
+
+        del self.pending_files[:]  # Immediate cleanup
+        for pending_file in pending_files:
+            self.start_processing(path_file=pending_file)
 
     def on_created(self, event):
         self.process_pending_files()
@@ -80,12 +86,16 @@ class NewVideoHandler(FileSystemEventHandler):
     @safe_catch_unhandled_exception
     def start_processing(self, path_file):
         """Launch a thread where a file will be ciphered"""
+        data = get_data_then_delete_videofile(path=path_file)
+        filesystem_container_storage.enqueue_file_for_encryption(
+                filename_base=Path(path_file).name, data=data, metadata=None, keychain_uid=None, encryption_conf=self.conf)
+        """
         return self.THREAD_POOL_EXECUTOR.submit(
             self._offloaded_start_processing, path_file
-        )
+        )"""
 
     @safe_catch_unhandled_exception
-    def _offloaded_start_processing(self, path_file):
+    def ______offloaded_start_processing(self, path_file):
         logger.debug("Starting thread processing for {}".format(path_file))
         # key_pair = generate_asymmetric_keypair(key_type=self.key_type)
         # keychain_uid = generate_uuid0()
@@ -97,7 +107,7 @@ class NewVideoHandler(FileSystemEventHandler):
         # )
 
         logger.debug("Beginning encryption for {}".format(path_file))
-        data = get_data_then_delete_videofile(path=path_file)
+
         container = encrypt_data_into_container(
             conf=self.conf,
             data=data,
@@ -119,18 +129,20 @@ class NewVideoHandler(FileSystemEventHandler):
         self.process_pending_files()
         self.observer.join()
 
-        logger.debug("Shutdown")
-        self.THREAD_POOL_EXECUTOR.shutdown()
+        #logger.debug("Shutdown THREAD_POOL_EXECUTOR")
+        #self.THREAD_POOL_EXECUTOR.shutdown()
+
 
 
 class RtspVideoRecorder:
     """Generic wrapper around some actual recorder implementation"""
 
-    def __init__(self, camera_url, recording_time, segment_time):
+    def __init__(self, camera_url, recording_time, segment_time, output_folder):
         self.writer_ffmpeg = VideoStreamWriterFfmpeg(
             video_stream_url=camera_url,
             recording_time=recording_time,
             segment_time=segment_time,
+            output_folder=output_folder,
         )
 
     @safe_catch_unhandled_exception
@@ -167,6 +179,7 @@ class RecordingToolchain:
             camera_url=camera_url,
             recording_time=recording_time,
             segment_time=segment_time,
+            output_folder=recordings_folder,
         )
 
     @safe_catch_unhandled_exception
@@ -181,6 +194,7 @@ class RecordingToolchain:
         """Stop and wait every threads"""
         self.rtsp_video_recorder.stop_recording_and_wait()
         self.new_video_handler.stop_new_files_processing_and_wait()
+        filesystem_container_storage.wait_for_idle_state()
 
     def get_status(self):
         """Check if recorder thread is alive (True) or not (False)"""
@@ -190,7 +204,7 @@ class RecordingToolchain:
         return self.new_video_handler.get_first_frame()
 
 
-def save_container(video_filepath: str, container: dict):
+def __save_container(video_filepath: str, container: dict):
     """
     Save container of a video in a .txt file as bytes.
 
@@ -233,7 +247,7 @@ def _generate_encryption_conf(shared_secret_threshold: int, authentication_devic
             dict(
                 share_encryption_algo=key["key_type"],
                 keychain_uid=key["keychain_uid"],
-                share_escrow=AUTHENTICATION_DEVICE_ESCROW_MARKER,
+                share_escrow=share_escrow,
              )
         )
     shared_secret_encryption = [

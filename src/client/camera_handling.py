@@ -1,3 +1,6 @@
+from datetime import datetime
+from pathlib import Path
+
 import cv2
 import numpy as np
 import logging
@@ -118,26 +121,27 @@ class VideoStreamWriterOpenCV:
 
 
 class VideoStreamWriterFfmpeg(threading.Thread):
-    def __init__(self, video_stream_url, recording_time, segment_time):
+    def __init__(self, video_stream_url, recording_time, segment_time, output_folder):
         threading.Thread.__init__(self)
-        if not os.path.isdir("ffmpeg_video_stream"):
-            logger.debug("Creating directory 'ffmpeg_video_stream'")
-            os.mkdir("ffmpeg_video_stream")
 
         self.input = ["-i", video_stream_url]
 
         if recording_time is None:  # Recording will never stop by himself
             self.recording_duration = []
         else:
-            self.recording_duration = ["-t", recording_time]
+            self.recording_duration = ["-t", str(recording_time)]
 
-        self.segment_duration = ["-segment_time", segment_time]
+        self.segment_duration = ["-segment_time", str(segment_time)]
         self.process = None
+        self.output_folder = Path(output_folder)
 
     def start_writing(self):
+
+        date_prefix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+
         self.start()
         exec = [
-            "ffmpeg",
+            r"C:\StandaloneApps\ffmpeg-4.3.1-2020-09-21-full_build\bin\ffmpeg",
             "-rtsp_transport",
             "tcp"]
         codec = [
@@ -153,11 +157,11 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         format = [
             "-segment_format",
             "mp4",
-            "ffmpeg_video_stream/ffmpeg_capture-%03d.mp4"
+            str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4"))
         ]
 
         pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format
-        logger.debug("Calling command: {}".format(pipeline))
+        logger.debug("Calling command: {}".format(" ".join(pipeline)))
         self.process = subprocess.Popen(pipeline)
 
     def stop_writing(self):

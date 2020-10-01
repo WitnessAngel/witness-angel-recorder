@@ -32,12 +32,5 @@ settings_json = json.dumps(
             "section": "example",
             "key": "retention_days",
         },
-        {
-            "type": "string",
-            "title": "Recording directory",
-            "desc": "the absolute path to the directory where the videos will be saved",
-            "section": "example",
-            "key": "recordingdirectory",
-        },
     ]
 )
