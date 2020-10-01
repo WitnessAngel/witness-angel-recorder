@@ -4,6 +4,7 @@ import os
 from functools import partial
 from pathlib import Path
 from pathlib import PurePath
+from uuid import UUID
 
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
@@ -192,9 +193,25 @@ class WARD_GUIApp(MDApp):
             self.video
         )
         '''
-        self.get_detected_devices()  # FIXME rename
+
+        # Beware these are STRINGS
+        selected_authentication_device_uids = self.config["example"].get("selected_authentication_device_uids", "").split(",")
+
+        available_authentication_device_uids = filesystem_key_storage_pool.list_imported_key_storage_uids()
+
+        #Check integrity of escrow selection
+        selected_authentication_device_uids = [
+            x for x in selected_authentication_device_uids
+            if UUID(x) in available_authentication_device_uids
+        ]
+        print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
+        self.selected_authentication_device_uids = selected_authentication_device_uids
+
         # create container for tests
         # self.create_containers_for_test()
+
+        # NOW only we refresh authentication devices panel
+        self.get_detected_devices()  # FIXME rename
 
     def draw_menu(self, ecran):
         icons_item = {
@@ -410,6 +427,7 @@ class WARD_GUIApp(MDApp):
 
         KEYS_ROOT = “~/.keys_storage_ward/”
         """
+        print(">> we refresh auth devices panel")
         Keys_page_ids = self.root.ids.screen_manager.get_screen(
             "Keys_management"
         ).ids
@@ -427,8 +445,9 @@ class WARD_GUIApp(MDApp):
 
         for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
             uuid_suffix = str(device_uid).split("-")[-1]
+            print("COMAPRING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
-                active=False,
+                active=(str(device_uid) in self.selected_authentication_device_uids),
                 size_hint=(0.2, 0.2),
                 on_release=self.check_box_authentication_device_checked,
             )
@@ -508,6 +527,8 @@ class WARD_GUIApp(MDApp):
             self.selected_authentication_device_uids.remove(self.chbx_lbls[check_box_checked])
         else:
             self.selected_authentication_device_uids.append(self.chbx_lbls[check_box_checked])
+        self.config["example"]["selected_authentication_device_uids"] = ",".join(self.selected_authentication_device_uids)
+        self.config.write()
         print("self.selected_authentication_device_uids", self.selected_authentication_device_uids)
 
     def show_container_details(self, btn_selected, container_name):

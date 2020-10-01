@@ -6,7 +6,7 @@ settings_json = json.dumps(
         {"type": "title", "title": "Settings WitnessWard"},
         {
             "type": "string",
-            "title": "URL IP camer",
+            "title": "URL IP camera",
             "desc": "Path description text",
             "section": "example",
             "key": "urlcamera",
