@@ -184,17 +184,24 @@ NavigationLayout:
 
         GridLayout:
             size_hint: 1, 1
-            rows:3
+            rows:2
             padding:20,10,20,10
 
             Label:
                 size_hint: 0.4, 0.05
                 text: 'Push button to start recording'
 
-            BoxLayout:
+            Image:
+                id: preview_image
+                source: 'logoWA.PNG'
+                size: (10, 10)     #self.texture_size if self.texture else (10, 10)
+                allow_stretch: True
+                keep_ratio: True
+                nocache: True
+            #BoxLayout:
                 # UNUSED FOR NOW
-                size_hint: 1, 1
-                id: player
+             #   size_hint: 1, 1
+             #   id: player
 
 
         GridLayout:

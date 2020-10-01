@@ -8,12 +8,16 @@ from uuid import UUID
 
 # Tweak logging before Kivy breaks it
 import logging
-logging.basicConfig(level=logging.DEBUG)
+
+from kivy.clock import Clock
+
+logging.root.setLevel(logging.DEBUG)
 
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.video import Video
@@ -93,6 +97,8 @@ class WindowManager(ScreenManager):
 class Content(BoxLayout):
     pass
 
+
+# TODO - add retro "ping" from toolchain when a new record is present
 
 class WARD_GUIApp(MDApp):
 
@@ -219,6 +225,27 @@ class WARD_GUIApp(MDApp):
 
         # NOW only we refresh authentication devices panel
         self.get_detected_devices()  # FIXME rename
+
+        Clock.schedule_interval(
+            self.update_preview_image, 2
+        )
+
+    def update_preview_image(self, *args, **kwargs):
+        print("We update_preview_image")
+        main_page_ids = self.root.ids.screen_manager.get_screen(
+            "MainMenu"
+        ).ids
+        preview_image = main_page_ids.preview_image
+
+        preview_path = Path("preview.jpg")
+        default_path = Path("logoWA.PNG")
+
+        if preview_path.exists():
+            preview_image.source = str(preview_path)
+            preview_image.reload()  # Necessary to update texture
+        else:
+            preview_image.source = str(default_path)
+
 
     def draw_menu(self, ecran):
         icons_item = {
