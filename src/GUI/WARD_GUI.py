@@ -90,11 +90,17 @@ class Content(BoxLayout):
 
 
 class WARD_GUIApp(MDApp):
+
+    dialog = None  # Any current modal dialog must be stored here
+
+    use_kivy_settings = False
+    settings_cls = SettingsWithTabbedPanel
+
     def __init__(self, **kwargs):
         self.title = "Witness Angel - WardProject"
         super(WARD_GUIApp, self).__init__(**kwargs)
-        self.settings_cls = SettingsWithTabbedPanel
-        self.use_kivy_settings = False
+
+        """
         self.CONFIG = dict(
             data_encryption_strata=[
                 dict(
@@ -115,27 +121,30 @@ class WARD_GUIApp(MDApp):
                 )
             ]
         )
-        self.threshold = None
-        self.checked_devices = []
-        self.info_escrows = []
+        """
+        self.selected_authentication_device_uids = []
+        self.recording_toolchain = None
 
-    def switch_callback(self, switchObject, switchValue):
-        container_conf = _generate_encryption_conf(
-            threshold=int(self.get_threshold()), authentication_devices_used=self.checked_devices
-        )
-        self.info_escrows = container_conf.get("info_escrows")
-        recording_toolchain = RecordingToolchain(
-            recordings_folder="ffmpeg_video_stream/",
-            conf=container_conf.get("data_encryption_strata"),
-            key_type="RSA_OAEP",
-            camera_url=self.get_url_camera(),
-            recording_time="30",
-            segment_time="10",
-        )
-        if switchValue:
+    def switch_callback(self, switch_object, switch_value):
+
+        if switch_value:
+            container_conf = _generate_encryption_conf(
+                    shared_secret_threshold=self.get_shared_secret_threshold(),
+                    authentication_devices_used=self.selected_authentication_device_uids
+            )
+            recording_toolchain = RecordingToolchain(
+                recordings_folder="ffmpeg_video_stream/",
+                conf=container_conf,
+                key_type="RSA_OAEP",
+                camera_url=self.get_url_camera(),  # FIXME rename
+                recording_time="30",
+                segment_time="10",
+            )
             recording_toolchain.launch_recording_toolchain()
+            self.recording_toolchain = recording_toolchain
         else:
-            recording_toolchain.stop_recording_toolchain_and_wait()
+            assert self.recording_toolchain, self.recording_toolchain  # By construction...
+            self.recording_toolchain.stop_recording_toolchain_and_wait()
 
     def build(self):
         pass
@@ -152,8 +161,8 @@ class WARD_GUIApp(MDApp):
             },
         )
 
-    def get_threshold(self):
-        return self.config.get("example", "min_number_shares")
+    def get_shared_secret_threshold(self):
+        return int(self.config.get("example", "min_number_shares"))
 
     def get_url_camera(self):
         return self.config.get("example", "urlcamera")
@@ -162,42 +171,28 @@ class WARD_GUIApp(MDApp):
         settings.add_json_panel("Witness Angel", self.config, data=settings_json)
 
     def on_config_change(self, config, section, key, value):
-        print(config, section, key, value)
+        print("CONFIG CHANGE", section, key, value)
 
     def log_output(self, msg):
         console_output = self.root.ids.screen_manager.get_screen(
             "MainMenu"
         ).ids.kivy_console.ids.console_output
-        # to simulate log
-        for i in range(100):
-            console_output.add_text(
-                msg
-                + " "
-                + str(i + 1)
-                + " "
-                + msg
-                + msg
-                + " "
-                + str(i + 1)
-                + " "
-                + msg
-                + msg
-                + " "
-                + str(i + 1)
-                + " "
-                + msg
-            )
+        console_output.add_text(
+            msg
+        )
 
     def on_start(self):
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
+        '''
         self.video = Video(source="zoom_0.mp4")
         self.video.state = "stop"
         self.video.allow_stretch = False
         self.root.ids.screen_manager.get_screen("MainMenu").ids.player.add_widget(
             self.video
         )
-        self.get_detected_devices()
+        '''
+        self.get_detected_devices()  # FIXME rename
         # create container for tests
         # self.create_containers_for_test()
 
@@ -509,11 +504,11 @@ class WARD_GUIApp(MDApp):
         """
         Display the device checked
         """
-        if self.chbx_lbls[check_box_checked] in self.checked_devices:
-            self.checked_devices.remove(self.chbx_lbls[check_box_checked])
+        if self.chbx_lbls[check_box_checked] in self.selected_authentication_device_uids:
+            self.selected_authentication_device_uids.remove(self.chbx_lbls[check_box_checked])
         else:
-            self.checked_devices.append(self.chbx_lbls[check_box_checked])
-        print("self.checked_devices", self.checked_devices)
+            self.selected_authentication_device_uids.append(self.chbx_lbls[check_box_checked])
+        print("self.selected_authentication_device_uids", self.selected_authentication_device_uids)
 
     def show_container_details(self, btn_selected, container_name):
         """
@@ -654,7 +649,7 @@ class WARD_GUIApp(MDApp):
             decrypt_data_from_container(container=container)
         self.dialog.dismiss()
 
-    def create_containers_for_test(self):
+    def ____create_containers_for_test(self):
         """
         Create 7 containers for the test
         """

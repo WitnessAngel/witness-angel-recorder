@@ -1,5 +1,6 @@
 import logging
 import os
+import pprint
 import uuid
 import cv2
 import random
@@ -12,7 +13,7 @@ from wacryptolib.container import (
     encrypt_data_into_container,
     dump_container_to_filesystem,
     LOCAL_ESCROW_MARKER,
-    SHARED_SECRET_MARKER, ContainerStorage,
+    SHARED_SECRET_MARKER, ContainerStorage, AUTHENTICATION_DEVICE_ESCROW_MARKER,
 )
 from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
 from watchdog.events import FileSystemEventHandler
@@ -218,27 +219,27 @@ def get_data_then_delete_videofile(path: str) -> bytes:
     return data
 
 
-def _generate_encryption_conf(threshold: int, key_devices_used: list):
+def _generate_encryption_conf(shared_secret_threshold: int, authentication_devices_used: list):
     info_escrows = []
-    for key_device in key_devices_used:
-        file_system_key_storage_pool = FilesystemKeyStoragePool(
-            "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI/.keys_storage_ward"
-        )
-        key_storage = file_system_key_storage_pool.get_imported_key_storage(key_storage_uid=key_device)
-        key_information_list = key_storage.list_keys()
+    for authentication_device_uid in authentication_devices_used:
+        key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=authentication_device_uid) # Fixme rename key_storage_uid
+        key_information_list = key_storage.list_keypair_identifiers()
         key = random.choice(key_information_list)
+
+        share_escrow = AUTHENTICATION_DEVICE_ESCROW_MARKER.copy()
+        share_escrow["authentication_device_uid"] = authentication_device_uid
 
         info_escrows.append(
             dict(
-                share_encryption_algo=key.get("key_type"),
-                keychain_uid=key.get("keychain_uid"),
-                share_escrow=LOCAL_ESCROW_MARKER,
+                share_encryption_algo=key["key_type"],
+                keychain_uid=key["keychain_uid"],
+                share_escrow=AUTHENTICATION_DEVICE_ESCROW_MARKER,
              )
         )
     shared_secret_encryption = [
                                   dict(
                                      key_encryption_algo=SHARED_SECRET_MARKER,
-                                     key_shared_secret_threshold=threshold,
+                                     key_shared_secret_threshold=shared_secret_threshold,
                                      key_shared_secret_escrows=info_escrows,
                                   )
                                ]
@@ -254,5 +255,9 @@ def _generate_encryption_conf(threshold: int, key_devices_used: list):
              key_encryption_strata=shared_secret_encryption,
              data_signatures=data_signatures)
     ]
-    container_conf = dict(info_escrows=info_escrows, data_encryption_strata=dict(data_encryption_strata=data_encryption_strata))
+    container_conf = dict(data_encryption_strata=data_encryption_strata)
+
+    print(">>>>> USING ENCRYPTION CONF")
+    pprint.pprint(container_conf)
+
     return container_conf
