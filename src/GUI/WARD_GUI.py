@@ -325,7 +325,7 @@ class WARD_GUIApp(MDApp):
                     % (index, container_name),
                     size_hint=(0.8, 0.2),
                     background_color=(1, 1, 1, 0.01),
-                    on_press=partial(self.show_container_details, container_name=container_name),
+                    on_release=partial(self.show_container_details, container_name=container_name),
                 )
                 '''
                 self.check_box_container_uuid_dict[my_check_box] = [
@@ -380,7 +380,7 @@ class WARD_GUIApp(MDApp):
             uuid_suffix = str(keypair_identifier["keychain_uid"]).split("-")[-1]
 
             message += (
-                " Key n° %s, keychain_uid: ...%s, type: %s, private_key:    %s\n"
+                " Key n° %s, keychain_uid: ...%s, type: %s, has_private_key:    %s\n"
                 % (
                     index,
                     uuid_suffix,
@@ -503,7 +503,7 @@ class WARD_GUIApp(MDApp):
                 text=" key N°:  %s        User:  %s      |      UUID device:  %s " % (index, metadata["user"], uuid_suffix),
                 size_hint=(0.8, 0.2),
                 background_color=(1, 1, 1, 0.01),
-                on_press=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
+                    on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
             )
             self.chbx_lbls[my_check_box] = str(device_uid)
             self.btn_lbls[my_check_btn] = str(device_uid)
@@ -638,7 +638,10 @@ class WARD_GUIApp(MDApp):
     def close_dialog_delete_container(self, obj, container_names):
 
         for container_name in container_names:
-            filesystem_container_storage.delete_container(container_name)
+            try:
+                filesystem_container_storage.delete_container(container_name)
+            except FileNotFoundError:
+                pass  # File has probably been puregd already
 
         self.get_detected_container()  # FIXME rename
         self.dialog.dismiss()
