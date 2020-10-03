@@ -14,32 +14,14 @@ NavigationLayout:
         SecondWindow:
             name: "Keys_management"
 
-
         ThirdWindow:
-
-            BoxLayout:
-                orientation: 'vertical'
-
-                MDToolbar:
-                    md_bg_color: (0.1372, 0.2862, 0.5294, 1)
-                    title: "Witness Angel"
-                    elevation: 10
-                    left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
-
-                    ActionButton:
-                        text: 'Home'
-
-                        on_release:
-                            screen_manager.current = "MainMenu"
-                            #screen_manager.transition.direction = "right"
-
-
-                Widget:
+            name: "Container_management"
 
     MDNavigationDrawer:
         id: nav_drawer
         ContentNavigationDrawer:
             id: content_drawer
+
 
 <Separator@Widget>:
     canvas:
@@ -70,10 +52,10 @@ NavigationLayout:
         id: pass_text
 
 
-<ConsoleOutput>:
-    readonly: True
-    padding: 6, 6
-    size_hint: (1, None)
+#<ConsoleOutput>:
+#    readonly: True
+#    padding: 6, 6
+#    size_hint: (1, None)
 
 #<KivyConsole>:
 #    console_output: console_output
@@ -96,7 +78,6 @@ NavigationLayout:
     theme_text_color: "Custom"
     on_release:
         self.parent.set_color_item(self)
-
 
     IconLeftWidget:
         id: icon
@@ -190,8 +171,6 @@ NavigationLayout:
             nocache: True
 
 
-
-
 <SecondWindow>:
 
     canvas.before:
@@ -222,19 +201,16 @@ NavigationLayout:
         Label:
             size_hint: None, None
             size: 350, 80
-            text: 'Key management :'
+            text: 'Key management'
             halign: "left"
             theme_text_color: "Custom"
             text_color: 1, 1, 1, 1
             font_size: 24
 
-
         BoxLayout:
-            size_hint: 1, 1
-            BoxLayout:
-                orientation: 'vertical'
-                id: table
-                size_hint: 0.8, 1
+            orientation: 'vertical'
+            id: table
+            size_hint: 0.8, 1
 
         AnchorLayout:
             anchor_x: 'center'
@@ -251,13 +227,8 @@ NavigationLayout:
                     app.import_keys()
 
 
-
-
-
-
-
 <ThirdWindow>:
-    name: "Container_management"
+
     on_pre_enter: app.get_detected_container()
 
     canvas.before:
@@ -267,56 +238,51 @@ NavigationLayout:
             pos: self.pos
             size: self.size
 
-    GridLayout:
-        rows:6
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: [0,20]
 
-        GridLayout:
-            size_hint: 1, 0.25
-            cols:2
+        MDToolbar:
+            md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+            title: "Witness Angel"
+            elevation: 10
+            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
 
+            ActionButton:
+                text: 'Home'
 
-        GridLayout:
-            size_hint: 1, 1
-            rows:2
-            padding:20,10,20,0
+                on_release:
+                    app.screen_manager.current = "MainMenu"
+                    #app.screen_manager.transition.direction = "right"
 
-            AnchorLayout:
-                size_hint: 1, 0.3
-                anchor_x: 'left'
-                anchor_y: 'top'
-                padding: [0, 0, 20, 0]
-                Label:
-                    size_hint: 0.4, 0.10
-                    text: 'Container management :'
-                    halign: "right"
-                    theme_text_color: "Custom"
-                    text_color: 1, 1, 1, 1
-                    font_size: 24
-                    size_hint: None, None
-                    size: 350, 100
+        Label:
+            size_hint: None, None
+            size: 350, 80
+            text: 'Container management'
+            halign: "right"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: 24
 
-            BoxLayout:
-                size_hint: 1, 1
-                BoxLayout:
-                    orientation: 'vertical'
-                    id: table
-                    size_hint: 0.8, 1
+        BoxLayout:
+            orientation: 'vertical'
+            id: table
+            size_hint: 0.8, 1
 
         AnchorLayout:
             anchor_x: 'center'
             anchor_y: 'bottom'
-            padding: [80, 60, 20, 0]
-            GridLayout:
-                size_hint: 0.8, 0.5
-                cols: 3
+            padding: [20, 60, 20, 0]
+            BoxLayout:
 
                 Button:
                     id: delete
                     background_color: (51, 23, 186.0, 1)
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Refresh"
-                    size: 200, 50
-                    size_hint: None, None
+                    #size: 200, 50
+                    #size_hint: None, None
                     disabled: False
                     on_release:
                         app.get_detected_container()
@@ -326,8 +292,8 @@ NavigationLayout:
                     background_color: (51, 23, 186.0, 1)
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Delete"
-                    size: 200, 50
-                    size_hint: None, None
+                    #size: 200, 50
+                    #size_hint: None, None
                     disabled: False
                     on_release:
                         app.open_dialog_delete_container()
@@ -337,8 +303,8 @@ NavigationLayout:
                     background_color: (51, 23, 186.0, 1)
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Decrypt"
-                    size: 200, 50
-                    size_hint: None, None
+                    #size: 200, 50
+                    #size_hint: None, None
                     disabled: False
                     on_release:
                         app.open_dialog_decipher_container()

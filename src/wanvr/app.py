@@ -503,7 +503,7 @@ class WardGuiApp(MDApp):
         self.chbx_lbls = {}  # FIXME: lbls ?
         self.btn_lbls = {}  # FIXME: lbls ?
 
-        for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
+        for (index, (device_uid, metadata)) in enumerate(4*sorted(key_storage_metadata.items()), start=1):
             uuid_suffix = str(device_uid).split("-")[-1]
             print("COMAPRING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
