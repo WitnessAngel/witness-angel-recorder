@@ -12,24 +12,8 @@ NavigationLayout:
             name: "MainMenu"
 
         SecondWindow:
+            name: "Keys_management"
 
-            BoxLayout:
-                orientation: 'vertical'
-
-                MDToolbar:
-                    md_bg_color: (0.1372, 0.2862, 0.5294, 1)
-                    title: "Witness Angel"
-                    elevation: 10
-                    left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
-
-                    ActionButton:
-                        text: 'Home'
-
-                        on_release:
-                            screen_manager.current = "MainMenu"
-                            screen_manager.transition.direction = "right"
-
-                Widget:
 
         ThirdWindow:
 
@@ -47,7 +31,7 @@ NavigationLayout:
 
                         on_release:
                             screen_manager.current = "MainMenu"
-                            screen_manager.transition.direction = "right"
+                            #screen_manager.transition.direction = "right"
 
 
                 Widget:
@@ -210,8 +194,6 @@ NavigationLayout:
 
 <SecondWindow>:
 
-    name: "Keys_management"
-
     canvas.before:
         Color:
             rgba: 0.1372, 0.2862, 0.5294, 1
@@ -219,40 +201,40 @@ NavigationLayout:
             pos: self.pos
             size: self.size
 
-    GridLayout:
-        rows:6
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: [0,20]
 
-        GridLayout:
-            size_hint: 1, 0.25
-            cols:2
+        MDToolbar:
+            md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+            title: "Witness Angel"
+            elevation: 10
+            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
+
+            ActionButton:
+                text: 'Home'
+
+                on_release:
+                    #app.screen_manager.transition.direction = "right"
+                    app.screen_manager.current = "MainMenu"
+
+        Label:
+            size_hint: None, None
+            size: 350, 80
+            text: 'Key management :'
+            halign: "left"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_size: 24
 
 
-        GridLayout:
+        BoxLayout:
             size_hint: 1, 1
-            rows:2
-            padding:0,10,20,0
-            spacing:20,20
-            AnchorLayout:
-                size_hint: 1, 0.3
-                anchor_x: 'left'
-                anchor_y: 'top'
-                padding: [0, 0, 20, 0]
-                Label:
-                    size_hint: 0.4, 0.10
-                    text: 'Key management :'
-                    halign: "left"
-                    theme_text_color: "Custom"
-                    text_color: 1, 1, 1, 1
-                    font_size: 24
-                    size_hint: None, None
-                    size: 350, 100
-
             BoxLayout:
-                size_hint: 1, 1
-                BoxLayout:
-                    orientation: 'vertical'
-                    id: table
-                    size_hint: 0.8, 1
+                orientation: 'vertical'
+                id: table
+                size_hint: 0.8, 1
 
         AnchorLayout:
             anchor_x: 'center'
@@ -267,6 +249,10 @@ NavigationLayout:
                 size_hint: None, None
                 on_release:
                     app.import_keys()
+
+
+
+
 
 
 

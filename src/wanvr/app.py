@@ -140,6 +140,9 @@ class WardGuiApp(MDApp):
         self.recording_toolchain = None
 
     def _start_recording(self):
+
+        # FIXME display popup if WRONG PARAMS!!!
+
         assert not self.recording_toolchain, self.recording_toolchain  # By construction...
         container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
                 shared_secret_threshold=self.get_shared_secret_threshold(),
@@ -166,6 +169,10 @@ class WardGuiApp(MDApp):
             self._start_recording()
         else:
             self._stop_recording()
+
+    @property
+    def screen_manager(self):
+        return self.root.ids.screen_manager
 
     @property
     def nav_drawer(self):
@@ -505,7 +512,7 @@ class WardGuiApp(MDApp):
                 on_release=self.check_box_authentication_device_checked,
             )
             my_check_btn = Button(
-                text=" key N°:  %s        User:  %s      |      UUID device:  %s " % (index, metadata["user"], uuid_suffix),
+                text="Key n°%s, User %s, Uid %s" % (index, metadata["user"], uuid_suffix),
                 size_hint=(0.8, 0.2),
                 background_color=(1, 1, 1, 0.01),
                     on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
