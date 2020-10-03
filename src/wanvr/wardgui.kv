@@ -132,7 +132,7 @@ NavigationLayout:
             id: avatar
             size_hint: None, None
             size: "150dp", "150dp"
-            source: "logoWA.PNG"
+            source: str(app.app_logo_path)
 
     MDLabel:
         text: "WitnessAngel"
@@ -193,7 +193,7 @@ NavigationLayout:
 
             Image:
                 id: preview_image
-                source: 'logoWA.PNG'
+                source: str(app.fallback_image_path)
                 size: (10, 10)     #self.texture_size if self.texture else (10, 10)
                 allow_stretch: True
                 keep_ratio: True

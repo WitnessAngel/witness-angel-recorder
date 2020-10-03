@@ -21,7 +21,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
-from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
+from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path
 from wacryptolib.container import (
     ContainerStorage,
@@ -43,7 +43,8 @@ Config.set("graphics", "show_cursor", "1")
 
 from kivy.uix.settings import SettingsWithTabbedPanel
 
-from settingsjson import settings_json  # FIXME weird
+
+PACKAGE_ROOT = Path(__file__).parent
 
 
 class ContentNavigationDrawer(BoxLayout):
@@ -92,16 +93,19 @@ class Content(BoxLayout):
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-class WARD_GUIApp(MDApp):
+class WardGuiApp(MDApp):
 
     dialog = None  # Any current modal dialog must be stored here
 
     use_kivy_settings = False
     settings_cls = SettingsWithTabbedPanel
 
+    app_logo_path = PACKAGE_ROOT.joinpath("logo-wa.png")
+    fallback_image_path = app_logo_path
+
     def __init__(self, **kwargs):
         self.title = "Witness Angel - WardProject"
-        super(WARD_GUIApp, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         """
         self.CONFIG = dict(
@@ -178,7 +182,8 @@ class WARD_GUIApp(MDApp):
         return self.config.get("example", "urlcamera")
 
     def build_settings(self, settings):
-        settings.add_json_panel("Witness Angel", self.config, data=settings_json)
+        settings_file = PACKAGE_ROOT / "user_settings_schema.json"
+        settings.add_json_panel("Witness Angel", self.config, filename=settings_file)
 
     def on_config_change(self, config, section, key, value):
         print("CONFIG CHANGE", section, key, value)
@@ -246,13 +251,11 @@ class WARD_GUIApp(MDApp):
         ).ids
         preview_image_widget = main_page_ids.preview_image
 
-        fallback_image_path = Path(__file__).parent.joinpath("logoWA.PNG")
-
         if preview_image_path.exists():
             preview_image_widget.source = str(preview_image_path)
             preview_image_widget.reload()  # Necessary to update texture
         else:
-            preview_image_widget.source = str(fallback_image_path)
+            preview_image_widget.source = str(self.fallback_image_path)
 
 
     def draw_menu(self, ecran):
@@ -703,12 +706,10 @@ class WARD_GUIApp(MDApp):
                 )
                 containers.append(container)
         escrow_dependencies = gather_escrow_dependencies(containers=containers)
-        file_system_key_storage_pool = FilesystemKeyStoragePool(
-            "D:/Users/manon/Documents/GitHub/witness-ward-client/src/GUI/.keys_storage_ward"
-        )
+
         decryption_authorizations = request_decryption_authorizations(
             escrow_dependencies=escrow_dependencies,
-            key_storage_pool=file_system_key_storage_pool,
+            key_storage_pool=filesystem_key_storage_pool,
             request_message="Need decryptions"
         )
         for container in containers:
@@ -763,4 +764,5 @@ class WARD_GUIApp(MDApp):
         return containers_list
 
 
-WARD_GUIApp().run()
+def main():
+    WardGuiApp().run()
