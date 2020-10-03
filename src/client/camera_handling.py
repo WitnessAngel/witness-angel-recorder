@@ -1,12 +1,12 @@
+import logging
+import os
+import subprocess
+import threading
+import time
 from datetime import datetime
 from pathlib import Path
 
 import cv2
-import logging
-import os
-import time
-import subprocess
-import threading
 
 logger = logging.getLogger()
 

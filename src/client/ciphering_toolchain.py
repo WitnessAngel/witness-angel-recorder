@@ -1,11 +1,13 @@
 import logging
 import os
 import pprint
+import random
+from pathlib import Path
 from uuid import UUID
 
 import cv2
-import random
-from pathlib import Path
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from client.camera_handling import VideoStreamWriterFfmpeg
 from client.utilities.misc import safe_catch_unhandled_exception
@@ -16,8 +18,6 @@ from wacryptolib.container import (
     SHARED_SECRET_MARKER, ContainerStorage, AUTHENTICATION_DEVICE_ESCROW_MARKER,
 )
 from wacryptolib.key_storage import FilesystemKeyStoragePool
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 logger = logging.getLogger()
 

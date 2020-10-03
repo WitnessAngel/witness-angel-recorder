@@ -1,24 +1,20 @@
-import pprint
-import random
-import os
-from functools import partial
-from pathlib import Path
-from pathlib import PurePath
-from uuid import UUID
-
 # Tweak logging before Kivy breaks it
 import logging
 logging.root.setLevel(logging.DEBUG)
+
+import pprint
+import random
+from functools import partial
+from pathlib import Path
+from uuid import UUID
 
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.screenmanager import ScreenManager
-from kivy.uix.video import Video
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.button import MDFlatButton
@@ -35,13 +31,11 @@ from wacryptolib.container import (
     gather_escrow_dependencies,
     load_container_from_filesystem,
     dump_container_to_filesystem,
-    LOCAL_ESCROW_MARKER,
 )
-from wacryptolib.authentication_device import initialize_authentication_device, list_available_authentication_devices, \
+from wacryptolib.authentication_device import list_available_authentication_devices, \
     _get_key_storage_folder_path
 from wacryptolib.exceptions import KeyStorageAlreadyExists
 from wacryptolib.utilities import generate_uuid0
-from wacryptolib.utilities import load_from_json_file, dump_to_json_file
 
 # FIXME this happens too late I guess
 Config.set("graphics", "fullscreen", "0")
@@ -200,8 +194,8 @@ class WARD_GUIApp(MDApp):
 
     def on_start(self):
 
-        import logging_tree
-        logging_tree.printout()
+        #import logging_tree
+        #logging_tree.printout()
 
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
