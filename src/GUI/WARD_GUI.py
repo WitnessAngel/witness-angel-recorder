@@ -26,7 +26,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
 from client.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
-    filesystem_container_storage, rtsp_recordings_folder
+    filesystem_container_storage, rtsp_recordings_folder, preview_image_path
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -234,7 +234,7 @@ class WARD_GUIApp(MDApp):
         self.get_detected_devices()  # FIXME rename
 
         Clock.schedule_interval(
-            self.update_preview_image, 2
+            self.update_preview_image, 30
         )
 
         self.fps_monitor_start()  # FPS display for debugging
@@ -250,16 +250,15 @@ class WARD_GUIApp(MDApp):
         main_page_ids = self.root.ids.screen_manager.get_screen(
             "MainMenu"
         ).ids
-        preview_image = main_page_ids.preview_image
+        preview_image_widget = main_page_ids.preview_image
 
-        preview_path = Path("preview.jpg")
-        default_path = Path("logoWA.PNG")
+        fallback_image_path = Path(__file__).parent.joinpath("logoWA.PNG")
 
-        if preview_path.exists():
-            preview_image.source = str(preview_path)
-            preview_image.reload()  # Necessary to update texture
+        if preview_image_path.exists():
+            preview_image_widget.source = str(preview_image_path)
+            preview_image_widget.reload()  # Necessary to update texture
         else:
-            preview_image.source = str(default_path)
+            preview_image_widget.source = str(fallback_image_path)
 
 
     def draw_menu(self, ecran):

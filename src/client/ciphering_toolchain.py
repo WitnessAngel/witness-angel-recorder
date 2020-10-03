@@ -15,24 +15,30 @@ from wacryptolib.container import (
     LOCAL_ESCROW_MARKER,
     SHARED_SECRET_MARKER, ContainerStorage, AUTHENTICATION_DEVICE_ESCROW_MARKER,
 )
-from wacryptolib.key_storage import FilesystemKeyStorage, FilesystemKeyStoragePool
+from wacryptolib.key_storage import FilesystemKeyStoragePool
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 logger = logging.getLogger()
 
-_filesystem_key_storage_path = Path(os.environ.get("FILE_SYSTEM_KEY_STORAGE", "filesystem_key_storage"))
-_filesystem_key_storage_path.mkdir(exist_ok=True)
+
+DEFAULT_FILES_ROOT = Path.home() / "WitnessAngelWard"
+DEFAULT_FILES_ROOT.mkdir(exist_ok=True)
+
+_filesystem_key_storage_pool_path = Path(os.environ.get("WA_KEY_STORAGE_POOL", DEFAULT_FILES_ROOT / "key_storage_pool"))
+_filesystem_key_storage_pool_path.mkdir(exist_ok=True)
 filesystem_key_storage_pool = FilesystemKeyStoragePool(
-    root_dir=_filesystem_key_storage_path
+    root_dir=_filesystem_key_storage_pool_path
 )
 
-_filesystem_container_storage_path = Path(os.environ.get("CONTAINER_STORAGE", "container_storage"))
+_filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage"))
 _filesystem_container_storage_path.mkdir(exist_ok=True)
 filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=6)
 
-rtsp_recordings_folder = Path(os.environ.get("RECORDING_FOLDER", "ffmpeg_video_stream"))
+rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
+
+preview_image_path = Path(os.environ.get("WA_PREVIEW_IMAGE_PATH", DEFAULT_FILES_ROOT / "preview_image.jpg"))
 
 
 class NewVideoHandler(FileSystemEventHandler):
@@ -80,7 +86,7 @@ class NewVideoHandler(FileSystemEventHandler):
         cap = cv2.VideoCapture(path)
         success, first_frame = cap.read()
         if success:
-            cv2.imwrite("preview.jpg", first_frame)
+            cv2.imwrite(str(preview_image_path), first_frame)
 
     def get_first_frame(self):
         return self.first_frame
@@ -265,10 +271,12 @@ def _generate_encryption_conf(shared_secret_threshold: int, authentication_devic
                               message_prehash_algo="SHA256",
                               signature_algo="DSA_DSS",
                               signature_escrow=LOCAL_ESCROW_MARKER,
+                              keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                           )
                       ]
     data_encryption_strata = [
-        dict(data_encryption_algo="AES_CBC",
+        dict(
+             data_encryption_algo="AES_CBC",
              key_encryption_strata=shared_secret_encryption,
              data_signatures=data_signatures)
     ]
