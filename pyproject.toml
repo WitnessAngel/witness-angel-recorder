@@ -1,27 +1,71 @@
+[build-system]
+requires = ["poetry_core"]
+build-backend = "poetry.masonry.api"
+
+
 [tool.poetry]
-name = "witness-ward-client"
-version = "0.1.0"
-description = ""
-authors = ["ManonMic <manon.michelet5@gmail.com>"]
+name = "wanvr"
+description = "Witness Angel NVR"
+version = "0.1"
+license = "MIT"
+readme = "Readme.rst"
+authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi"]
+homepage = "https://github.com/WitnessAngel/witness-angel-nvr"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Operating System :: MacOS :: MacOS X",
+]
+include = ["CHANGELOG", "tests/*.py"]
+exclude = ["_build"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-opencv-python = "^4.3"
-pytest = "^6.0"
-matplotlib = "^3.3"
-multitimer = "^0.2.0"
-pycryptodome = "^3.9.8"
-uuid0 = "^0.2.7"
-decorator = "^4.4.2"
-jsonrpc_requests = "^0.4.0"
-bson = "^0.5.10"
-ffmpeg-python = "^0.2.0"
-watchdog = "^0.10.3"
-kivy = "^1.11.1"
-wmi = "^1.5.1"
+python = ">=3.6"
+
+# Cryptography & transports
+wacryptolib = "0.5"
+
+Kivy = "^2.0.0rc3"
+"kivy-deps.glew" = "^0.2.0"
+"kivy-deps.sdl2" = "^0.2.0"
+Kivy-Garden = "^0.1.4"
+kivymd = "^0.104.1"
+
+opencv-python= "^4.4.0.44"
+Pillow = "^7.2.0"
+watchdog = "0.10.3"
 
 [tool.poetry.dev-dependencies]
 
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+# Test runners and plugins
+pytest = "^4.5"
+pytest-cov = "^2.7"
+pytest-randomly = "^3.0"
+pytest-deadfixtures = "^2.1"
+pytest-testmon = "^0.9"
+pytest-timeout = "^1.3"
+pytest-xdist = "^1.30"
+freezegun = "^0.3.12"
+
+# Linters and formatters
+black = {version = "^18.3-alpha.0",allows-prereleases = true}
+pylint = "^2.3"
+safety = "^1.8"
+yamllint = "^1.15"
+xenon = "^0.5"
+mypy = "^0.701"
+doc8 = "^0.8"
+
+# Documentation
+sphinx = "^2.0"
+sphinx-autodoc-typehints = "^1.6"
+sphinx_rtd_theme = "^0.4.3"
+toml = "^0.10.0"
+
