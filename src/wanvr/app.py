@@ -8,6 +8,11 @@ from functools import partial
 from pathlib import Path
 from uuid import UUID
 
+from kivy.core.window import Window
+
+Window.size = (600, 450)
+Window.minimum_width, Window.minimum_height = Window.size
+
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
@@ -69,11 +74,13 @@ class DrawerList(ThemableBehavior, MDList):
 
 
 class MainWindow(Screen):
+    pass
+    """
     def __init__(self, **kwargs):
         self.title = "Witness Angel - WardProject"
 
         super(MainWindow, self).__init__(**kwargs)
-
+    """
 
 class SecondWindow(Screen):
     pass
@@ -160,6 +167,10 @@ class WardGuiApp(MDApp):
         else:
             self._stop_recording()
 
+    @property
+    def nav_drawer(self):
+        return self.root.ids.nav_drawer
+
     def build(self):
         pass
 
@@ -229,6 +240,11 @@ class WardGuiApp(MDApp):
         )
 
         self.fps_monitor_start()  # FPS display for debugging
+
+        a = self.root.ids.screen_manager.get_screen(
+                    "MainMenu"
+                ).children
+        print(">>>>>>>>", a)
 
     def on_stop(self):
         print(">>>>>> ON STOP CALLED")
@@ -574,7 +590,7 @@ class WardGuiApp(MDApp):
         """
         try:
             container = filesystem_container_storage.load_container_from_storage(container_name)
-            container_repr = pprint.pformat(container)[:1000]  # LIMIT else pygame.error: Width or height is too large
+            container_repr = pprint.pformat(container)[:700]  # LIMIT else pygame.error: Width or height is too large
         except Exception as exc:
             container_repr = repr(exc)
 

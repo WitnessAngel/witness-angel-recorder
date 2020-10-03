@@ -4,26 +4,12 @@
 NavigationLayout:
 
     WindowManager:
+
         id: screen_manager
+        margin: (100, 0)
 
         MainWindow:
-
-            BoxLayout:
-                orientation: 'vertical'
-
-                MDToolbar:
-                    md_bg_color: (0.1372, 0.2862, 0.5294, 1)
-                    title: "Witness Angel Ward - NVR"
-                    elevation: 10
-                    left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
-
-                    ActionButton:
-                        text: 'Settings'
-
-                        on_release:
-                            app.open_settings()
-
-                Widget:
+            name: "MainMenu"
 
         SecondWindow:
 
@@ -70,6 +56,23 @@ NavigationLayout:
         id: nav_drawer
         ContentNavigationDrawer:
             id: content_drawer
+
+<Separator@Widget>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<VSeparator@Separator>:
+    size_hint_y: None
+    height: 20
+
+<HSeparator@Separator>:
+    size_hint_x: None
+    width: 20
+
 
 <Content>:
     orientation: "vertical"
@@ -152,7 +155,7 @@ NavigationLayout:
             id: md_list
 
 <MainWindow>:
-    name: "MainMenu"
+
     orientation: "vertical"
     canvas.before:
         Color:
@@ -161,59 +164,49 @@ NavigationLayout:
             pos: self.pos
             size: self.size
 
-    GridLayout:
-        rows:6
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: [0,20]
 
-        GridLayout:
-            size_hint: 1, 0.35
-            spacing:  [90,120]
+        MDToolbar:
+            md_bg_color: (0.1372, 0.2862, 0.5294, 1)
+            title: "Witness Angel Ward - NVR"
+            elevation: 5
+            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
+
+            ActionButton:
+                text: 'Settings'
+
+                on_release:
+                    app.open_settings()
+
+        BoxLayout:
+            size_hint: (1, None)
+            height: 50
+            spacing:  [30,30]
             padding: [20,20]
-            cols:2
-            BoxLayout:
-                Label:
-                    size_hint: 0.4, 0.3
-                    text: 'Recording'
-                Switch:
-                    size: 150, 50
-                    size_hint: 0.4, 0.3
-                    id: switch
-                    active: False
-                    on_active:
-                        app.switch_callback(self, self.active)
+            Label:
+                size_hint: 0.4, 0.3
+                text: 'Recording'
+            Switch:
+                size: 150, 50
+                size_hint: 0.4, 0.3
+                id: switch
+                active: False
+                on_active:
+                    app.switch_callback(self, self.active)
+
+        Image:
+            id: preview_image
+            source: str(app.fallback_image_path)
+            size: (10, 10)     #self.texture_size if self.texture else (10, 10)
+            allow_stretch: True
+            keep_ratio: True
+            nocache: True
 
 
-        GridLayout:
-            size_hint: 1, 1
-            rows:2
-            padding:20,10,20,10
 
-            #Label:
-            #    size_hint: 0.4, 0.05
-            #    text: 'Push button to start recording'
-
-            Image:
-                id: preview_image
-                source: str(app.fallback_image_path)
-                size: (10, 10)     #self.texture_size if self.texture else (10, 10)
-                allow_stretch: True
-                keep_ratio: True
-                nocache: True
-            #BoxLayout:
-                # UNUSED FOR NOW
-             #   size_hint: 1, 1
-             #   id: player
-
-
-        GridLayout:
-            size_hint: 1, 0.30
-            cols:1
-            padding:20,10,20,10
-
-            #KivyConsole:
-            #    id: kivy_console
-            #    canvas.after:
-            #        Color:
-            #            rgba: 0.1372, 0.2862, 0.5294, 1
 
 <SecondWindow>:
 
@@ -300,6 +293,7 @@ NavigationLayout:
             size_hint: 1, 1
             rows:2
             padding:20,10,20,0
+
             AnchorLayout:
                 size_hint: 1, 0.3
                 anchor_x: 'left'
