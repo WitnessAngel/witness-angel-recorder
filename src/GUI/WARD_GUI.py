@@ -8,11 +8,9 @@ from uuid import UUID
 
 # Tweak logging before Kivy breaks it
 import logging
-
-from kivy.clock import Clock
-
 logging.root.setLevel(logging.DEBUG)
 
+from kivy.clock import Clock
 from kivy.config import Config
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -136,26 +134,33 @@ class WARD_GUIApp(MDApp):
         self.selected_authentication_device_uids = []
         self.recording_toolchain = None
 
-    def switch_callback(self, switch_object, switch_value):
+    def _start_recording(self):
+        assert not self.recording_toolchain, self.recording_toolchain  # By construction...
+        container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
+                shared_secret_threshold=self.get_shared_secret_threshold(),
+                authentication_devices_used=self.selected_authentication_device_uids
+        )
+        recording_toolchain = RecordingToolchain(
+            recordings_folder=rtsp_recordings_folder,
+            conf=container_conf,
+            key_type="RSA_OAEP",
+            camera_url=self.get_url_camera(),  # FIXME rename
+            recording_time=20,  # Fixme say "seconds"
+            segment_time=5,  # Fixme say "seconds"
+        )
+        recording_toolchain.launch_recording_toolchain()
+        self.recording_toolchain = recording_toolchain
 
+    def _stop_recording(self):
+        assert self.recording_toolchain, self.recording_toolchain  # By construction...
+        self.recording_toolchain.stop_recording_toolchain_and_wait()
+        self.recording_toolchain = None
+
+    def switch_callback(self, switch_object, switch_value):
         if switch_value:
-            container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
-                    shared_secret_threshold=self.get_shared_secret_threshold(),
-                    authentication_devices_used=self.selected_authentication_device_uids
-            )
-            recording_toolchain = RecordingToolchain(
-                recordings_folder=rtsp_recordings_folder,
-                conf=container_conf,
-                key_type="RSA_OAEP",
-                camera_url=self.get_url_camera(),  # FIXME rename
-                recording_time=20,  # Fixme say "seconds"
-                segment_time=5,  # Fixme say "seconds"
-            )
-            recording_toolchain.launch_recording_toolchain()
-            self.recording_toolchain = recording_toolchain
+            self._start_recording()
         else:
-            assert self.recording_toolchain, self.recording_toolchain  # By construction...
-            self.recording_toolchain.stop_recording_toolchain_and_wait()
+            self._stop_recording()
 
     def build(self):
         pass
@@ -229,6 +234,14 @@ class WARD_GUIApp(MDApp):
         Clock.schedule_interval(
             self.update_preview_image, 2
         )
+
+        self.fps_monitor_start()  # FPS display for debugging
+
+    def on_stop(self):
+        print(">>>>>> ON STOP CALLED")
+        if self.recording_toolchain:
+            self._stop_recording()  # We don't care about GUI controls since we exit anyway...
+
 
     def update_preview_image(self, *args, **kwargs):
         print("We update_preview_image")
