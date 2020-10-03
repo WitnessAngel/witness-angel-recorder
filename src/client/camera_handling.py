@@ -2,13 +2,10 @@ from datetime import datetime
 from pathlib import Path
 
 import cv2
-import numpy as np
 import logging
-import pytest
 import os
 import time
 import subprocess
-import signal
 import threading
 
 logger = logging.getLogger()
@@ -187,9 +184,8 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         #logger.info("Sending signal %s to gracefully terminate ffmpeg process %s", graceful_exit_signal, self.process.pid)
         #self.process.terminate()  #
         #self.process.send_signal(graceful_exit_signal)
-        logger.info("AAAAA")
+        logger.info("Sent quit key to ffmpeg, waiting for VideoStreamWriterFfmpeg thread exit")
         self.join()
-        logger.info("BBBBBBB")
 
     def get_writer_status(self):
         return self.is_alive()

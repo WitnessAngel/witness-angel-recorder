@@ -1,4 +1,4 @@
-#:import KivyConsole waclient.utilities.widgets.KivyConsole
+####:import KivyConsole waclient.utilities.widgets.KivyConsole
 
 
 NavigationLayout:
@@ -88,20 +88,20 @@ NavigationLayout:
     padding: 6, 6
     size_hint: (1, None)
 
-<KivyConsole>:
-    console_output: console_output
-    scroll_view: scroll_view
-    ScrollView:
-        id: scroll_view
-        bar_width: 10
-        ConsoleOutput:
-            id: console_output
-            height: max(self.parent.height, self.minimum_height)
-            font_name: root.font_name
-            font_size: root.font_size
-            foreground_color: 1, 1, 1, 1
-
-            background_color: 0.1372, 0.2862, 0.5294, 1
+#<KivyConsole>:
+#    console_output: console_output
+#    scroll_view: scroll_view
+#    ScrollView:
+#        id: scroll_view
+#        bar_width: 10
+#        ConsoleOutput:
+#            id: console_output
+#            height: max(self.parent.height, self.minimum_height)
+#            font_name: root.font_name
+#            font_size: root.font_size
+#            foreground_color: 1, 1, 1, 1
+#
+#            background_color: 0.1372, 0.2862, 0.5294, 1
 
 
 
@@ -209,13 +209,13 @@ NavigationLayout:
             cols:1
             padding:20,10,20,10
 
-            KivyConsole:
-                id: kivy_console
-                canvas.after:
-                    Color:
-                        rgba: 0.1372, 0.2862, 0.5294, 1
-<SecondWindow>:
+            #KivyConsole:
+            #    id: kivy_console
+            #    canvas.after:
+            #        Color:
+            #            rgba: 0.1372, 0.2862, 0.5294, 1
 
+<SecondWindow>:
 
     name: "Keys_management"
 

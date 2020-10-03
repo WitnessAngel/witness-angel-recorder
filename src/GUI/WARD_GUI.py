@@ -190,6 +190,7 @@ class WARD_GUIApp(MDApp):
         print("CONFIG CHANGE", section, key, value)
 
     def log_output(self, msg):
+        return  # DISABLED FOR NOW
         console_output = self.root.ids.screen_manager.get_screen(
             "MainMenu"
         ).ids.kivy_console.ids.console_output
@@ -198,6 +199,7 @@ class WARD_GUIApp(MDApp):
         )
 
     def on_start(self):
+
         import logging_tree
         logging_tree.printout()
 

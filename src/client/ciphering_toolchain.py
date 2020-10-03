@@ -1,12 +1,10 @@
 import logging
 import os
 import pprint
-import uuid
 from uuid import UUID
 
 import cv2
 import random
-from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 
 from client.camera_handling import VideoStreamWriterFfmpeg
