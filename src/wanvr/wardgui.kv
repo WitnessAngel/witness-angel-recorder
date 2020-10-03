@@ -13,7 +13,7 @@ NavigationLayout:
 
                 MDToolbar:
                     md_bg_color: (0.1372, 0.2862, 0.5294, 1)
-                    title: "Witness Angel"
+                    title: "Witness Angel Ward - NVR"
                     elevation: 10
                     left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
 
@@ -134,17 +134,17 @@ NavigationLayout:
             size: "150dp", "150dp"
             source: str(app.app_logo_path)
 
-    MDLabel:
-        text: "WitnessAngel"
-        font_style: "Button"
-        size_hint_y: None
-        height: self.texture_size[1]
+#    MDLabel:
+#        text: "Witness Angel Ward NVR"
+#        font_style: "Button"
+#        size_hint_y: None
+#        height: self.texture_size[1]
 
-    MDLabel:
-        text: "WitnessWard"
-        font_style: "Caption"
-        size_hint_y: None
-        height: self.texture_size[1]
+#    MDLabel:
+#        text: "WitnessWard"
+#        font_style: "Caption"
+#        size_hint_y: None
+#        height: self.texture_size[1]
 
     ScrollView:
 
@@ -187,9 +187,9 @@ NavigationLayout:
             rows:2
             padding:20,10,20,10
 
-            Label:
-                size_hint: 0.4, 0.05
-                text: 'Push button to start recording'
+            #Label:
+            #    size_hint: 0.4, 0.05
+            #    text: 'Push button to start recording'
 
             Image:
                 id: preview_image

@@ -164,26 +164,18 @@ class WardGuiApp(MDApp):
         pass
 
     def build_config(self, config):
-        config.setdefaults(
-            "example",
-            {
-                "urlcamera": "/sme/path",
-                "number_escrow": 9,
-                "min_number_shares": 7,
-                "retention_days": 10,
-                ### "recordingdirectory": "/dir_rec-parent/dir_rec",
-            },
-        )
+        #print(">> IN build_config")
+        config.setdefaults("nvr", {})
 
     def get_shared_secret_threshold(self):
-        return int(self.config.get("example", "min_number_shares"))
+        return int(self.config.get("nvr", "shared_secret_threshold"))
 
     def get_url_camera(self):
-        return self.config.get("example", "urlcamera")
+        return self.config.get("nvr", "ip_camera_url")
 
     def build_settings(self, settings):
         settings_file = PACKAGE_ROOT / "user_settings_schema.json"
-        settings.add_json_panel("Witness Angel", self.config, filename=settings_file)
+        settings.add_json_panel("NVR", self.config, filename=settings_file)
 
     def on_config_change(self, config, section, key, value):
         print("CONFIG CHANGE", section, key, value)
@@ -214,7 +206,7 @@ class WardGuiApp(MDApp):
         '''
 
         # Beware these are STRINGS
-        selected_authentication_device_uids = self.config["example"].get("selected_authentication_device_uids", "").split(",")
+        selected_authentication_device_uids = self.config["nvr"].get("selected_authentication_device_uids", "").split(",")
 
         available_authentication_device_uids = filesystem_key_storage_pool.list_imported_key_storage_uids()
 
@@ -572,7 +564,7 @@ class WardGuiApp(MDApp):
             self.selected_authentication_device_uids.remove(self.chbx_lbls[check_box_checked])
         else:
             self.selected_authentication_device_uids.append(self.chbx_lbls[check_box_checked])
-        self.config["example"]["selected_authentication_device_uids"] = ",".join(self.selected_authentication_device_uids)
+        self.config["nvr"]["selected_authentication_device_uids"] = ",".join(self.selected_authentication_device_uids)
         self.config.write()
         print("self.selected_authentication_device_uids", self.selected_authentication_device_uids)
 

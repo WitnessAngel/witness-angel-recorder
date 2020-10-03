@@ -1,32 +1,18 @@
 [
-    {"type": "title", "title": "Settings WitnessWard"},
+    {"type": "title", "title": "Settings for NVR"},
     {
         "type": "string",
-        "title": "URL IP camera",
-        "desc": "Path description text",
-        "section": "example",
-        "key": "urlcamera"
+        "title": "IP Camera URL",
+        "desc": "URL to the RTSP stream",
+        "section": "nvr",
+        "key": "ip_camera_url"
     },
     {
         "type": "numeric",
-        "title": "number of escrow",
-        "desc": "the number of people with a USB key",
-        "section": "example",
-        "key": "number_escrow"
-    },
-    {
-        "type": "numeric",
-        "title": "Minimum number of shares",
-        "desc": "minimum number of people to collect their USB key",
-        "section": "example",
-        "key": "min_number_shares"
-    },
-    {
-        "type": "numeric",
-        "title": "Retention time",
-        "desc": "number of days, videos ( containers)  would be saved in the system",
-        "section": "example",
-        "key": "retention_days"
-    },
+        "title": "Shared secret threshold",
+        "desc": "Min number of escrows required to decrypt data",
+        "section": "nvr",
+        "key": "shared_secret_threshold"
+    }
 ]
 

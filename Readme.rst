@@ -1,5 +1,5 @@
-Witness Angel NVR
-#############################
+Witness Angel Ward (NVR System)
+#################################
 
 
 This is a proof-of-concept application of Network Video Recording, using Flightbox cryptosystem to secure recorded data
@@ -7,6 +7,13 @@ in a "write-only" fashion.
 
 RTSP streams can be recorded autonomously, but only the agreement of a sufficient number of trusted third parties
 (called "escrows") will allow to decrypt some records.
+
+
+Setup
+---------------
+
+- Install a recent "ffmpeg" executable somewhere on your system PATH
+- Install this package and launch "wanvr"
 
 
 Workflow
