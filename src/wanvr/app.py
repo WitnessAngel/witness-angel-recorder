@@ -247,11 +247,12 @@ class WardGuiApp(MDApp):
         )
 
         self.fps_monitor_start()  # FPS display for debugging
-
+        '''
         Keys_page_ids = self.root.ids.screen_manager.get_screen(  # FIXME factorize
             "Keys_management"
         ).ids
         Keys_page_ids.device_table.bind(minimum_height=Keys_page_ids.device_table.setter('height'))
+        '''
 
     def on_stop(self):
         print(">>>>>> ON STOP CALLED")
@@ -306,6 +307,8 @@ class WardGuiApp(MDApp):
 
         container_names = filesystem_container_storage.list_container_names(as_sorted=True)
 
+        containers_page_ids.container_table.clear_widgets()
+
         if not container_names:
             container_display = Button(
                 text="No container found",
@@ -313,21 +316,19 @@ class WardGuiApp(MDApp):
                 font_size="28sp",
                 color=[0, 1, 0, 1],
             )
-            containers_page_ids.table.clear_widgets()
             display_layout = BoxLayout(orientation="horizontal")
             display_layout.add_widget(container_display)
-            containers_page_ids.table.add_widget(display_layout)
+            containers_page_ids.container_table.add_widget(display_layout)
             return
 
         self.check_box_container_uuid_dict = {}
         self.btn_container_uuid_dict = {}
-        containers_page_ids.table.clear_widgets()
 
         self.container_checkboxes = []
 
         for index, container_name in enumerate(container_names, start=1):
 
-            my_check_box = CheckBox(active=False, size_hint=(0.1, 0.2))
+            my_check_box = CheckBox(active=False, size_hint=(0.1, None), height=40)
             my_check_box._container_name = container_name
             #my_check_box.bind(active=self.check_box_container_checked)
             self.container_checkboxes.append(my_check_box)
@@ -335,9 +336,10 @@ class WardGuiApp(MDApp):
             my_check_btn = Button(
                 text=" Container n° %s:  %s"
                 % (index, container_name),
-                size_hint=(0.9, 0.2),
+                size_hint=(0.9, None),
                 background_color=(1, 1, 1, 0.01),
                 on_release=partial(self.show_container_details, container_name=container_name),
+                height=40,
             )
             '''
             self.check_box_container_uuid_dict[my_check_box] = [
@@ -349,6 +351,7 @@ class WardGuiApp(MDApp):
                 str(container[1]),
             ]
             '''
+            """
             layout = BoxLayout(
                 orientation="horizontal",
                 pos_hint={"center": 1, "top": 1},
@@ -356,7 +359,9 @@ class WardGuiApp(MDApp):
             )
             layout.add_widget(my_check_box)
             layout.add_widget(my_check_btn)
-            containers_page_ids.table.add_widget(layout)
+            """
+            containers_page_ids.container_table.add_widget(my_check_box)
+            containers_page_ids.container_table.add_widget(my_check_btn)
 
         print("self.container_checkboxes", self.container_checkboxes)
 
@@ -368,8 +373,9 @@ class WardGuiApp(MDApp):
 
         container_names = []
 
-        for row in containers_page_ids.table.children:
-            checkbox = row.children[-1]  # Order is reversed compared to adding
+        checkboxes = list(reversed(containers_page_ids.container_table.children))[::2]
+
+        for checkbox in checkboxes:
             if checkbox.active:
                 container_names.append(checkbox._container_name)
 
@@ -503,7 +509,7 @@ class WardGuiApp(MDApp):
         self.chbx_lbls = {}  # FIXME: lbls ?
         self.btn_lbls = {}  # FIXME: lbls ?
 
-        for (index, (device_uid, metadata)) in enumerate(5*sorted(key_storage_metadata.items()), start=1):
+        for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
             uuid_suffix = str(device_uid).split("-")[-1]
             #print("COMPARING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
@@ -576,10 +582,10 @@ class WardGuiApp(MDApp):
             font_size="28sp",
             color=[0, 1, 0, 1],
         )
-        keys_page_ids.table.clear_widgets()
+        keys_page_ids.device_table.clear_widgets()
         Display_layout = BoxLayout(orientation="horizontal", padding=[140, 0])
         Display_layout.add_widget(devices_display)
-        keys_page_ids.table.add_widget(Display_layout)
+        keys_page_ids.device_table.add_widget(Display_layout)
 
     def check_box_authentication_device_checked(self, check_box_checked):
         """
