@@ -26,6 +26,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
+from kivymd.uix.snackbar import Snackbar
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path
 from wacryptolib.container import (
@@ -141,11 +142,28 @@ class WardGuiApp(MDApp):
 
     def _start_recording(self):
 
+        main_switch = self.root.ids.screen_manager.get_screen(
+                    "MainMenu"
+                ).ids.switch
+
+        shared_secret_threshold = self.get_shared_secret_threshold()
+
+        if shared_secret_threshold >= len(self.selected_authentication_device_uids):
+            Snackbar(
+                text="Configuration error, first import and select enough key devices, and set the 'threshold' setting accordingly.",
+                font_size="12sp",
+                duration=5,
+                #button_text="BUTTON",
+                #button_callback=app.callback
+            ).show()
+            main_switch.active = False
+            return
+
         # FIXME display popup if WRONG PARAMS!!!
 
         assert not self.recording_toolchain, self.recording_toolchain  # By construction...
         container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
-                shared_secret_threshold=self.get_shared_secret_threshold(),
+                shared_secret_threshold=shared_secret_threshold,
                 authentication_devices_used=self.selected_authentication_device_uids
         )
         recording_toolchain = RecordingToolchain(
@@ -165,10 +183,13 @@ class WardGuiApp(MDApp):
         self.recording_toolchain = None
 
     def switch_callback(self, switch_object, switch_value):
+        # We just swallow incoherent signals
         if switch_value:
-            self._start_recording()
+            if not self.recording_toolchain:
+                self._start_recording()
         else:
-            self._stop_recording()
+            if self.recording_toolchain:
+                self._stop_recording()
 
     @property
     def screen_manager(self):

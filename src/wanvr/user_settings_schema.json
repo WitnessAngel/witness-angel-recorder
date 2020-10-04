@@ -10,7 +10,7 @@
     {
         "type": "numeric",
         "title": "Shared secret threshold",
-        "desc": "Min number of escrows required to decrypt data",
+        "desc": "Escrows required to decrypt data, must be strictly below number of escrow",
         "section": "nvr",
         "key": "shared_secret_threshold"
     }
