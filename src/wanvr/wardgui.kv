@@ -149,7 +149,7 @@ NavigationLayout:
         BoxLayout:
             size_hint: (1, None)
             height: 50
-            spacing:  [30,30]
+            spacing:  30
             padding: [20,20]
             Label:
                 size_hint: 0.4, 0.3
@@ -182,7 +182,7 @@ NavigationLayout:
 
     BoxLayout:
         orientation: 'vertical'
-        spacing: 20
+        spacing: 10
         padding: [0,20]
 
         MDToolbar:
@@ -207,15 +207,30 @@ NavigationLayout:
             text_color: 1, 1, 1, 1
             font_size: 24
 
-        BoxLayout:
-            orientation: 'vertical'
-            id: table
-            size_hint: 1, 1
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_width: 10
+            #bar_color: [1, 0, 1, 1]
+            scroll_type: ["bars", "content"]
+
+            GridLayout:
+                size_hint_y: None
+                orientation: 'vertical'
+                id: device_table
+                cols: 2
+                row_default_height: 25
+                row_force_default: True
+                padding: 10
+                spacing: (0, 10)
+
 
         AnchorLayout:
             anchor_x: 'center'
             anchor_y: 'bottom'
-            padding: [20, 60, 20, 20]
+            padding: [20, 20, 20, 20]
+            height: 100
+            size_hint_y: None
             Button:
                 id: btn
                 background_color: (51, 23, 186.0, 1)

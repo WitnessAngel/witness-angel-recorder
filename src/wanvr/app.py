@@ -231,7 +231,7 @@ class WardGuiApp(MDApp):
         #Check integrity of escrow selection
         selected_authentication_device_uids = [
             x for x in selected_authentication_device_uids
-            if UUID(x) in available_authentication_device_uids
+            if x and (UUID(x) in available_authentication_device_uids)
         ]
         print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
         self.selected_authentication_device_uids = selected_authentication_device_uids
@@ -248,10 +248,10 @@ class WardGuiApp(MDApp):
 
         self.fps_monitor_start()  # FPS display for debugging
 
-        a = self.root.ids.screen_manager.get_screen(
-                    "MainMenu"
-                ).children
-        print(">>>>>>>>", a)
+        Keys_page_ids = self.root.ids.screen_manager.get_screen(  # FIXME factorize
+            "Keys_management"
+        ).ids
+        Keys_page_ids.device_table.bind(minimum_height=Keys_page_ids.device_table.setter('height'))
 
     def on_stop(self):
         print(">>>>>> ON STOP CALLED")
@@ -492,7 +492,7 @@ class WardGuiApp(MDApp):
             "Keys_management"
         ).ids
 
-        Keys_page_ids.table.clear_widgets()  # FIXME naming
+        Keys_page_ids.device_table.clear_widgets()  # FIXME naming
 
         key_storage_metadata = filesystem_key_storage_pool.list_imported_key_storage_metadata()
 
@@ -503,30 +503,32 @@ class WardGuiApp(MDApp):
         self.chbx_lbls = {}  # FIXME: lbls ?
         self.btn_lbls = {}  # FIXME: lbls ?
 
-        for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
+        for (index, (device_uid, metadata)) in enumerate(5*sorted(key_storage_metadata.items()), start=1):
             uuid_suffix = str(device_uid).split("-")[-1]
             #print("COMPARING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
                 active=(str(device_uid) in self.selected_authentication_device_uids),
-                size_hint=(0.1, 0.2),
+                size_hint=(0.1, None),
                 on_release=self.check_box_authentication_device_checked,
+                height=40,
             )
             my_check_btn = Button(
                 text="Key n°%s, User %s, Uid %s" % (index, metadata["user"], uuid_suffix),
-                size_hint=(0.9, 0.2),
-                background_color=(1, 1, 1, 0.01),
-                on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
+                size_hint=(0.9, None),
+                background_color=(0, 1, 1, 0.1),
+                on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"]),
+                height=40,
             )
             self.chbx_lbls[my_check_box] = str(device_uid)
             self.btn_lbls[my_check_btn] = str(device_uid)
-            layout = BoxLayout(
-                orientation="horizontal",
-                pos_hint={"center": 1, "top": 1},
-                padding=[20, 0]
-            )
-            layout.add_widget(my_check_box)
-            layout.add_widget(my_check_btn)
-            Keys_page_ids.table.add_widget(layout)
+           # device_row = BoxLayout(
+            #    orientation="horizontal",
+                #pos_hint={"center": 1, "top": 1},
+                #padding=[20, 0],
+           #)
+            Keys_page_ids.device_table.add_widget(my_check_box)
+            Keys_page_ids.device_table.add_widget(my_check_btn)
+            #Keys_page_ids.device_table.add_widget(device_row)
 
         """
                 file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
