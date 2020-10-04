@@ -38,6 +38,9 @@ filesystem_container_storage = ContainerStorage(default_encryption_conf=None, co
 rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
 
+decrypted_records_folder = Path(os.environ.get("WA_DECRYPTED_RECORDS_FOLDER", DEFAULT_FILES_ROOT / "decrypted_records"))
+decrypted_records_folder.mkdir(exist_ok=True)
+
 preview_image_path = Path(os.environ.get("WA_PREVIEW_IMAGE_PATH", DEFAULT_FILES_ROOT / "preview_image.jpg"))
 
 

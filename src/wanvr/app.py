@@ -1,5 +1,9 @@
 # Tweak logging before Kivy breaks it
 import logging
+
+from kivy.uix.textinput import TextInput
+from kivymd.uix.textfield import MDTextField
+
 logging.root.setLevel(logging.DEBUG)
 
 import pprint
@@ -27,8 +31,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineIconListItem, MDList
 from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
-from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, filesystem_key_storage_pool, \
-    filesystem_container_storage, rtsp_recordings_folder, preview_image_path
+from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
+    filesystem_key_storage_pool, \
+    filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -95,7 +100,7 @@ class WindowManager(ScreenManager):
     pass
 
 
-class Content(BoxLayout):
+class PassphrasesDialogContent(BoxLayout):
     pass
 
 
@@ -384,7 +389,7 @@ class WardGuiApp(MDApp):
             containers_page_ids.container_table.add_widget(my_check_box)
             containers_page_ids.container_table.add_widget(my_check_btn)
 
-        print("self.container_checkboxes", self.container_checkboxes)
+        #print("self.container_checkboxes", self.container_checkboxes)
 
     def get_selected_container_names(self):
 
@@ -636,7 +641,7 @@ class WardGuiApp(MDApp):
 
     def open_container_details_dialog(self, message, info_container):
         self.dialog = MDDialog(
-            title=" %s" % info_container,
+            title=str(info_container),
             text=message,
             size_hint=(0.8, 1),
             buttons=[MDFlatButton(text="Close", on_release=self.close_dialog)],
@@ -666,12 +671,12 @@ class WardGuiApp(MDApp):
             )
         """
         self.dialog = MDDialog(
-            title="Delete containers confirmation",
+            title="Container deletion confirmation",
             text=message,
             size_hint=(0.8, 1),
             buttons=[
                 MDFlatButton(
-                    text="Confirm delete", on_release=partial(self.close_dialog_delete_container, container_names=container_names)
+                    text="Confirm deletion", on_release=partial(self.close_dialog_delete_container, container_names=container_names)
                 ),
                 MDFlatButton(text="Cancel", on_release=self.close_dialog),
             ],
@@ -695,7 +700,7 @@ class WardGuiApp(MDApp):
         if not container_names:
             return
 
-        message = "Are you sure you want to decrypt %s container(s)?" % len(container_names)
+        message = "Decrypt %s container(s)?" % len(container_names)
 
         """
         self.list_chbx_active = []
@@ -712,15 +717,46 @@ class WardGuiApp(MDApp):
                     " Do you want to decipher these %d containers" % count_container_checked
             )
         """
+
+        key_storage_metadata = filesystem_key_storage_pool.list_imported_key_storage_metadata()
+
+        containers = [filesystem_container_storage.load_container_from_storage(x) for x in container_names]
+        dependencies = gather_escrow_dependencies(containers)
+
+        relevant_authentication_device_uids = [escrow[0]["authentication_device_uid"] for escrow in dependencies["encryption"].values()]
+
+        relevant_key_storage_metadata = sorted([y for (x,y) in key_storage_metadata.items()
+                                                if x in relevant_authentication_device_uids], key = lambda d: d["user"])
+
+        print("--------------")
+        pprint.pprint(relevant_key_storage_metadata)
+
+
+        content = PassphrasesDialogContent()
+
+        for metadata in relevant_key_storage_metadata:
+            hint_text="Passphrase for user %s (hint: %s)" % (metadata["user"], metadata["passphrase_hint"])
+            _widget = TextInput(hint_text=hint_text)
+
+            '''MDTextField(hint_text="S SSSSSSSS z z",
+                              helper_text="Passphrase for user %s (hint: %s)" % (metadata["user"], metadata["passphrase_hint"]),
+                              helper_text_mode="on_focus",
+                              **{                    "color_mode": 'custom',
+                                                  "line_color_focus": (0.4, 0.5, 1, 1),
+                                                  "mode": "fill",
+                                                  "fill_color": (0.3, 0.3, 0.3, 0.4),
+                                                  "current_hint_text_color": (0.1, 1, 0.2, 1)})'''
+            content.add_widget(_widget)
+
         self.dialog = MDDialog(
-            title=" Decipher containers confirmation ",
+            title=message,
             type="custom",
-            content_cls=Content(),#entering the passphrase
-            text=message,
+            content_cls=content,
+            #text=message,
             size_hint=(0.8, 1),
             buttons=[
                 MDFlatButton(
-                    text="Confirm decipher",
+                    text="Launch decryption",
                     on_release=partial(self.close_dialog_decipher_container, container_names=container_names),
                 ),
                 MDFlatButton(text="Cancel", on_release=self.close_dialog),
@@ -730,13 +766,35 @@ class WardGuiApp(MDApp):
         self.dialog.open()
 
     def close_dialog_decipher_container(self, obj, container_names):
+        self.dialog.dismiss()
 
-        input = self.dialog.content_cls.ids.pass_text.text
+        inputs = list(reversed(self.dialog.content_cls.children))
+        passphrases = [i.text for i in inputs]
+        passphrase_mapper = {None: passphrases}  # For now we regroup all passphrases together
+
+        errors = []
 
         for container_name in container_names:
-            container = filesystem_container_storage.decrypt_container_from_storage(container_name)
+            try:
+                result = filesystem_container_storage.decrypt_container_from_storage(container_name, passphrase_mapper=passphrase_mapper)
+                target_path = decrypted_records_folder / (Path(container_name).with_suffix(""))
+                target_path.write_bytes(result)
+                print(">> Successfully exported data file to %s" % target_path)
+            except Exception as exc:
+                errors.append(exc)
 
+        if errors:
+            message = "Errors happened during decryption, see logs"
+        else:
+            message = "Decryption successful, see export folder for results"
+                
+        Snackbar(
+            text=message,
+            font_size="12sp",
+            duration=5,
+        ).show()
 
+        """
         print("The written sentence is passphrase : %s" % input)
         containers = []
         for chbx in self.check_box_container_uuid_dict:
@@ -760,7 +818,8 @@ class WardGuiApp(MDApp):
         )
         for container in containers:
             decrypt_data_from_container(container=container)
-        self.dialog.dismiss()
+            """
+
 
     def ____create_containers_for_test(self):
         """
