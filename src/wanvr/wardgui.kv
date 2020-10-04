@@ -210,7 +210,7 @@ NavigationLayout:
         BoxLayout:
             orientation: 'vertical'
             id: table
-            size_hint: 0.8, 1
+            size_hint: 1, 1
 
         AnchorLayout:
             anchor_x: 'center'
@@ -268,12 +268,14 @@ NavigationLayout:
         BoxLayout:
             orientation: 'vertical'
             id: table
-            size_hint: 0.8, 1
+            size_hint: 1, 1
 
         AnchorLayout:
             anchor_x: 'center'
             anchor_y: 'bottom'
             padding: [20, 60, 20, 0]
+            height: 30
+
             BoxLayout:
 
                 Button:
@@ -282,8 +284,9 @@ NavigationLayout:
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Refresh"
                     #size: 200, 50
-                    #size_hint: None, None
+                    size_hint: 0.3, None
                     disabled: False
+                    height: 30
                     on_release:
                         app.get_detected_container()
 
@@ -293,8 +296,9 @@ NavigationLayout:
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Delete"
                     #size: 200, 50
-                    #size_hint: None, None
+                    size_hint: 0.3, None
                     disabled: False
+                    height: 30
                     on_release:
                         app.open_dialog_delete_container()
 
@@ -304,12 +308,11 @@ NavigationLayout:
                     color: 0.1372, 0.2862, 0.5294, 1
                     text: "Decrypt"
                     #size: 200, 50
-                    #size_hint: None, None
+                    size_hint: 0.3, None
                     disabled: False
+                    height: 30
                     on_release:
                         app.open_dialog_decipher_container()
-
-
 
 
 

@@ -33,7 +33,7 @@ filesystem_key_storage_pool = FilesystemKeyStoragePool(
 
 _filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage"))
 _filesystem_container_storage_path.mkdir(exist_ok=True)
-filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=6)
+filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=100)
 
 rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)

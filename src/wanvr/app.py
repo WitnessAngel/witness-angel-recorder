@@ -327,36 +327,36 @@ class WardGuiApp(MDApp):
 
         for index, container_name in enumerate(container_names, start=1):
 
-                my_check_box = CheckBox(active=False, size_hint=(0.2, 0.2))
-                my_check_box._container_name = container_name
-                #my_check_box.bind(active=self.check_box_container_checked)
-                self.container_checkboxes.append(my_check_box)
+            my_check_box = CheckBox(active=False, size_hint=(0.1, 0.2))
+            my_check_box._container_name = container_name
+            #my_check_box.bind(active=self.check_box_container_checked)
+            self.container_checkboxes.append(my_check_box)
 
-                my_check_btn = Button(
-                    text=" Container n° %s:  %s"
-                    % (index, container_name),
-                    size_hint=(0.8, 0.2),
-                    background_color=(1, 1, 1, 0.01),
-                    on_release=partial(self.show_container_details, container_name=container_name),
-                )
-                '''
-                self.check_box_container_uuid_dict[my_check_box] = [
-                    str(container[0]["container_uid"]),
-                    str(container[1]),
-                ]
-                self.btn_container_uuid_dict[my_check_btn] = [
-                    str(container[0]["container_uid"]),
-                    str(container[1]),
-                ]
-                '''
-                layout = BoxLayout(
-                    orientation="horizontal",
-                    pos_hint={"center": 1, "top": 1},
-                    padding=[140, 0],
-                )
-                layout.add_widget(my_check_box)
-                layout.add_widget(my_check_btn)
-                containers_page_ids.table.add_widget(layout)
+            my_check_btn = Button(
+                text=" Container n° %s:  %s"
+                % (index, container_name),
+                size_hint=(0.9, 0.2),
+                background_color=(1, 1, 1, 0.01),
+                on_release=partial(self.show_container_details, container_name=container_name),
+            )
+            '''
+            self.check_box_container_uuid_dict[my_check_box] = [
+                str(container[0]["container_uid"]),
+                str(container[1]),
+            ]
+            self.btn_container_uuid_dict[my_check_btn] = [
+                str(container[0]["container_uid"]),
+                str(container[1]),
+            ]
+            '''
+            layout = BoxLayout(
+                orientation="horizontal",
+                pos_hint={"center": 1, "top": 1},
+                padding=[20, 0],
+            )
+            layout.add_widget(my_check_box)
+            layout.add_widget(my_check_btn)
+            containers_page_ids.table.add_widget(layout)
 
         print("self.container_checkboxes", self.container_checkboxes)
 
@@ -503,26 +503,26 @@ class WardGuiApp(MDApp):
         self.chbx_lbls = {}  # FIXME: lbls ?
         self.btn_lbls = {}  # FIXME: lbls ?
 
-        for (index, (device_uid, metadata)) in enumerate(4*sorted(key_storage_metadata.items()), start=1):
+        for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
             uuid_suffix = str(device_uid).split("-")[-1]
-            print("COMAPRING", str(device_uid), self.selected_authentication_device_uids)
+            #print("COMPARING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
                 active=(str(device_uid) in self.selected_authentication_device_uids),
-                size_hint=(0.2, 0.2),
+                size_hint=(0.1, 0.2),
                 on_release=self.check_box_authentication_device_checked,
             )
             my_check_btn = Button(
                 text="Key n°%s, User %s, Uid %s" % (index, metadata["user"], uuid_suffix),
-                size_hint=(0.8, 0.2),
+                size_hint=(0.9, 0.2),
                 background_color=(1, 1, 1, 0.01),
-                    on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
+                on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"])
             )
             self.chbx_lbls[my_check_box] = str(device_uid)
             self.btn_lbls[my_check_btn] = str(device_uid)
             layout = BoxLayout(
                 orientation="horizontal",
                 pos_hint={"center": 1, "top": 1},
-                padding=[140, 0]
+                padding=[20, 0]
             )
             layout.add_widget(my_check_box)
             layout.add_widget(my_check_btn)

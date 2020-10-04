@@ -177,7 +177,7 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         self.start()
 
 
-    def stop_writing(self):
+    def stop_writing(self):  # FIXME - might be called before process has finished setup!
         self._stopped = True
         self.process.communicate(b"q")  # Clean exit of ffmpeg
         #graceful_exit_signal = signal.SIGTERM  #CTRL_BREAK_EVENT  # TODO add linux version
