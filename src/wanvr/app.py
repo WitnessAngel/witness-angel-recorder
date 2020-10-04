@@ -626,7 +626,9 @@ class WardGuiApp(MDApp):
         """
         try:
             container = filesystem_container_storage.load_container_from_storage(container_name)
-            container_repr = pprint.pformat(container)[:700]  # LIMIT else pygame.error: Width or height is too large
+            all_dependencies = gather_escrow_dependencies([container])
+            interesting_dependencies = list(all_dependencies["encryption"].values())
+            container_repr = pprint.pformat(interesting_dependencies, indent=2)[:800]  # LIMIT else pygame.error: Width or height is too large
         except Exception as exc:
             container_repr = repr(exc)
 
