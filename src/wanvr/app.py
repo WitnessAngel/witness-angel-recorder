@@ -1,9 +1,6 @@
 # Tweak logging before Kivy breaks it
 import logging
 
-from kivy.uix.textinput import TextInput
-from kivymd.uix.textfield import MDTextField
-
 logging.root.setLevel(logging.DEBUG)
 
 import pprint
@@ -12,9 +9,14 @@ from functools import partial
 from pathlib import Path
 from uuid import UUID
 
+from kivy.config import Config
+Config.set('graphics', 'top', '10') ### This doesn't seem to do anything
+Config.set('graphics', 'left', '10') #
+Config.set('graphics', 'position', 'custom')
+
 from kivy.core.window import Window
 
-Window.size = (600, 450)
+Window.size = (500, 380)
 Window.minimum_width, Window.minimum_height = Window.size
 
 from kivy.clock import Clock
@@ -24,6 +26,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.textinput import TextInput
+from kivymd.uix.textfield import MDTextField
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.button import MDFlatButton
@@ -787,7 +791,7 @@ class WardGuiApp(MDApp):
             message = "Errors happened during decryption, see logs"
         else:
             message = "Decryption successful, see export folder for results"
-                
+
         Snackbar(
             text=message,
             font_size="12sp",

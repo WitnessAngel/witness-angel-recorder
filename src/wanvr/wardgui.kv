@@ -137,7 +137,7 @@ NavigationLayout:
             md_bg_color: (0.1372, 0.2862, 0.5294, 1)
             title: "Witness Angel Ward - NVR"
             elevation: 5
-            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
+            left_action_items: [['menu', lambda x: app.nav_drawer.set_state("toggle")]]
 
             ActionButton:
                 text: 'Settings'
@@ -188,7 +188,7 @@ NavigationLayout:
             md_bg_color: (0.1372, 0.2862, 0.5294, 1)
             title: "Witness Angel"
             elevation: 10
-            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
+            left_action_items: [['menu', lambda x: app.nav_drawer.set_state("toggle")]]
 
             ActionButton:
                 text: 'Home'
@@ -262,7 +262,7 @@ NavigationLayout:
             md_bg_color: (0.1372, 0.2862, 0.5294, 1)
             title: "Witness Angel"
             elevation: 10
-            left_action_items: [['menu', lambda x: app.nav_drawer.toggle_nav_drawer()]]
+            left_action_items: [['menu', lambda x: app.nav_drawer.set_state("toggle")]]
 
             ActionButton:
                 text: 'Home'

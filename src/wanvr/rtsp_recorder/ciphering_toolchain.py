@@ -5,7 +5,6 @@ import random
 from pathlib import Path
 from uuid import UUID
 
-import cv2
 from decorator import decorator
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -102,6 +101,7 @@ class NewVideoHandler(FileSystemEventHandler):
         self.pending_files.append(event.src_path)
 
     def extract_first_frame(self, path):
+        return
         # see https://gist.github.com/ExpandOcean/de261e66949009f44ad2  kivy and opencv work together demo
         cap = cv2.VideoCapture(path)
         success, first_frame = cap.read()
@@ -116,6 +116,7 @@ class NewVideoHandler(FileSystemEventHandler):
         """Launch a thread where a file will be ciphered"""
         self.extract_first_frame(path=path_file)
         data = get_data_then_delete_videofile(path=path_file)
+
         filesystem_container_storage.enqueue_file_for_encryption(
                 filename_base=Path(path_file).name, data=data, metadata=None, keychain_uid=None, encryption_conf=self.conf)
         """

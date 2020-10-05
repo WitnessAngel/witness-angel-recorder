@@ -6,8 +6,6 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-import cv2
-
 logger = logging.getLogger()
 
 
@@ -140,7 +138,7 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         date_prefix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
         exec = [
-            r"C:\StandaloneApps\ffmpeg-4.3.1-2020-09-21-full_build\bin\ffmpeg",
+            "ffmpeg",
             "-rtsp_transport",
             "tcp"]
         codec = [
