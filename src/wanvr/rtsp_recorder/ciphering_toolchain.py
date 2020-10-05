@@ -32,7 +32,7 @@ filesystem_key_storage_pool = FilesystemKeyStoragePool(
 
 _filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage"))
 _filesystem_container_storage_path.mkdir(exist_ok=True)
-filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=100)
+filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=4*24*1)  # 1 DAY FOR NOW!!!
 
 rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
@@ -102,6 +102,7 @@ class NewVideoHandler(FileSystemEventHandler):
         self.pending_files.append(event.src_path)
 
     def extract_first_frame(self, path):
+        # FIXME see https://stackoverflow.com/a/4425466/11581928 to use ffmpeg instead of opencv
         return
         # see https://gist.github.com/ExpandOcean/de261e66949009f44ad2  kivy and opencv work together demo
         cap = cv2.VideoCapture(path)

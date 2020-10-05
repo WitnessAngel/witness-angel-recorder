@@ -1,7 +1,13 @@
 # Tweak logging before Kivy breaks it
-import logging
+import os, logging
 
-logging.root.setLevel(logging.DEBUG)
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
+#ogging.root.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+#logging.getLogger("wacryptolib").parent = logging.getLogger("kivy")  # Fix link broken by kivy stuffs
+logging.getLogger("wacryptolib").setLevel(logging.DEBUG)
+#logging.getLogger("wanvr").parent = logging.getLogger("kivy")  # Fix link broken by kivy stuffs
+logging.getLogger("wanvr").setLevel(logging.DEBUG)
 
 import pprint
 import random
@@ -180,8 +186,8 @@ class WardGuiApp(MDApp):
             conf=container_conf,
             key_type="RSA_OAEP",
             camera_url=self.get_url_camera(),  # FIXME rename
-            recording_time=20,  # Fixme say "seconds"
-            segment_time=5,  # Fixme say "seconds"
+            recording_time=60*60,  # Fixme say "seconds"
+            segment_time=15*60,  # Fixme say "seconds"
         )
         print(">>> started launching recording toolchain")
         recording_toolchain.launch_recording_toolchain()
@@ -245,8 +251,11 @@ class WardGuiApp(MDApp):
 
     def on_start(self):
 
-        #import logging_tree
-        #logging_tree.printout()
+        try:
+            import logging_tree
+            logging_tree.printout()
+        except ImportError:
+            pass  # Optional debug stuff
 
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
@@ -482,6 +491,8 @@ class WardGuiApp(MDApp):
         # for index, authentication_device in enumerate(list_devices):
         #print(">>>>>>>>>> import_keys started")
         authentication_devices = list_available_authentication_devices()
+
+        print("DETECTED AUTH DEVICES", authentication_devices)
 
         for authentication_device in authentication_devices:
             #print(">>>>>>>>>> importing,", authentication_device)

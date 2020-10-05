@@ -159,7 +159,7 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         ]
 
         pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format
-        logger.debug("Calling subprocess command: {}".format(" ".join(pipeline)))
+        logger.info("Calling subprocess command: {}".format(" ".join(pipeline)))
         self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
         returncode = self.process.wait()
 
