@@ -1,6 +1,13 @@
 ####:import KivyConsole waclient.utilities.widgets.KivyConsole
 
 
+<Widget>:
+    canvas.after:
+        Line:
+            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+            dash_offset: 5
+            dash_length: 3
+
 NavigationLayout:
 
     WindowManager:
@@ -42,9 +49,9 @@ NavigationLayout:
 
 <PassphrasesDialogContent>:
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: "20"
     size_hint_y: None
-    height: "120dp"
+    height: "120"
     #id: passphrases_layout
 
     #MDTextField:
@@ -149,13 +156,13 @@ NavigationLayout:
             size_hint: (1, None)
             height: 50
             spacing:  30
-            padding: [20,20]
+            padding: [10,10]
             Label:
-                size_hint: 0.4, 0.3
                 text: 'Recording'
+                size: 150, 50
             Switch:
                 size: 150, 50
-                size_hint: 0.4, 0.3
+                #size_hint: 0.4, 0.3
                 id: switch
                 active: False
                 on_active:

@@ -10,14 +10,13 @@ from pathlib import Path
 from uuid import UUID
 
 from kivy.config import Config
-Config.set('graphics', 'top', '10') ### This doesn't seem to do anything
-Config.set('graphics', 'left', '10') #
+Config.set('graphics', 'top', '50')
+Config.set('graphics', 'left', '50')
 Config.set('graphics', 'position', 'custom')
 
 from kivy.core.window import Window
 
-Window.size = (500, 380)
-Window.minimum_width, Window.minimum_height = Window.size
+Window.minimum_width, Window.minimum_height = Window.size = (500, 380)
 
 from kivy.clock import Clock
 from kivy.config import Config
@@ -358,13 +357,14 @@ class WardGuiApp(MDApp):
 
         for index, container_name in enumerate(container_names, start=1):
 
-            my_check_box = CheckBox(active=False, size_hint=(0.1, None), height=40)
+            my_check_box = CheckBox(active=False,
+                                    size_hint=(0.1, None), height=40)
             my_check_box._container_name = container_name
             #my_check_box.bind(active=self.check_box_container_checked)
             self.container_checkboxes.append(my_check_box)
 
             my_check_btn = Button(
-                text=" Container n° %s:  %s"
+                text="N° %s:  %s"
                 % (index, container_name),
                 size_hint=(0.9, None),
                 background_color=(1, 1, 1, 0.01),
@@ -428,12 +428,12 @@ class WardGuiApp(MDApp):
             uuid_suffix = str(keypair_identifier["keychain_uid"]).split("-")[-1]
 
             message += (
-                " Key n° %s, keychain_uid: ...%s, type: %s, has_private_key:    %s\n"
+                " Key n° %s, Uid: ...%s, type: %s\n" #, has_private_key:    %s\n"
                 % (
                     index,
                     uuid_suffix,
                     keypair_identifier["key_type"],
-                    private_key_present_str,
+                    #private_key_present_str,
                 )
                 )
         self.open_dialog_display_keys_in_authentication_device(message, user=user)
@@ -544,13 +544,13 @@ class WardGuiApp(MDApp):
             #print("COMPARING", str(device_uid), self.selected_authentication_device_uids)
             my_check_box = CheckBox(
                 active=(str(device_uid) in self.selected_authentication_device_uids),
-                size_hint=(0.1, None),
+                size_hint=(0.15, None),
                 on_release=self.check_box_authentication_device_checked,
                 height=40,
             )
             my_check_btn = Button(
                 text="Key n°%s, User %s, Uid %s" % (index, metadata["user"], uuid_suffix),
-                size_hint=(0.9, None),
+                size_hint=(0.85, None),
                 background_color=(0, 1, 1, 0.1),
                 on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"]),
                 height=40,
@@ -636,7 +636,7 @@ class WardGuiApp(MDApp):
         try:
             container = filesystem_container_storage.load_container_from_storage(container_name)
             all_dependencies = gather_escrow_dependencies([container])
-            interesting_dependencies = list(all_dependencies["encryption"].values())
+            interesting_dependencies = [d[0] for d in list(all_dependencies["encryption"].values())]
             container_repr = pprint.pformat(interesting_dependencies, indent=2)[:800]  # LIMIT else pygame.error: Width or height is too large
         except Exception as exc:
             container_repr = repr(exc)
