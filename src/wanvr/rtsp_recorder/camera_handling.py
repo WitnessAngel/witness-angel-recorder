@@ -155,7 +155,8 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         format = [
             "-segment_format",
             "mp4",
-            str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4"))
+            str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4")),
+            "-y",
         ]
 
         pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format

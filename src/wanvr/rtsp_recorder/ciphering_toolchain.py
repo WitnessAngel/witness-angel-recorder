@@ -2,6 +2,7 @@ import logging
 import os
 import pprint
 import random
+import subprocess
 from pathlib import Path
 from uuid import UUID
 
@@ -103,13 +104,17 @@ class NewVideoHandler(FileSystemEventHandler):
 
     def extract_first_frame(self, path):
         # FIXME see https://stackoverflow.com/a/4425466/11581928 to use ffmpeg instead of opencv
-        return
         # see https://gist.github.com/ExpandOcean/de261e66949009f44ad2  kivy and opencv work together demo
+        command = ["ffmpeg", "-i", str(path), "-r", "1", "-vframes", "1", str(preview_image_path), "-y"]  # "-f",  str(preview_image_path.parent) To rescale: -s WxH
+        logger.info("Calling preview extraction command: %s", str(command))
+        res = subprocess.run(command)
+        logger.info("Preview extraction command exited with code %s", res.returncode)
+        '''
         cap = cv2.VideoCapture(path)
         success, first_frame = cap.read()
         if success:
             cv2.imwrite(str(preview_image_path), first_frame)
-
+        '''
     def get_first_frame(self):
         return self.first_frame
 
