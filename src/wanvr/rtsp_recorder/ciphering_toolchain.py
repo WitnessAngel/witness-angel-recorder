@@ -87,6 +87,7 @@ class NewVideoHandler(FileSystemEventHandler):
         logger.debug("Observer thread started")
         self.observer.start()
 
+    @safe_catch_unhandled_exception
     def process_pending_files(self):
         pending_files = self.pending_files[:]
 
@@ -186,6 +187,7 @@ class RtspVideoRecorder:
         logger.debug("Video stream writing thread stopped and waiting")
         self.writer_ffmpeg.stop_writing()
 
+    @safe_catch_unhandled_exception
     def get_ffmpeg_status(self):
         return self.writer_ffmpeg.is_alive()
 
@@ -226,10 +228,12 @@ class RecordingToolchain:
         self.new_video_handler.stop_new_files_processing_and_wait()
         filesystem_container_storage.wait_for_idle_state()
 
+    @safe_catch_unhandled_exception
     def get_status(self):
         """Check if recorder thread is alive (True) or not (False)"""
         self.rtsp_video_recorder.get_ffmpeg_status()
 
+    @safe_catch_unhandled_exception
     def get_first_frame(self):
         return self.new_video_handler.get_first_frame()
 

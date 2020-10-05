@@ -5,6 +5,7 @@ import threading
 import time
 from datetime import datetime
 from pathlib import Path
+from subprocess import TimeoutExpired
 
 logger = logging.getLogger()
 
@@ -177,7 +178,11 @@ class VideoStreamWriterFfmpeg(threading.Thread):
 
     def stop_writing(self):  # FIXME - might be called before process has finished setup!
         self._stopped = True
-        self.process.communicate(b"q")  # Clean exit of ffmpeg
+        try:
+            self.process.communicate(b"q", timeout=5)  # Clean exit of ffmpeg
+        except TimeoutExpired:
+            logger.warning("Killing ffmpeg subprocess which didn't stop via std input command")
+            self.process.terminate()
         #graceful_exit_signal = signal.SIGTERM  #CTRL_BREAK_EVENT  # TODO add linux version
         #logger.info("Sending signal %s to gracefully terminate ffmpeg process %s", graceful_exit_signal, self.process.pid)
         #self.process.terminate()  #

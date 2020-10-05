@@ -36,7 +36,8 @@ from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
-    filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder
+    filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder, \
+    safe_catch_unhandled_exception
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -182,14 +183,20 @@ class WardGuiApp(MDApp):
             recording_time=20,  # Fixme say "seconds"
             segment_time=5,  # Fixme say "seconds"
         )
+        print(">>> started launching recording toolchain")
         recording_toolchain.launch_recording_toolchain()
         self.recording_toolchain = recording_toolchain
+        print(">>> finished launching recording toolchain")
 
+    @safe_catch_unhandled_exception
     def _stop_recording(self):
+        print(">>> started stopping recording toolchain")
         assert self.recording_toolchain, self.recording_toolchain  # By construction...
         self.recording_toolchain.stop_recording_toolchain_and_wait()
         self.recording_toolchain = None
+        print(">>> finished stopping recording toolchain")
 
+    @safe_catch_unhandled_exception
     def switch_callback(self, switch_object, switch_value):
         # We just swallow incoherent signals
         if switch_value:
@@ -329,6 +336,7 @@ class WardGuiApp(MDApp):
         self.root.ids.screen_manager.current = destination
         self.root.ids.nav_drawer.set_state("close")
 
+    @safe_catch_unhandled_exception
     def get_detected_container(self):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
             "Container_management"
