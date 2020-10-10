@@ -144,17 +144,11 @@ class VideoStreamWriterFfmpeg(threading.Thread):
             "tcp"]
         codec = [
             "-vcodec",
-            "libx264",
+            "copy",
             "-acodec",
             "copy",
             "-map",
-            "0",
-            "-b:v",
-            "2M",
-            "-maxrate",
-            "2M",
-            "-bufsize",
-            "1M"]
+            "0"]
         segment = [
             "-f",
             "segment"]
