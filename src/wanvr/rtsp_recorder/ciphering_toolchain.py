@@ -21,24 +21,23 @@ from wacryptolib.key_storage import FilesystemKeyStoragePool
 
 logger = logging.getLogger()
 
-
-DEFAULT_FILES_ROOT = Path.home() / "WitnessAngelWard"
+DEFAULT_FILES_ROOT = Path(os.environ.get("WA_DEFAULT_FILES_ROOT", Path.home() / "WitnessAngelWard")).resolve()
 DEFAULT_FILES_ROOT.mkdir(exist_ok=True)
 
-_filesystem_key_storage_pool_path = Path(os.environ.get("WA_KEY_STORAGE_POOL", DEFAULT_FILES_ROOT / "key_storage_pool"))
+_filesystem_key_storage_pool_path = Path(os.environ.get("WA_KEY_STORAGE_POOL", DEFAULT_FILES_ROOT / "key_storage_pool")).resolve()
 _filesystem_key_storage_pool_path.mkdir(exist_ok=True)
 filesystem_key_storage_pool = FilesystemKeyStoragePool(
     root_dir=_filesystem_key_storage_pool_path
 )
 
-_filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage"))
+_filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage")).resolve()
 _filesystem_container_storage_path.mkdir(exist_ok=True)
 filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=4*24*1)  # 1 DAY FOR NOW!!!
 
 rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
 
-decrypted_records_folder = Path(os.environ.get("WA_DECRYPTED_RECORDS_FOLDER", DEFAULT_FILES_ROOT / "decrypted_records"))
+decrypted_records_folder = Path(os.environ.get("WA_DECRYPTED_RECORDS_FOLDER", DEFAULT_FILES_ROOT / "decrypted_records")).resolve()
 decrypted_records_folder.mkdir(exist_ok=True)
 
 preview_image_path = Path(os.environ.get("WA_PREVIEW_IMAGE_PATH", DEFAULT_FILES_ROOT / "preview_image.jpg"))
