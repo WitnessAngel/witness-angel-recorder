@@ -30,16 +30,15 @@ exclude = ["_build", "__pycache__"]
 python = ">=3.6"
 
 # Cryptography & transports
-wacryptolib = "0.5"
+wacryptolib = "^0.5"
 
-Kivy = "^2.0.0rc3"
-"kivy-deps.glew" = "^0.2.0"
-"kivy-deps.sdl2" = "^0.2.0"
-Kivy-Garden = "^0.1.4"
+Kivy = {version = "^2.0.0rc3", allow-prereleases = true}
+
+"kivy-deps.glew" = { version = "^0.2.0", platform = 'win32' }
+"kivy-deps.sdl2" = { version = "^0.2.0", platform = 'win32' }
+
 kivymd = "^0.104.1"
 
-opencv-python= "^4.4.0.44"
-Pillow = "^7.2.0"
 watchdog = "0.10.3"
 
 [tool.poetry.dev-dependencies]
@@ -55,7 +54,7 @@ pytest-xdist = "^1.30"
 freezegun = "^0.3.12"
 
 # Linters and formatters
-black = {version = "^18.3-alpha.0",allows-prereleases = true}
+black = {version = "^18.3-alpha.0", allow-prereleases = true}
 pylint = "^2.3"
 safety = "^1.8"
 yamllint = "^1.15"
