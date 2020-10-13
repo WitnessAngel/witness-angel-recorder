@@ -158,8 +158,12 @@ class VideoStreamWriterFfmpeg(threading.Thread):
             str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4")),
             "-y",
         ]
+        logs = [
+            "-loglevel",
+            "warning"
+        ]
 
-        pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format
+        pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format + logs
         logger.info("Calling subprocess command: {}".format(" ".join(pipeline)))
         self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
         returncode = self.process.wait()

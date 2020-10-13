@@ -24,6 +24,8 @@ logger = logging.getLogger()
 DEFAULT_FILES_ROOT = Path(os.environ.get("WA_DEFAULT_FILES_ROOT", Path.home() / "WitnessAngelWard")).resolve()
 DEFAULT_FILES_ROOT.mkdir(exist_ok=True)
 
+print("WA_DEFAULT_FILES_ROOT is", DEFAULT_FILES_ROOT)
+
 _filesystem_key_storage_pool_path = Path(os.environ.get("WA_KEY_STORAGE_POOL", DEFAULT_FILES_ROOT / "key_storage_pool")).resolve()
 _filesystem_key_storage_pool_path.mkdir(exist_ok=True)
 filesystem_key_storage_pool = FilesystemKeyStoragePool(

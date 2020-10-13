@@ -1,13 +1,14 @@
 # Tweak logging before Kivy breaks it
 import os, logging
+from logging import FileHandler
+from logging.handlers import RotatingFileHandler
 
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
 #ogging.root.setLevel(logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG)
-#logging.getLogger("wacryptolib").parent = logging.getLogger("kivy")  # Fix link broken by kivy stuffs
 logging.getLogger("wacryptolib").setLevel(logging.DEBUG)
-#logging.getLogger("wanvr").parent = logging.getLogger("kivy")  # Fix link broken by kivy stuffs
 logging.getLogger("wanvr").setLevel(logging.DEBUG)
+REAL_ROOT_LOGGER = logging.root
 
 import pprint
 import random
@@ -43,7 +44,7 @@ from kivymd.uix.snackbar import Snackbar
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder, \
-    safe_catch_unhandled_exception
+    safe_catch_unhandled_exception, DEFAULT_FILES_ROOT
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
@@ -257,6 +258,9 @@ class WardGuiApp(MDApp):
         except ImportError:
             pass  # Optional debug stuff
 
+        log_path = DEFAULT_FILES_ROOT / "log.txt"
+        REAL_ROOT_LOGGER.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
+
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
         '''
@@ -291,7 +295,7 @@ class WardGuiApp(MDApp):
             self.update_preview_image, 30
         )
 
-        self.fps_monitor_start()  # FPS display for debugging
+        ##self.fps_monitor_start()  # FPS display for debugging
         '''
         Keys_page_ids = self.root.ids.screen_manager.get_screen(  # FIXME factorize
             "Keys_management"
