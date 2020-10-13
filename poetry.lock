@@ -1050,7 +1050,7 @@ pybase62 = "*"
 
 [[package]]
 name = "wacryptolib"
-version = "0.5.1"
+version = "0.5.2"
 description = "Witness Angel Cryptolib"
 category = "main"
 optional = false
@@ -1159,7 +1159,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6"
-content-hash = "0b40496e0699c07f19a6471e8af42d833827060002882e3f75a47dd960c9be20"
+content-hash = "c0e77b4e0425aa9165296ae3bafee7d54c1186f73a0252cf51c6a0957d6063b3"
 
 [metadata.files]
 alabaster = [
@@ -1796,8 +1796,8 @@ uuid0 = [
     {file = "uuid0-0.2.7.tar.gz", hash = "sha256:835da1b868078eadfd63de24d17b9ea3bd1c655497f99e1b8b84f6e4117e6c2b"},
 ]
 wacryptolib = [
-    {file = "wacryptolib-0.5.1-py3-none-any.whl", hash = "sha256:f9dd7fc0df8f185c2e3584c40e95b3ebf1cb19a552fc81fee3f0032bec90509a"},
-    {file = "wacryptolib-0.5.1.tar.gz", hash = "sha256:3e9ecacad828fc3e7307cbcb24eb1dfcd588e556522b752afe9bea33375efa86"},
+    {file = "wacryptolib-0.5.2-py3-none-any.whl", hash = "sha256:b657b0f9c45235f235cbdd1598a7be7d20b4c4f9832761c4e9d52bd50560aa59"},
+    {file = "wacryptolib-0.5.2.tar.gz", hash = "sha256:5ba78d809fcbe712f84d17ac7f315d5e68ef945971e1d2bcca92370472c32bc4"},
 ]
 watchdog = [
     {file = "watchdog-0.10.3.tar.gz", hash = "sha256:4214e1379d128b0588021880ccaf40317ee156d4603ac388b9adcf29165e0c04"},

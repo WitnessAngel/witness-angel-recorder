@@ -30,7 +30,7 @@ exclude = ["_build", "__pycache__"]
 python = ">=3.6"
 
 # Cryptography & transports
-wacryptolib = "^0.5"
+wacryptolib = "^0.5.2"
 
 Kivy = {version = "^2.0.0rc3", allow-prereleases = true}
 
