@@ -1,7 +1,8 @@
 # Tweak logging before Kivy breaks it
-import os, logging
-from logging import FileHandler
-from logging.handlers import RotatingFileHandler
+import os, sys, logging
+
+if sys.platform == "win32":
+    os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
 
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
 #ogging.root.setLevel(logging.DEBUG)
@@ -15,6 +16,7 @@ import random
 from functools import partial
 from pathlib import Path
 from uuid import UUID
+from logging.handlers import RotatingFileHandler
 
 from kivy.config import Config
 Config.set('graphics', 'top', '50')
