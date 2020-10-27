@@ -130,7 +130,13 @@ class VideoStreamWriterFfmpeg(threading.Thread):
         # If recording_time is None, recording will never stop by himself
         self.recording_duration = [] if recording_time is None else ["-t", str(recording_time)]
 
-        self.segment_duration = ["-segment_time", str(segment_time)]
+        self.segment_time = segment_time
+
+        if segment_time:
+            self.format_params = ["-f", "segment", "-segment_time", str(segment_time), "-segment_format", "mp4",]
+        else:
+            self.format_params = []
+
         self.process = None
         self.output_folder = Path(output_folder)
 
@@ -138,8 +144,14 @@ class VideoStreamWriterFfmpeg(threading.Thread):
 
         date_prefix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
+        if self.segment_time:
+            output_filename = str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4"))
+        else:
+            output_filename = str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture.mp4"))
+
         exec = [
             "ffmpeg",
+            "-y",  # Always say yes to questions
             "-rtsp_transport",
             "tcp"]
         codec = [
@@ -149,21 +161,12 @@ class VideoStreamWriterFfmpeg(threading.Thread):
             "copy",
             "-map",
             "0"]
-        segment = [
-            "-f",
-            "segment"]
-        format = [
-            "-segment_format",
-            "mp4",
-            str(self.output_folder.joinpath(date_prefix+"_ffmpeg_capture-%03d.mp4")),
-            "-y",
-        ]
         logs = [
             "-loglevel",
             "warning"
         ]
 
-        pipeline = exec + self.input + codec + self.recording_duration + segment + self.segment_duration + format + logs
+        pipeline = exec + self.input + codec + self.recording_duration + self.format_params + logs + [output_filename]
         logger.info("Calling subprocess command: {}".format(" ".join(pipeline)))
         self.process = subprocess.Popen(pipeline, stdin=subprocess.PIPE)
         returncode = self.process.wait()

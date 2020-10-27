@@ -189,8 +189,8 @@ class WardGuiApp(MDApp):
             conf=container_conf,
             key_type="RSA_OAEP",
             camera_url=self.get_url_camera(),  # FIXME rename
-            recording_time=60*60,  # Fixme say "seconds"
-            segment_time=15*60,  # Fixme say "seconds"
+            recording_time=20,  # Fixme say "seconds"
+            segment_time=None,
         )
         print(">>> started launching recording toolchain")
         recording_toolchain.launch_recording_toolchain()
