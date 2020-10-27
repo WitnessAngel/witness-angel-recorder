@@ -113,8 +113,11 @@ class NewVideoHandler(FileSystemEventHandler):
         # see https://gist.github.com/ExpandOcean/de261e66949009f44ad2  kivy and opencv work together demo
         command = ["ffmpeg", "-i", str(path), "-r", "1", "-vframes", "1", str(preview_image_path), "-y"]  # "-f",  str(preview_image_path.parent) To rescale: -s WxH
         logger.info("Calling preview extraction command: %s", str(command))
-        res = subprocess.run(command, timeout=10)  # Process is killed brutally if timeout
-        logger.info("Preview extraction command exited with code %s", res.returncode)
+        try:
+            res = subprocess.run(command, timeout=10)  # Process is killed brutally if timeout
+            logger.info("Preview extraction command exited with code %s", res.returncode)
+        except subprocess.TimeoutExpired:
+            logger.warning("Preview extraction failed with timeout")
         '''
         cap = cv2.VideoCapture(path)
         success, first_frame = cap.read()
