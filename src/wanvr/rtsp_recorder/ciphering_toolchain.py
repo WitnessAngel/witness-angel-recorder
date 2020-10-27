@@ -34,7 +34,12 @@ filesystem_key_storage_pool = FilesystemKeyStoragePool(
 
 _filesystem_container_storage_path = Path(os.environ.get("WA_INTERNAL_CONTAINER_STORAGE", DEFAULT_FILES_ROOT / "container_storage")).resolve()
 _filesystem_container_storage_path.mkdir(exist_ok=True)
-filesystem_container_storage = ContainerStorage(default_encryption_conf=None, containers_dir=_filesystem_container_storage_path, key_storage_pool=filesystem_key_storage_pool, max_workers=os.cpu_count() or 1, max_containers_count=4*24*1)  # 1 DAY FOR NOW!!!
+filesystem_container_storage = ContainerStorage(
+        default_encryption_conf=None,
+        containers_dir=_filesystem_container_storage_path,
+        key_storage_pool=filesystem_key_storage_pool,
+        max_workers=1, # Protects memory usage
+        max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
 
 rtsp_recordings_folder = Path(os.environ.get("WA_TEMP_RECORDING_FOLDER", DEFAULT_FILES_ROOT / "temp_recordings"))
 rtsp_recordings_folder.mkdir(exist_ok=True)
@@ -267,9 +272,11 @@ def __save_container(video_filepath: str, container: dict):
 
 def get_data_then_delete_videofile(path: str) -> bytes:
     """Read video file's data then delete the file from system"""
-    with open(path, "rb") as file:
-        data = file.read()
-    os.remove(path=path)  # FIXME what if it fails?
+    data = open(path, "rb")  # Save memory, this way
+    try:
+        os.remove(path=path)  # FIXME what if it fails?
+    except PermissionError:
+        pass  # On windows, open file can't be removed
     logger.debug("file {} has been deleted from system".format(path))
     return data
 
