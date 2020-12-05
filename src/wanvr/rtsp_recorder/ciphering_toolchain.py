@@ -10,6 +10,7 @@ from decorator import decorator
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+from waguilib.logging.handlers import safe_catch_unhandled_exception
 from wanvr.rtsp_recorder.camera_handling import VideoStreamWriterFfmpeg
 from wacryptolib.container import (
     encrypt_data_into_container,
@@ -48,23 +49,6 @@ decrypted_records_folder = Path(os.environ.get("WA_DECRYPTED_RECORDS_FOLDER", DE
 decrypted_records_folder.mkdir(exist_ok=True)
 
 preview_image_path = Path(os.environ.get("WA_PREVIEW_IMAGE_PATH", DEFAULT_FILES_ROOT / "preview_image.jpg"))
-
-
-# FIXME move this to wacryptolib in common with wamobile?
-@decorator
-def safe_catch_unhandled_exception(f, *args, **kwargs):
-    try:
-        return f(*args, **kwargs)
-    except Exception as exc:
-        try:
-            logger.error(
-                f"Caught unhandled exception in call of function {f!r}: {exc!r}",
-                exc_info=True,
-            )
-        except Exception as exc2:
-            print(
-                f"Beware, service callback {f!r} and logging system are both broken: {exc2!r}"
-            )
 
 
 class NewVideoHandler(FileSystemEventHandler):

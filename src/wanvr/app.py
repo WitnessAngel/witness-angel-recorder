@@ -46,12 +46,10 @@ from kivymd.uix.snackbar import Snackbar
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder, \
-    safe_catch_unhandled_exception, DEFAULT_FILES_ROOT
+    DEFAULT_FILES_ROOT
 from wacryptolib.container import (
     ContainerStorage,
     encrypt_data_into_container,
-    decrypt_data_from_container,
-    request_decryption_authorizations,
     gather_escrow_dependencies,
     load_container_from_filesystem,
     dump_container_to_filesystem,
@@ -60,6 +58,7 @@ from wacryptolib.authentication_device import list_available_authentication_devi
     _get_key_storage_folder_path
 from wacryptolib.exceptions import KeyStorageAlreadyExists
 from wacryptolib.utilities import generate_uuid0
+from waguilib.logging.handlers import CallbackHandler, safe_catch_unhandled_exception
 
 # FIXME this happens too late I guess
 Config.set("graphics", "fullscreen", "0")
