@@ -3,7 +3,7 @@
 Version 0.1
 ==================
 
-* RTSP recording to temp directorywith ffmpeg
-* Important and selection of authentication devices to use
+* RTSP recording to temp directory with ffmpeg
+* Import and selection of authentication devices to use
 * Simple container management
 * Preview of current recording via first image of latest video chunk
