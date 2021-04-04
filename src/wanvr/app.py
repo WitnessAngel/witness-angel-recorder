@@ -1,4 +1,6 @@
 # Tweak logging before Kivy breaks it
+import inspect
+
 import os, sys, logging
 
 '''
@@ -129,10 +131,12 @@ class PassphrasesDialogContent(BoxLayout):
 class WardGuiApp(WAGuiApp):  # FIXME rename this
 
     title = "Witness Angel - NVR"
-    app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
-    default_config_template: str = WANVR_PACKAGE_DIR.joinpath("wardgui.ini")
-    default_config_schema: str = WANVR_PACKAGE_DIR.joinpath("user_settings_schema.json")
-    wip_recording_marker: str = None
+    _config_file_basename = "wanvr_config.ini"
+
+    #app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
+    #default_config_template: str = WANVR_PACKAGE_DIR.joinpath("wardgui.ini")
+    #default_config_schema: str = WANVR_PACKAGE_DIR.joinpath("user_settings_schema.json")
+    #wip_recording_marker: str = None
 
     dialog = None  # Any current modal dialog must be stored here
 
@@ -226,18 +230,22 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
 
     @property
     def screen_manager(self):
+        if not self.root:
+            return  # Early introspection
         return self.root.ids.screen_manager
 
     @property
     def nav_drawer(self):
+        if not self.root:
+            return  # Early introspection
         return self.root.ids.nav_drawer
 
     def build(self):
         pass
 
-    def build_config(self, config):
+    #def build_config(self, config):
         #print(">> IN build_config")
-        config.setdefaults("nvr", {})
+    #    config.setdefaults("nvr", {})
 
     def get_shared_secret_threshold(self):
         return int(self.config.get("nvr", "shared_secret_threshold"))
@@ -246,7 +254,8 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         return self.config.get("nvr", "ip_camera_url")
 
     def build_settings(self, settings):
-        settings_file = WANVR_PACKAGE_DIR / "user_settings_schema.json"
+        settings_file = self.config_schema_path
+        assert settings_file.exists(), settings_file
         settings.add_json_panel("NVR", self.config, filename=settings_file)
 
     def on_config_change(self, config, section, key, value):

@@ -26,14 +26,16 @@ from wacryptolib.container import decrypt_data_from_container, load_container_fr
 
 class WanvrBackgroundServer(WaBackgroundService):
 
+    _config_file_basename = "wanvr_config.ini"
+
     # CLASS VARIABLES #
     internal_keys_dir = INTERNAL_KEYS_DIR
     thread_pool_executor = ThreadPoolExecutor(
         max_workers=1, thread_name_prefix="service_worker"  # SINGLE worker for now, to avoid concurrency
     )
-    default_app_config_name = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
+    #default_app_config_name = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
 
-    app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
+    #app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
 
     @safe_catch_unhandled_exception
     def _offloaded_attempt_container_decryption(self, container_filepath):
