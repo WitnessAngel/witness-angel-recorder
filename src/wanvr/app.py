@@ -1,6 +1,7 @@
 # Tweak logging before Kivy breaks it
 import os, sys, logging
 
+'''
 if sys.platform == "win32":
     os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
 
@@ -10,6 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("wacryptolib").setLevel(logging.DEBUG)
 logging.getLogger("wanvr").setLevel(logging.DEBUG)
 REAL_ROOT_LOGGER = logging.root
+'''
 
 import pprint
 import random
@@ -17,11 +19,16 @@ from functools import partial
 from pathlib import Path
 from uuid import UUID
 from logging.handlers import RotatingFileHandler
+from waguilib.application import WAGuiApp
 
+# SETUP INITIAL STATE OF THE WINDOW
 from kivy.config import Config
 Config.set('graphics', 'top', '50')
 Config.set('graphics', 'left', '50')
 Config.set('graphics', 'position', 'custom')
+# FIXME this happens too late I guess
+#Config.set("graphics", "fullscreen", "0")
+#Config.set("graphics", "show_cursor", "1")
 
 from kivy.core.window import Window
 
@@ -60,14 +67,15 @@ from wacryptolib.exceptions import KeyStorageAlreadyExists
 from wacryptolib.utilities import generate_uuid0
 from waguilib.logging.handlers import CallbackHandler, safe_catch_unhandled_exception
 
-# FIXME this happens too late I guess
-Config.set("graphics", "fullscreen", "0")
-Config.set("graphics", "show_cursor", "1")
+from waguilib.importable_settings import INTERNAL_APP_ROOT
+
 
 from kivy.uix.settings import SettingsWithTabbedPanel
 
 
-PACKAGE_ROOT = Path(__file__).parent
+WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
+
+
 
 
 class ContentNavigationDrawer(BoxLayout):
@@ -118,18 +126,20 @@ class PassphrasesDialogContent(BoxLayout):
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-class WardGuiApp(MDApp):
+class WardGuiApp(WAGuiApp):  # FIXME rename this
+
+    title = "Witness Angel - NVR"
+    app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
+    default_config_template: str = WANVR_PACKAGE_DIR.joinpath("wardgui.ini")
+    default_config_schema: str = WANVR_PACKAGE_DIR.joinpath("user_settings_schema.json")
+    wip_recording_marker: str = None
 
     dialog = None  # Any current modal dialog must be stored here
 
-    use_kivy_settings = False
-    settings_cls = SettingsWithTabbedPanel
-
-    app_logo_path = PACKAGE_ROOT.joinpath("logo-wa.png")
-    fallback_image_path = app_logo_path
+    app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
+    fallback_preview_image_path = app_logo_path
 
     def __init__(self, **kwargs):
-        self.title = "Witness Angel - WardProject"
         super().__init__(**kwargs)
 
         """
@@ -236,7 +246,7 @@ class WardGuiApp(MDApp):
         return self.config.get("nvr", "ip_camera_url")
 
     def build_settings(self, settings):
-        settings_file = PACKAGE_ROOT / "user_settings_schema.json"
+        settings_file = WANVR_PACKAGE_DIR / "user_settings_schema.json"
         settings.add_json_panel("NVR", self.config, filename=settings_file)
 
     def on_config_change(self, config, section, key, value):
@@ -260,7 +270,7 @@ class WardGuiApp(MDApp):
             pass  # Optional debug stuff
 
         log_path = DEFAULT_FILES_ROOT / "log.txt"
-        REAL_ROOT_LOGGER.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
+        logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
 
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
@@ -321,7 +331,7 @@ class WardGuiApp(MDApp):
             preview_image_widget.source = str(preview_image_path)
             preview_image_widget.reload()  # Necessary to update texture
         else:
-            preview_image_widget.source = str(self.fallback_image_path)
+            preview_image_widget.source = str(self.fallback_preview_image_path)
 
 
     def draw_menu(self, ecran):
