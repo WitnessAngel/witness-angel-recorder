@@ -1,7 +1,7 @@
 
 #:import AuthenticationDeviceStoreScreen waguilib.screens.authentication_device_store
 #:import ContainerStoreScreen waguilib.screens.container_store
-
+#:import WaNavigationDrawer waguilib.widgets.navigation_drawer
 
 # ENABLE THIS TO DEBUG LAYOUT ISSUES #
 #<Widget>:
@@ -27,10 +27,8 @@ NavigationLayout:
         ContainerStoreScreen:
             name: "Container_management"
 
-    MDNavigationDrawer:
+    WaNavigationDrawer:
         id: nav_drawer
-        ContentNavigationDrawer:
-            id: content_drawer
 
 
 <Separator@Widget>:
@@ -72,51 +70,6 @@ NavigationLayout:
 #            background_color: 0.1372, 0.2862, 0.5294, 1
 
 
-
-<ItemDrawer>:
-    theme_text_color: "Custom"
-    on_release:
-        self.parent.set_color_item(self)
-
-    IconLeftWidget:
-        id: icon
-        icon: root.icon
-        theme_text_color: "Custom"
-        text_color: root.text_color
-
-<ContentNavigationDrawer>:
-    orientation: "vertical"
-    padding: "8dp"
-    spacing: "8dp"
-
-    AnchorLayout:
-        size_hint_y: None
-        height: avatar.height
-        anchor_x: 'center'
-        anchor_y: 'center'
-
-        Image:
-            id: avatar
-            size_hint: None, None
-            size: "150dp", "150dp"
-            source: str(app.app_logo_path)
-
-#    MDLabel:
-#        text: "Witness Angel Ward NVR"
-#        font_style: "Button"
-#        size_hint_y: None
-#        height: self.texture_size[1]
-
-#    MDLabel:
-#        text: "WitnessWard"
-#        font_style: "Caption"
-#        size_hint_y: None
-#        height: self.texture_size[1]
-
-    ScrollView:
-
-        DrawerList:
-            id: md_list
 
 <MainWindow>:
 

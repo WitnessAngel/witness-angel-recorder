@@ -3,6 +3,8 @@ import inspect
 
 import os, sys, logging
 
+from waguilib.widgets.navigation_drawer import ItemDrawer
+
 '''
 if sys.platform == "win32":
     os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
@@ -76,29 +78,6 @@ from kivy.uix.settings import SettingsWithTabbedPanel
 
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
-
-
-
-
-class ContentNavigationDrawer(BoxLayout):
-    pass
-
-
-class ItemDrawer(OneLineIconListItem):
-    icon = StringProperty()
-    text_color = ListProperty((0, 0, 0, 1))
-
-
-class DrawerList(ThemableBehavior, MDList):
-    def set_color_item(self, instance_item):
-        """
-        Called when tap on a menu item.
-        """
-        for item in self.children:
-            if instance_item.text == item.text:
-                item.text_color = (0.1372, 0.2862, 0.5294, 1)
-            else:
-                item.text_color = (0, 0, 0, 1)
 
 
 class MainWindow(Screen):
@@ -358,7 +337,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         for icon_name in icons_item.keys():
             item_draw = ItemDrawer(icon=icon_name, text=icons_item[icon_name])
             item_draw.bind(on_release=self.destination)
-            self.root.ids.content_drawer.ids.md_list.add_widget(item_draw)
+            self.root.ids.nav_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
 
     def destination(self, item_drawer):
 
@@ -375,13 +354,14 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         self.root.ids.screen_manager.current = destination
         self.root.ids.nav_drawer.set_state("close")
 
-    def close_dialog(self, *args, **kwargs):
-        self.dialog.dismiss()
+    #def close_dialog(self, *args, **kwargs):
+    #    self.dialog.dismiss()
 
     def handle_selected_authentication_device_changed(self, event, device_uids, *args):
         self.config["nvr"]["selected_authentication_device_uids"] = ",".join(device_uids)
         self.config.write()
 
+    '''
     def check_box_container_checked(self, radio_box_checked, value):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
             "Container_management"
@@ -395,7 +375,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
                 containers_page_ids.delete.disabled = True
                 containers_page_ids.decipher.disabled = True
 
-    '''
+
     def _OBSOLETE_import_keys(self, src, dst):  # FIXME: rename this func : move_keys_directory ?
         """
         copy the keys of a src directory and put it in the a dst directory
@@ -421,7 +401,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
                     public_key=public_key,
                     private_key=private_key,
                 )
-    '''
+
 
 
 
@@ -471,7 +451,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
             container_and_name_container_pair = [container, container_name]
             containers_list.append(container_and_name_container_pair)
         return containers_list
-
+    '''
 
 def main():
     WardGuiApp().run()
