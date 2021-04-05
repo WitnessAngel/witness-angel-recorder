@@ -110,10 +110,6 @@ class MainWindow(Screen):
         super(MainWindow, self).__init__(**kwargs)
     """
 
-class ThirdWindow(Screen):
-    pass
-
-
 class WindowManager(ScreenManager):
     pass
 
@@ -160,12 +156,11 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
             ]
         )
         """
-        self.selected_authentication_device_uids = []
         self.recording_toolchain = None
 
     def _start_recording(self):
 
-        main_switch = self.root.ids.screen_manager.get_screen(
+        main_switch = self.root.ids.screen_manager.get_screen(  # FIXME simplify
                     "MainMenu"
                 ).ids.switch
 
@@ -227,6 +222,16 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         return self.root.ids.screen_manager
 
     @property
+    def selected_authentication_device_uids(self):
+        if not self.root:
+            return  # Early introspection
+        return self.screen_manager.get_screen("Keys_management").selected_authentication_device_uids
+
+    @selected_authentication_device_uids.setter
+    def selected_authentication_device_uids(self, device_uids):
+        self.screen_manager.get_screen("Keys_management").selected_authentication_device_uids = device_uids
+
+    @property
     def nav_drawer(self):
         if not self.root:
             return  # Early introspection
@@ -271,8 +276,13 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
             pass  # Optional debug stuff
 
 
-        container_store_screen = self.root.ids.screen_manager.get_screen("Container_management")
+        # Inject dependencies of loading screens
+        container_store_screen = self.root.ids.screen_manager.get_screen("Container_management")  # FIXME simplify
         container_store_screen.filesystem_container_storage = filesystem_container_storage
+        authentication_device_store_screen = self.root.ids.screen_manager.get_screen("Keys_management")
+        authentication_device_store_screen.filesystem_key_storage_pool = filesystem_key_storage_pool
+
+        authentication_device_store_screen.bind(on_selected_authentication_devices_changed=self.handle_selected_authentication_device_changed)
 
         log_path = DEFAULT_FILES_ROOT / "log.txt"
         logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
@@ -305,7 +315,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         # self.create_containers_for_test()
 
         # NOW only we refresh authentication devices panel
-        self.get_detected_devices()  # FIXME rename
+        #self.get_detected_devices()  # FIXME rename
 
         Clock.schedule_interval(
             self.update_preview_image, 30
@@ -365,43 +375,12 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         self.root.ids.screen_manager.current = destination
         self.root.ids.nav_drawer.set_state("close")
 
-    def info_keys_stored(self, btn_selected, device_uid, user):
-
-        """
-        display the information of the keys stored in the selected usb
-
-        """
-        imported_key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=device_uid)
-        keypair_identifiers = imported_key_storage.list_keypair_identifiers()
-
-        message = ""
-        for index, keypair_identifier in enumerate(keypair_identifiers, start=1):
-
-            private_key_present_str = "Yes" if keypair_identifier["private_key_present"] else "No"
-            uuid_suffix = str(keypair_identifier["keychain_uid"]).split("-")[-1]
-
-            message += (
-                " Key n° %s, Uid: ...%s, type: %s\n" #, has_private_key:    %s\n"
-                % (
-                    index,
-                    uuid_suffix,
-                    keypair_identifier["key_type"],
-                    #private_key_present_str,
-                )
-                )
-        self.open_dialog_display_keys_in_authentication_device(message, user=user)
-
-    def open_dialog_display_keys_in_authentication_device(self, message, user):
-        self.dialog = MDDialog(
-            title="Imported authentication device of user %s" % user,
-            text=message,
-            size_hint=(0.8, 1),
-            buttons=[MDFlatButton(text="Close", on_release=self.close_dialog)],
-        )
-        self.dialog.open()
-
     def close_dialog(self, *args, **kwargs):
         self.dialog.dismiss()
+
+    def handle_selected_authentication_device_changed(self, event, device_uids, *args):
+        self.config["nvr"]["selected_authentication_device_uids"] = ",".join(device_uids)
+        self.config.write()
 
     def check_box_container_checked(self, radio_box_checked, value):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
@@ -415,33 +394,6 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
             else:
                 containers_page_ids.delete.disabled = True
                 containers_page_ids.decipher.disabled = True
-
-    def import_keys(self):
-        """
-        loop through the “authentication_devices” present,
-        and for those who are initialize, copy (with different KeyStorage for each folder)
-        their content in a <KEYS_ROOT> / <device_uid> / folder (taking the device_uid from metadata.json)
-        """
-        # list_devices = list_available_authentication_devices()
-        # print(list_devices)
-        # for index, authentication_device in enumerate(list_devices):
-        #print(">>>>>>>>>> import_keys started")
-        authentication_devices = list_available_authentication_devices()
-
-        print("DETECTED AUTH DEVICES", authentication_devices)
-
-        for authentication_device in authentication_devices:
-            #print(">>>>>>>>>> importing,", authentication_device)
-            if not authentication_device["is_initialized"]:
-                continue
-            key_storage_folder_path = _get_key_storage_folder_path(authentication_device)
-            try:
-                filesystem_key_storage_pool.import_key_storage_from_folder(key_storage_folder_path)
-            except KeyStorageAlreadyExists:
-                pass  # We tried anyway, since some "update" mevhanics might be setup one day
-
-        # update the display of authentication_device saved in the local folder .keys_storage_ward
-        self.get_detected_devices()
 
     '''
     def _OBSOLETE_import_keys(self, src, dst):  # FIXME: rename this func : move_keys_directory ?
@@ -470,119 +422,6 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
                     private_key=private_key,
                 )
     '''
-
-    def get_detected_devices(self):
-        """
-        loop through the KEYS_ROOT / files, and read their metadata.json,
-        to display in the interface their USER and the start of their UUID
-
-        KEYS_ROOT = “~/.keys_storage_ward/”
-        """
-        print(">> we refresh auth devices panel")
-        Keys_page_ids = self.root.ids.screen_manager.get_screen(
-            "Keys_management"
-        ).ids
-
-        Keys_page_ids.device_table.clear_widgets()  # FIXME naming
-
-        key_storage_metadata = filesystem_key_storage_pool.list_imported_key_storage_metadata()
-
-        if not key_storage_metadata:
-            self.display_message_no_device_found()
-            return
-
-        self.chbx_lbls = {}  # FIXME: lbls ?
-        self.btn_lbls = {}  # FIXME: lbls ?
-
-        for (index, (device_uid, metadata)) in enumerate(sorted(key_storage_metadata.items()), start=1):
-            uuid_suffix = str(device_uid).split("-")[-1]
-            #print("COMPARING", str(device_uid), self.selected_authentication_device_uids)
-            my_check_box = CheckBox(
-                active=(str(device_uid) in self.selected_authentication_device_uids),
-                size_hint=(0.15, None),
-                on_release=self.check_box_authentication_device_checked,
-                height=40,
-            )
-            my_check_btn = Button(
-                text="Key n°%s, User %s, Uid %s" % (index, metadata["user"], uuid_suffix),
-                size_hint=(0.85, None),
-                background_color=(0, 1, 1, 0.1),
-                on_release=partial(self.info_keys_stored, device_uid=device_uid, user=metadata["user"]),
-                height=40,
-            )
-            self.chbx_lbls[my_check_box] = str(device_uid)
-            self.btn_lbls[my_check_btn] = str(device_uid)
-           # device_row = BoxLayout(
-            #    orientation="horizontal",
-                #pos_hint={"center": 1, "top": 1},
-                #padding=[20, 0],
-           #)
-            Keys_page_ids.device_table.add_widget(my_check_box)
-            Keys_page_ids.device_table.add_widget(my_check_btn)
-            #Keys_page_ids.device_table.add_widget(device_row)
-
-        """
-                file_metadata = Path(dir_key_sorage).joinpath(".metadata.json")
-                if file_metadata.exists():
-
-                    metadata = load_from_json_file(file_metadata)
-                    device_uid = str(metadata["device_uid"])
-                    uuid = device_uid.split("-")
-                    start_of_uuid = uuid[0].lstrip()
-                    start_of_UUID = start_of_uuid.rstrip()
-                    my_check_box = CheckBox(#start
-                        active=False,
-                        size_hint=(0.2, 0.2),
-                        on_release=self.check_box_authentication_device_checked,
-                    )
-                    my_check_btn = Button(
-                        text=" key N°:  %s        User:  %s      |      UUID device:  %s "
-                        % ((str(index + 1)), str(metadata["user"]), start_of_UUID),
-                        size_hint=(0.8, 0.2),
-                        background_color=(1, 1, 1, 0.01),
-                        on_press=self.info_keys_stored,
-                    )
-                    self.chbx_lbls[my_check_box] = str(metadata["device_uid"])
-                    self.btn_lbls[my_check_btn] = str(metadata["device_uid"])
-                    layout = BoxLayout(
-                        orientation="horizontal",
-                        pos_hint={"center": 1, "top": 1},
-                        padding=[140, 0]
-                    )
-                    layout.add_widget(my_check_box)
-                    layout.add_widget(my_check_btn)
-                    Keys_page_ids.table.add_widget(layout)
-                    index += 1
-                else:
-                    self.display_message_no_device_found()
-        """
-
-    def display_message_no_device_found(self):
-        keys_page_ids = self.root.ids.screen_manager.get_screen(
-            "Keys_management"
-        ).ids
-        devices_display = Button(
-            text="No imported autentication device found ",
-            background_color=(1, 0, 0, 0.01),
-            font_size="28sp",
-            color=[0, 1, 0, 1],
-        )
-        keys_page_ids.device_table.clear_widgets()
-        Display_layout = BoxLayout(orientation="horizontal", padding=[140, 0])
-        Display_layout.add_widget(devices_display)
-        keys_page_ids.device_table.add_widget(Display_layout)
-
-    def check_box_authentication_device_checked(self, check_box_checked):
-        """
-        Display the device checked
-        """
-        if self.chbx_lbls[check_box_checked] in self.selected_authentication_device_uids:
-            self.selected_authentication_device_uids.remove(self.chbx_lbls[check_box_checked])
-        else:
-            self.selected_authentication_device_uids.append(self.chbx_lbls[check_box_checked])
-        self.config["nvr"]["selected_authentication_device_uids"] = ",".join(self.selected_authentication_device_uids)
-        self.config.write()
-        print("self.selected_authentication_device_uids", self.selected_authentication_device_uids)
 
 
 
