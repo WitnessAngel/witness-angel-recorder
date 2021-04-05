@@ -110,10 +110,6 @@ class MainWindow(Screen):
         super(MainWindow, self).__init__(**kwargs)
     """
 
-class SecondWindow(Screen):
-    pass
-
-
 class ThirdWindow(Screen):
     pass
 
