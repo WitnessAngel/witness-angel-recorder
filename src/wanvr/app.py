@@ -118,10 +118,6 @@ class WindowManager(ScreenManager):
     pass
 
 
-class PassphrasesDialogContent(BoxLayout):
-    pass
-
-
 # TODO - add retro "ping" from toolchain when a new record is present
 
 class WardGuiApp(WAGuiApp):  # FIXME rename this
@@ -274,6 +270,10 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         except ImportError:
             pass  # Optional debug stuff
 
+
+        container_store_screen = self.root.ids.screen_manager.get_screen("Container_management")
+        container_store_screen.filesystem_container_storage = filesystem_container_storage
+
         log_path = DEFAULT_FILES_ROOT / "log.txt"
         logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
 
@@ -360,94 +360,10 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
 
         elif item_drawer.text == "Container management":
             destination = "Container_management"
-            self.get_detected_container()
+            #self.get_detected_container()
 
         self.root.ids.screen_manager.current = destination
         self.root.ids.nav_drawer.set_state("close")
-
-    @safe_catch_unhandled_exception
-    def get_detected_container(self):
-        containers_page_ids = self.root.ids.screen_manager.get_screen(
-            "Container_management"
-        ).ids
-
-        container_names = filesystem_container_storage.list_container_names(as_sorted=True)
-
-        containers_page_ids.container_table.clear_widgets()
-
-        if not container_names:
-            container_display = Button(
-                text="No container found",
-                background_color=(1, 0, 0, 0.01),
-                font_size="28sp",
-                color=[0, 1, 0, 1],
-            )
-            display_layout = BoxLayout(orientation="horizontal")
-            display_layout.add_widget(container_display)
-            containers_page_ids.container_table.add_widget(display_layout)
-            return
-
-        self.check_box_container_uuid_dict = {}
-        self.btn_container_uuid_dict = {}
-
-        self.container_checkboxes = []
-
-        for index, container_name in enumerate(container_names, start=1):
-
-            my_check_box = CheckBox(active=False,
-                                    size_hint=(0.1, None), height=40)
-            my_check_box._container_name = container_name
-            #my_check_box.bind(active=self.check_box_container_checked)
-            self.container_checkboxes.append(my_check_box)
-
-            my_check_btn = Button(
-                text="N° %s:  %s"
-                % (index, container_name),
-                size_hint=(0.9, None),
-                background_color=(1, 1, 1, 0.01),
-                on_release=partial(self.show_container_details, container_name=container_name),
-                height=40,
-            )
-            '''
-            self.check_box_container_uuid_dict[my_check_box] = [
-                str(container[0]["container_uid"]),
-                str(container[1]),
-            ]
-            self.btn_container_uuid_dict[my_check_btn] = [
-                str(container[0]["container_uid"]),
-                str(container[1]),
-            ]
-            '''
-            """
-            layout = BoxLayout(
-                orientation="horizontal",
-                pos_hint={"center": 1, "top": 1},
-                padding=[20, 0],
-            )
-            layout.add_widget(my_check_box)
-            layout.add_widget(my_check_btn)
-            """
-            containers_page_ids.container_table.add_widget(my_check_box)
-            containers_page_ids.container_table.add_widget(my_check_btn)
-
-        #print("self.container_checkboxes", self.container_checkboxes)
-
-    def get_selected_container_names(self):
-
-        containers_page_ids = self.root.ids.screen_manager.get_screen(
-            "Container_management"
-        ).ids
-
-        container_names = []
-
-        checkboxes = list(reversed(containers_page_ids.container_table.children))[::2]
-
-        for checkbox in checkboxes:
-            if checkbox.active:
-                container_names.append(checkbox._container_name)
-
-        print("container_names", container_names)
-        return container_names
 
     def info_keys_stored(self, btn_selected, device_uid, user):
 
@@ -668,200 +584,6 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         self.config.write()
         print("self.selected_authentication_device_uids", self.selected_authentication_device_uids)
 
-    def show_container_details(self, btn_selected, container_name):
-        """
-        Display the contents of container
-        """
-        try:
-            container = filesystem_container_storage.load_container_from_storage(container_name)
-            all_dependencies = gather_escrow_dependencies([container])
-            interesting_dependencies = [d[0] for d in list(all_dependencies["encryption"].values())]
-            container_repr = pprint.pformat(interesting_dependencies, indent=2)[:800]  # LIMIT else pygame.error: Width or height is too large
-        except Exception as exc:
-            container_repr = repr(exc)
-
-        self.open_container_details_dialog(container_repr, info_container=container_name)
-
-    def open_container_details_dialog(self, message, info_container):
-        self.dialog = MDDialog(
-            title=str(info_container),
-            text=message,
-            size_hint=(0.8, 1),
-            buttons=[MDFlatButton(text="Close", on_release=self.close_dialog)],
-        )
-        self.dialog.open()
-
-    def open_dialog_delete_container(self):
-
-        container_names = self.get_selected_container_names()
-        if not container_names:
-            return
-
-        message = "Are you sure you want to delete %s container(s)?" % len(container_names)
-        """
-        self.list_chbx_active = []
-        for chbx in self.check_box_container_uuid_dict:
-            if chbx.active:
-                self.list_chbx_active.append(chbx)
-
-        count_container_checked =len(self.list_chbx_active)
-        if count_container_checked == 1:
-            messge = " do you want to delete these container?"
-        elif count_container_checked > 1:
-            messge = (
-                " do you want to delete these %d containers"
-                % count_container_checked
-            )
-        """
-        self.dialog = MDDialog(
-            title="Container deletion confirmation",
-            text=message,
-            size_hint=(0.8, 1),
-            buttons=[
-                MDFlatButton(
-                    text="Confirm deletion", on_release=partial(self.close_dialog_delete_container, container_names=container_names)
-                ),
-                MDFlatButton(text="Cancel", on_release=self.close_dialog),
-            ],
-        )
-        self.dialog.open()
-
-    def close_dialog_delete_container(self, obj, container_names):
-
-        for container_name in container_names:
-            try:
-                filesystem_container_storage.delete_container(container_name)
-            except FileNotFoundError:
-                pass  # File has probably been puregd already
-
-        self.get_detected_container()  # FIXME rename
-        self.dialog.dismiss()
-
-    def open_dialog_decipher_container(self):
-
-        container_names = self.get_selected_container_names()
-        if not container_names:
-            return
-
-        message = "Decrypt %s container(s)?" % len(container_names)
-
-        """
-        self.list_chbx_active = []
-        for chbx in self.check_box_container_uuid_dict:
-            if chbx.active:
-                self.list_chbx_active.append(chbx)
-
-        count_container_checked = len(self.list_chbx_active)
-
-        if count_container_checked == 1:
-            messge = " do you want to decipher these container?"
-        elif count_container_checked > 1:
-            messge = (
-                    " Do you want to decipher these %d containers" % count_container_checked
-            )
-        """
-
-        key_storage_metadata = filesystem_key_storage_pool.list_imported_key_storage_metadata()
-
-        containers = [filesystem_container_storage.load_container_from_storage(x) for x in container_names]
-        dependencies = gather_escrow_dependencies(containers)
-
-        relevant_authentication_device_uids = [escrow[0]["authentication_device_uid"] for escrow in dependencies["encryption"].values()]
-
-        relevant_key_storage_metadata = sorted([y for (x,y) in key_storage_metadata.items()
-                                                if x in relevant_authentication_device_uids], key = lambda d: d["user"])
-
-        print("--------------")
-        pprint.pprint(relevant_key_storage_metadata)
-
-
-        content = PassphrasesDialogContent()
-
-        for metadata in relevant_key_storage_metadata:
-            hint_text="Passphrase for user %s (hint: %s)" % (metadata["user"], metadata["passphrase_hint"])
-            _widget = TextInput(hint_text=hint_text)
-
-            '''MDTextField(hint_text="S SSSSSSSS z z",
-                              helper_text="Passphrase for user %s (hint: %s)" % (metadata["user"], metadata["passphrase_hint"]),
-                              helper_text_mode="on_focus",
-                              **{                    "color_mode": 'custom',
-                                                  "line_color_focus": (0.4, 0.5, 1, 1),
-                                                  "mode": "fill",
-                                                  "fill_color": (0.3, 0.3, 0.3, 0.4),
-                                                  "current_hint_text_color": (0.1, 1, 0.2, 1)})'''
-            content.add_widget(_widget)
-
-        self.dialog = MDDialog(
-            title=message,
-            type="custom",
-            content_cls=content,
-            #text=message,
-            size_hint=(0.8, 1),
-            buttons=[
-                MDFlatButton(
-                    text="Launch decryption",
-                    on_release=partial(self.close_dialog_decipher_container, container_names=container_names),
-                ),
-                MDFlatButton(text="Cancel", on_release=self.close_dialog),
-            ],
-        )
-
-        self.dialog.open()
-
-    def close_dialog_decipher_container(self, obj, container_names):
-        self.dialog.dismiss()
-
-        inputs = list(reversed(self.dialog.content_cls.children))
-        passphrases = [i.text for i in inputs]
-        passphrase_mapper = {None: passphrases}  # For now we regroup all passphrases together
-
-        errors = []
-
-        for container_name in container_names:
-            try:
-                result = filesystem_container_storage.decrypt_container_from_storage(container_name, passphrase_mapper=passphrase_mapper)
-                target_path = decrypted_records_folder / (Path(container_name).with_suffix(""))
-                target_path.write_bytes(result)
-                print(">> Successfully exported data file to %s" % target_path)
-            except Exception as exc:
-                errors.append(exc)
-
-        if errors:
-            message = "Errors happened during decryption, see logs"
-        else:
-            message = "Decryption successful, see export folder for results"
-
-        Snackbar(
-            text=message,
-            font_size="12sp",
-            duration=5,
-        ).show()
-
-        """
-        print("The written sentence is passphrase : %s" % input)
-        containers = []
-        for chbx in self.check_box_container_uuid_dict:
-            if chbx.active:
-                print(
-                    "Decipher container | with ID_container %s",
-                    self.check_box_container_uuid_dict[chbx],
-                )
-                container = load_container_from_filesystem(
-                    container_filepath=Path(
-                        ".container_storage_ward".format(self.check_box_container_uuid_dict[chbx][1])
-                    )
-                )
-                containers.append(container)
-        escrow_dependencies = gather_escrow_dependencies(containers=containers)
-
-        decryption_authorizations = request_decryption_authorizations(
-            escrow_dependencies=escrow_dependencies,
-            key_storage_pool=filesystem_key_storage_pool,
-            request_message="Need decryptions"
-        )
-        for container in containers:
-            decrypt_data_from_container(container=container)
-            """
 
 
     def ____create_containers_for_test(self):
