@@ -3,84 +3,24 @@ import inspect
 
 import os, sys, logging
 
-'''
-if sys.platform == "win32":
-    os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
+from waguilib import kivy_presetup  # Trigger common kivy setup
 
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
-#ogging.root.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("wacryptolib").setLevel(logging.DEBUG)
-logging.getLogger("wanvr").setLevel(logging.DEBUG)
-REAL_ROOT_LOGGER = logging.root
-'''
-
-import pprint
-import random
-from functools import partial
 from pathlib import Path
 from uuid import UUID
 from logging.handlers import RotatingFileHandler
 from waguilib.application import WAGuiApp
 from waguilib.widgets.navigation_drawer import ItemDrawer
 
-# SETUP INITIAL STATE OF THE WINDOW
-from kivy.config import Config
-Config.set('graphics', 'top', '50')
-Config.set('graphics', 'left', '50')
-Config.set('graphics', 'position', 'custom')
-# FIXME this happens too late I guess
-#Config.set("graphics", "fullscreen", "0")
-#Config.set("graphics", "show_cursor", "1")
-
-from kivy.core.window import Window
-
-Window.minimum_width, Window.minimum_height = Window.size = (500, 380)
-
 from kivy.clock import Clock
-from kivy.config import Config
-from kivy.properties import StringProperty, ListProperty
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.checkbox import CheckBox
 from kivy.uix.screenmanager import ScreenManager
-from kivy.uix.textinput import TextInput
-from kivymd.uix.textfield import MDTextField
-from kivymd.app import MDApp
-from kivymd.theming import ThemableBehavior
-from kivymd.uix.button import MDFlatButton
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import OneLineIconListItem, MDList
-from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
-    filesystem_container_storage, rtsp_recordings_folder, preview_image_path, decrypted_records_folder, \
-    DEFAULT_FILES_ROOT
-from wacryptolib.container import (
-    ContainerStorage,
-    encrypt_data_into_container,
-    gather_escrow_dependencies,
-    load_container_from_filesystem,
-    dump_container_to_filesystem,
-)
-from wacryptolib.authentication_device import list_available_authentication_devices, \
-    _get_key_storage_folder_path
-from wacryptolib.exceptions import KeyStorageAlreadyExists
-from wacryptolib.utilities import generate_uuid0
-from waguilib.logging.handlers import CallbackHandler, safe_catch_unhandled_exception
+    filesystem_container_storage, rtsp_recordings_folder, preview_image_path, DEFAULT_FILES_ROOT
 
-from waguilib.importable_settings import INTERNAL_APP_ROOT
-
-
-from kivy.uix.settings import SettingsWithTabbedPanel
-
+from waguilib.logging.handlers import safe_catch_unhandled_exception
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
-
-
-class WindowManager(ScreenManager):
-    pass
 
 
 # TODO - add retro "ping" from toolchain when a new record is present
