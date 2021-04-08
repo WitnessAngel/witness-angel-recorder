@@ -289,7 +289,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
 
     def handle_selected_authentication_device_changed(self, event, device_uids, *args):
         self.config["nvr"]["selected_authentication_device_uids"] = ",".join(device_uids)
-        self.config.write()
+        self.save_config()
 
     '''
     def check_box_container_checked(self, radio_box_checked, value):
