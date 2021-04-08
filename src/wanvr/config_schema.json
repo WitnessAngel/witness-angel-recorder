@@ -1,18 +1,18 @@
 [
     {"type": "title", "title": "Settings for NVR"},
     {
+        "key": "ip_camera_url",
         "type": "string",
         "title": "IP Camera URL",
         "desc": "URL to the RTSP stream",
-        "section": "nvr",
-        "key": "ip_camera_url"
+        "section": "nvr"
     },
     {
+        "key": "shared_secret_threshold",
         "type": "numeric",
         "title": "Shared secret threshold",
         "desc": "Escrows required to decrypt data, must be strictly below number of escrow",
-        "section": "nvr",
-        "key": "shared_secret_threshold"
+        "section": "nvr"
     }
 ]
 

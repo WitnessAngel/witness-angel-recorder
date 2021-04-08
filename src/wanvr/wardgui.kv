@@ -4,15 +4,6 @@
 #:import ContainerStoreScreen waguilib.screens.container_store
 #:import WaNavigationDrawer waguilib.widgets.navigation_drawer
 
-
-# ENABLE THIS TO DEBUG LAYOUT ISSUES #
-#<Widget>:
-#    canvas.after:
-#        Line:
-#            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
-#            dash_offset: 5
-#            dash_length: 3
-
 NavigationLayout:
 
     WindowManager:
@@ -31,22 +22,6 @@ NavigationLayout:
 
     WaNavigationDrawer:
         id: nav_drawer
-
-
-#<KivyConsole>:
-#    console_output: console_output
-#    scroll_view: scroll_view
-#    ScrollView:
-#        id: scroll_view
-#        bar_width: 10
-#        ConsoleOutput:
-#            id: console_output
-#            height: max(self.parent.height, self.minimum_height)
-#            font_name: root.font_name
-#            font_size: root.font_size
-#            foreground_color: 1, 1, 1, 1
-#
-#            background_color: 0.1372, 0.2862, 0.5294, 1
 
 
 

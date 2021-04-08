@@ -1,7 +1,5 @@
 
-import os
-if os.getenv("WACLIENT_ENABLE_TYPEGUARD"):
-    from typeguard.importhook import install_import_hook
-    install_import_hook('waclient')
+from waguilib.common_presetup import setup_generic_app
+setup_generic_app('wanvr')  # Trigger general setup
 
-from waguilib import kivy_presetup  # Trigger common setup
+from waguilib import kivy_presetup  # Trigger common kivy setup
