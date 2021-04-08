@@ -3,8 +3,6 @@ import inspect
 
 import os, sys, logging
 
-from waguilib.widgets.navigation_drawer import ItemDrawer
-
 '''
 if sys.platform == "win32":
     os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
@@ -24,6 +22,7 @@ from pathlib import Path
 from uuid import UUID
 from logging.handlers import RotatingFileHandler
 from waguilib.application import WAGuiApp
+from waguilib.widgets.navigation_drawer import ItemDrawer
 
 # SETUP INITIAL STATE OF THE WINDOW
 from kivy.config import Config
@@ -79,15 +78,6 @@ from kivy.uix.settings import SettingsWithTabbedPanel
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
-
-class MainWindow(Screen):
-    pass
-    """
-    def __init__(self, **kwargs):
-        self.title = "Witness Angel - WardProject"
-
-        super(MainWindow, self).__init__(**kwargs)
-    """
 
 class WindowManager(ScreenManager):
     pass
@@ -185,7 +175,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         print(">>> finished stopping recording toolchain")
 
     @safe_catch_unhandled_exception
-    def switch_callback(self, switch_object, switch_value):
+    def switch_callback(self, switch_object, switch_value):  # FIXME RENAME METHOD
         # We just swallow incoherent signals
         if switch_value:
             if not self.recording_toolchain:
