@@ -269,7 +269,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
             item_draw.bind(on_release=self.destination)
             self.root.ids.nav_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
 
-    def destination(self, item_drawer):
+    def destination(self, item_drawer):  # FIXME WEIRD, use partials()
 
         if item_drawer.text == "Main page":
             destination = "MainMenu"
