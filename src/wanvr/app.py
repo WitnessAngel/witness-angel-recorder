@@ -16,10 +16,11 @@ from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.snackbar import Snackbar
 
 from wanvr.common import NvrRuntimeSupportMixin
+'''
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path, DEFAULT_FILES_ROOT
-
+'''
 from waguilib.logging.handlers import safe_catch_unhandled_exception
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
@@ -68,7 +69,7 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         """
         self.recording_toolchain = None
 
-    def _start_recording(self):
+    def _________start_recording(self):
 
         main_switch = self.root.ids.screen_manager.get_screen(  # FIXME simplify
                     "MainMenu"
@@ -184,14 +185,11 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         # Inject dependencies of loading screens
         container_store_screen = self.root.ids.screen_manager.get_screen("Container_management")  # FIXME simplify
-        container_store_screen.filesystem_container_storage = filesystem_container_storage
+        container_store_screen.filesystem_container_storage = self.filesystem_container_storage
         authentication_device_store_screen = self.root.ids.screen_manager.get_screen("Keys_management")
-        authentication_device_store_screen.filesystem_key_storage_pool = filesystem_key_storage_pool
+        authentication_device_store_screen.filesystem_key_storage_pool = self.filesystem_key_storage_pool
 
         authentication_device_store_screen.bind(on_selected_authentication_devices_changed=self.handle_selected_authentication_device_changed)
-
-        log_path = DEFAULT_FILES_ROOT / "log.txt"
-        logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10*(1024**2), backupCount=10))
 
         self.draw_menu("MainMenu")
         self.log_output("Ceci est un message de log ")
@@ -204,18 +202,7 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         )
         '''
 
-        # Beware these are STRINGS
-        selected_authentication_device_uids = self.config["nvr"].get("selected_authentication_device_uids", "").split(",")
-
-        available_authentication_device_uids = filesystem_key_storage_pool.list_imported_key_storage_uids()
-
-        #Check integrity of escrow selection
-        selected_authentication_device_uids = [
-            x for x in selected_authentication_device_uids
-            if x and (UUID(x) in available_authentication_device_uids)
-        ]
-        print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
-        self.selected_authentication_device_uids = selected_authentication_device_uids
+        self.selected_authentication_device_uids = self.get_selected_authentication_device_uids()
 
         # create container for tests
         # self.create_containers_for_test()
@@ -248,8 +235,8 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         ).ids
         preview_image_widget = main_page_ids.preview_image
 
-        if preview_image_path.exists():
-            preview_image_widget.source = str(preview_image_path)
+        if self.preview_image_path.exists():
+            preview_image_widget.source = str(self.preview_image_path)
             preview_image_widget.reload()  # Necessary to update texture
         else:
             preview_image_widget.source = str(self.fallback_preview_image_path)

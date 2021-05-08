@@ -80,10 +80,10 @@ class WanvrBackgroundServer(NvrRuntimeSupportMixin, WaBackgroundService):
 
     @staticmethod
     def _build_encryption_conf(shared_secret_threshold: int,
-                               authentication_devices_used: list,
+                               selected_authentication_device_uids: list,
                                filesystem_key_storage_pool: KeyStorageBase):
         info_escrows = []
-        for authentication_device_uid in authentication_devices_used:
+        for authentication_device_uid in selected_authentication_device_uids:
             key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=authentication_device_uid) # Fixme rename key_storage_uid
             key_information_list = key_storage.list_keypair_identifiers()
             key = random.choice(key_information_list)
