@@ -14,6 +14,8 @@ from waguilib.widgets.navigation_drawer import ItemDrawer
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.snackbar import Snackbar
+
+from wanvr.common import NvrRuntimeSupportMixin
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
     filesystem_container_storage, rtsp_recordings_folder, preview_image_path, DEFAULT_FILES_ROOT
@@ -25,10 +27,9 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-class WardGuiApp(WAGuiApp):  # FIXME rename this
+class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     title = "Witness Angel - NVR"
-    _config_file_basename = "wanvr_config.ini"
 
     #app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
     #default_config_template: str = WANVR_PACKAGE_DIR.joinpath("wardgui.ini")
@@ -153,11 +154,7 @@ class WardGuiApp(WAGuiApp):  # FIXME rename this
         #print(">> IN build_config")
     #    config.setdefaults("nvr", {})
 
-    def get_shared_secret_threshold(self):
-        return int(self.config.get("nvr", "shared_secret_threshold"))
 
-    def get_url_camera(self):
-        return self.config.get("nvr", "ip_camera_url")
 
     def build_settings(self, settings):
         settings_file = self.config_schema_path
