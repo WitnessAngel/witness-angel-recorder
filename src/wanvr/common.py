@@ -6,7 +6,7 @@ from uuid0 import UUID
 
 from wacryptolib.container import ContainerStorage
 from wacryptolib.key_storage import FilesystemKeyStoragePool
-from waguilib.importable_settings import INTERNAL_CACHE_DIR
+from waguilib.importable_settings import INTERNAL_CACHE_DIR, WIP_RECORDING_MARKER
 
 
 class WanvrRuntimeSupportMixin:
@@ -14,19 +14,20 @@ class WanvrRuntimeSupportMixin:
     _config_file_basename = "wanvr_config.ini"
 
     preview_image_path = INTERNAL_CACHE_DIR / "preview_image.jpg"
+    wip_recording_marker = WIP_RECORDING_MARKER
 
     # To be instantiated per-instance
     filesystem_key_storage_pool = None
     filesystem_container_storage = None
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
         assert self.internal_keys_dir, self.internal_keys_dir
         self.filesystem_key_storage_pool = FilesystemKeyStoragePool(
             root_dir=self.internal_keys_dir
         )
 
+        # BEWARE - don't use this one for recording, only for container management (no encryption conf)
         self.filesystem_container_storage = ContainerStorage(
                default_encryption_conf=None,
                containers_dir=self.internal_containers_dir,
@@ -37,6 +38,9 @@ class WanvrRuntimeSupportMixin:
         # FIXME move at a better place
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
         logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10 * (1024 ** 2), backupCount=10))
+
+        super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
+
 
     def get_shared_secret_threshold(self):
         return int(self.config.get("nvr", "shared_secret_threshold"))

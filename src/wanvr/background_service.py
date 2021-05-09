@@ -27,7 +27,7 @@ from waclient.common_config import (
     '''
 from waguilib.logging.handlers import CallbackHandler, safe_catch_unhandled_exception
 from wacryptolib.container import decrypt_data_from_container, load_container_from_filesystem, \
-    AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER
+    AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, ContainerStorage
 
 
 class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
@@ -133,8 +133,16 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
 
+        container_storage = ContainerStorage(  # FIXME deduplicate paramateres with default (readonly) ContainerStorage
+                       default_encryption_conf=self._get_encryption_conf(),
+                       containers_dir=self.internal_containers_dir,
+                       key_storage_pool=self.filesystem_key_storage_pool,
+                       max_workers=1, # Protect memory usage
+                       max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
+
+        assert container_storage, container_storage
         tarfile_aggregator = TarfileRecordsAggregator(
-            container_storage=self.filesystem_container_storage,
+            container_storage=container_storage,
             max_duration_s=30*60,  # FIXME  see get_conf_value()
         )
 
@@ -151,7 +159,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             sensors_manager=sensors_manager,
             data_aggregators=[],
             tarfile_aggregators=[tarfile_aggregator],
-            container_storage=self.filesystem_container_storage,
+            container_storage=container_storage,
             free_keys_generator_worker=None,  # For now
         )
         return toolchain

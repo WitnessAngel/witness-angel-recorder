@@ -72,12 +72,12 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         """
         self.recording_toolchain = None'''
 
-    def check_recording_configuration(self):
+    def _check_recording_configuration(self):
         shared_secret_threshold = self.get_shared_secret_threshold()
 
         if shared_secret_threshold >= len(self.selected_authentication_device_uids):
             Snackbar(
-                text="Configuration error, first import and select enough key devices, and set the 'threshold' setting accordingly.",
+                text="Configuration error, not enough selected key devices for configured threshold.",
                 font_size="12sp",
                 duration=5,
                 #button_text="BUTTON",
@@ -87,7 +87,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         return True
 
-    def _start_recording(self):
+    def __________start_recording(self):
 
         main_switch = self.screen_manager.get_screen(  # FIXME simplify
                     "MainPage"
@@ -143,6 +143,12 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             return  # Early introspection
         return self.root.ids.navigation_drawer
 
+    @property
+    def recording_button(self):
+        if not self.root:
+            return  # Early introspection
+        return self.screen_manager.get_screen("MainPage").ids.recording_button
+
     '''
     def build(self):
         pass
@@ -160,7 +166,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     def on_config_change(self, config, section, key, value):
         print("CONFIG CHANGE", section, key, value)
 
-    def log_output(self, msg):
+    def log_output(self, msg, *args, **kwargs):
         return  # DISABLED FOR NOW
         console_output = self.screen_manager.get_screen(
             "MainPage"
@@ -170,6 +176,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         )
 
     def on_start(self):
+        super().on_start()
 
         try:
             import logging_tree
