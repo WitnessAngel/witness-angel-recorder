@@ -9,7 +9,7 @@ from wacryptolib.key_storage import FilesystemKeyStoragePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 
 
-class NvrRuntimeSupportMixin:
+class WanvrRuntimeSupportMixin:
 
     _config_file_basename = "wanvr_config.ini"
 
@@ -58,7 +58,7 @@ class NvrRuntimeSupportMixin:
 
         return selected_authentication_device_uids_filtered
 
-    def get_url_camera(self):
+    def get_ip_camera_url(self):
         return self.config.get("nvr", "ip_camera_url")
 
 

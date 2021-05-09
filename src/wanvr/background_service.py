@@ -2,6 +2,7 @@ import random
 from uuid0 import UUID
 
 from wacryptolib.key_storage import KeyStorageBase
+from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from waguilib.background_service import WaBackgroundService, osc
 
 from pathlib import Path
@@ -13,7 +14,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from kivy.logger import Logger as logger
 
 from waguilib.importable_settings import INTERNAL_KEYS_DIR, EXTERNAL_DATA_EXPORTS_DIR, INTERNAL_APP_ROOT
-from wanvr.common import NvrRuntimeSupportMixin
+from wanvr.common import WanvrRuntimeSupportMixin
+from wasensorlib.camera.rtsp_stream import RtspCameraSensor
 
 '''
 from waclient.common_config import (
@@ -28,11 +30,11 @@ from wacryptolib.container import decrypt_data_from_container, load_container_fr
     AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER
 
 
-class WanvrBackgroundServer(NvrRuntimeSupportMixin, WaBackgroundService):
+class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
     # CLASS VARIABLES #
 
-    thread_pool_executor = ThreadPoolExecutor(  # FIXME is it really used?
+    thread_pool_executor = ThreadPoolExecutor(
         max_workers=1, thread_name_prefix="service_worker"  # SINGLE worker for now, to avoid concurrency
     )
     #default_app_config_name = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
@@ -126,6 +128,33 @@ class WanvrBackgroundServer(NvrRuntimeSupportMixin, WaBackgroundService):
 
         return container_conf
 
+
+    def _build_recording_toolchain(self):
+
+        #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
+
+        tarfile_aggregator = TarfileRecordsAggregator(
+            container_storage=self.filesystem_container_storage,
+            max_duration_s=30*60,  # FIXME  see get_conf_value()
+        )
+
+        ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
+
+        rtsp_camera_sensor = RtspCameraSensor(
+                interval_s=10*60,  # FIXME  see get_conf_value()
+                tarfile_aggregator=tarfile_aggregator,
+                video_stream_url=ip_camera_url)
+
+        sensors_manager = SensorsManager(sensors=[rtsp_camera_sensor])
+
+        toolchain = dict(
+            sensors_manager=sensors_manager,
+            data_aggregators=[],
+            tarfile_aggregators=[tarfile_aggregator],
+            container_storage=self.filesystem_container_storage,
+            free_keys_generator_worker=None,  # For now
+        )
+        return toolchain
 
 
 

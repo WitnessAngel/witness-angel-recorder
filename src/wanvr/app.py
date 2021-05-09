@@ -15,7 +15,7 @@ from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.snackbar import Snackbar
 
-from wanvr.common import NvrRuntimeSupportMixin
+from wanvr.common import WanvrRuntimeSupportMixin
 '''
 from wanvr.rtsp_recorder.ciphering_toolchain import _generate_encryption_conf, RecordingToolchain, \
     filesystem_key_storage_pool, \
@@ -28,7 +28,7 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
+class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     title = "Witness Angel - NVR"
 
@@ -69,7 +69,7 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         """
         self.recording_toolchain = None
 
-    def _________start_recording(self):
+    def _start_recording(self):
 
         main_switch = self.root.ids.screen_manager.get_screen(  # FIXME simplify
                     "MainMenu"
@@ -90,23 +90,7 @@ class WardGuiApp(NvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         # FIXME display popup if WRONG PARAMS!!!
 
-        assert not self.recording_toolchain, self.recording_toolchain  # By construction...
-        container_conf = _generate_encryption_conf(  # FIXME call this for EACH CONTAINER!!
-                shared_secret_threshold=shared_secret_threshold,
-                authentication_devices_used=self.selected_authentication_device_uids
-        )
-        recording_toolchain = RecordingToolchain(
-            recordings_folder=rtsp_recordings_folder,
-            conf=container_conf,
-            key_type="RSA_OAEP",
-            camera_url=self.get_url_camera(),  # FIXME rename
-            recording_time=20,  # Fixme say "seconds"
-            segment_time=None,
-        )
-        print(">>> started launching recording toolchain")
-        recording_toolchain.launch_recording_toolchain()
-        self.recording_toolchain = recording_toolchain
-        print(">>> finished launching recording toolchain")
+        # TODO call OSCP starter
 
     @safe_catch_unhandled_exception
     def _stop_recording(self):

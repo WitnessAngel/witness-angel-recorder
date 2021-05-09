@@ -11,7 +11,7 @@
         "key": "shared_secret_threshold",
         "type": "numeric",
         "title": "Shared secret threshold",
-        "desc": "Escrows required to decrypt data, must be strictly below number of escrow",
+        "desc": "Escrows required to decrypt data, must be strictly below number of selected escrows",
         "section": "nvr"
     }
 ]
