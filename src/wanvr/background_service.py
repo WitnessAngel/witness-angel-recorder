@@ -42,7 +42,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     #app_config_file = INTERNAL_APP_ROOT / "wanvr_config.ini"  # Might no exist yet
 
     @safe_catch_unhandled_exception
-    def _offloaded_attempt_container_decryption(self, container_filepath):
+    def _offloaded_attempt_container_decryption(self, container_filepath):  #FIXME move out of here
         logger.info("Decryption requested for container %s", container_filepath)
         target_directory = EXTERNAL_DATA_EXPORTS_DIR.joinpath(
             os.path.basename(container_filepath)
@@ -67,7 +67,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
     @osc.address_method("/attempt_container_decryption")
     @safe_catch_unhandled_exception
-    def attempt_container_decryption(self, container_filepath: str):
+    def attempt_container_decryption(self, container_filepath: str):  #FIXME move out of here
         container_filepath = Path(container_filepath)
         return self._offload_task(self._offloaded_attempt_container_decryption, container_filepath=container_filepath)
 

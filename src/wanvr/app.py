@@ -1,4 +1,5 @@
 # Tweak logging before Kivy breaks it
+import functools
 import inspect
 
 import os, sys, logging
@@ -25,6 +26,7 @@ from waguilib.logging.handlers import safe_catch_unhandled_exception
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
+# FIXME rename this file as foreground_app
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
@@ -71,8 +73,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def _start_recording(self):
 
-        main_switch = self.root.ids.screen_manager.get_screen(  # FIXME simplify
-                    "MainMenu"
+        main_switch = self.screen_manager.get_screen(  # FIXME simplify
+                    "MainPage"
                 ).ids.switch
 
         shared_secret_threshold = self.get_shared_secret_threshold()
@@ -120,25 +122,25 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     def selected_authentication_device_uids(self):
         if not self.root:
             return  # Early introspection
-        return self.screen_manager.get_screen("Keys_management").selected_authentication_device_uids
+        return self.screen_manager.get_screen("KeyManagement").selected_authentication_device_uids
 
     @selected_authentication_device_uids.setter
     def selected_authentication_device_uids(self, device_uids):
-        self.screen_manager.get_screen("Keys_management").selected_authentication_device_uids = device_uids
+        self.screen_manager.get_screen("KeyManagement").selected_authentication_device_uids = device_uids
 
     @property
-    def nav_drawer(self):
+    def navigation_drawer(self):
         if not self.root:
             return  # Early introspection
-        return self.root.ids.nav_drawer
+        return self.root.ids.navigation_drawer
 
+    '''
     def build(self):
         pass
-
+    '''
     #def build_config(self, config):
         #print(">> IN build_config")
     #    config.setdefaults("nvr", {})
-
 
 
     def build_settings(self, settings):
@@ -151,8 +153,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def log_output(self, msg):
         return  # DISABLED FOR NOW
-        console_output = self.root.ids.screen_manager.get_screen(
-            "MainMenu"
+        console_output = self.screen_manager.get_screen(
+            "MainPage"
         ).ids.kivy_console.ids.console_output
         console_output.add_text(
             msg
@@ -168,14 +170,14 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
 
         # Inject dependencies of loading screens
-        container_store_screen = self.root.ids.screen_manager.get_screen("Container_management")  # FIXME simplify
+        container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
         container_store_screen.filesystem_container_storage = self.filesystem_container_storage
-        authentication_device_store_screen = self.root.ids.screen_manager.get_screen("Keys_management")
+        authentication_device_store_screen = self.screen_manager.get_screen("KeyManagement")
         authentication_device_store_screen.filesystem_key_storage_pool = self.filesystem_key_storage_pool
 
         authentication_device_store_screen.bind(on_selected_authentication_devices_changed=self.handle_selected_authentication_device_changed)
 
-        self.draw_menu("MainMenu")
+        self._insert_app_menu()
         self.log_output("Ceci est un message de log ")
         '''
         self.video = Video(source="zoom_0.mp4")
@@ -201,21 +203,33 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         ##self.fps_monitor_start()  # FPS display for debugging
         '''
         Keys_page_ids = self.root.ids.screen_manager.get_screen(  # FIXME factorize
-            "Keys_management"
+            "KeyManagement"
         ).ids
         Keys_page_ids.device_table.bind(minimum_height=Keys_page_ids.device_table.setter('height'))
         '''
 
+    def _insert_app_menu(self):
+        screen_options = {
+            "MainPage": ("home", "Main Page"),
+            "KeyManagement": ("key", "Key Management"),
+            "ContainerManagement": ("lock", "Container Management"),
+        }
+        for screen_name, (icon_name, screen_title) in screen_options.items():
+            item_draw = ItemDrawer(icon=icon_name, text=screen_title)
+            item_draw.bind(on_release=functools.partial(self.switch_to_screen, screen_name=screen_name))
+            self.navigation_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
+            
+    '''
     def on_stop(self):
         print(">>>>>> ON STOP CALLED")
         if self.recording_toolchain:
             self._stop_recording()  # We don't care about GUI controls since we exit anyway...
-
+    '''
 
     def update_preview_image(self, *args, **kwargs):
         print("We update_preview_image")
-        main_page_ids = self.root.ids.screen_manager.get_screen(
-            "MainMenu"
+        main_page_ids = self.screen_manager.get_screen(
+            "MainPage"
         ).ids
         preview_image_widget = main_page_ids.preview_image
 
@@ -225,32 +239,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         else:
             preview_image_widget.source = str(self.fallback_preview_image_path)
 
-
-    def draw_menu(self, ecran):
-        icons_item = {
-            "home": "Main page",
-            "key": "Keys management",
-            "lock": "Container management",
-        }
-        for icon_name in icons_item.keys():
-            item_draw = ItemDrawer(icon=icon_name, text=icons_item[icon_name])
-            item_draw.bind(on_release=self.destination)
-            self.root.ids.nav_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
-
-    def destination(self, item_drawer):  # FIXME WEIRD, use partials()
-
-        if item_drawer.text == "Main page":
-            destination = "MainMenu"
-
-        elif item_drawer.text == "Keys management":
-            destination = "Keys_management"
-
-        elif item_drawer.text == "Container management":
-            destination = "Container_management"
-            #self.get_detected_container()
-
-        self.root.ids.screen_manager.current = destination
-        self.root.ids.nav_drawer.set_state("close")
+    def switch_to_screen(self, *args, screen_name):
+        self.screen_manager.current = screen_name
+        self.navigation_drawer.set_state("screen_name")
 
     #def close_dialog(self, *args, **kwargs):
     #    self.dialog.dismiss()
@@ -262,7 +253,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     '''
     def check_box_container_checked(self, radio_box_checked, value):
         containers_page_ids = self.root.ids.screen_manager.get_screen(
-            "Container_management"
+            "ContainerManagement"
         ).ids
         for chbx in self.check_box_container_uuid_dict:
             if chbx.active:
