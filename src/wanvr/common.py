@@ -41,7 +41,7 @@ class WanvrRuntimeSupportMixin:
     def get_shared_secret_threshold(self):
         return int(self.config.get("nvr", "shared_secret_threshold"))
 
-    def get_selected_authentication_device_uids(self):
+    def load_selected_authentication_device_uids(self):
         # Beware these are STRINGS
         selected_authentication_device_uids = self.config["nvr"].get("selected_authentication_device_uids", "").split(",")
 

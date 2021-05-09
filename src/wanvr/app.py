@@ -44,6 +44,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path
 
+    '''
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -69,14 +70,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             ]
         )
         """
-        self.recording_toolchain = None
+        self.recording_toolchain = None'''
 
-    def _start_recording(self):
-
-        main_switch = self.screen_manager.get_screen(  # FIXME simplify
-                    "MainPage"
-                ).ids.switch
-
+    def check_recording_configuration(self):
         shared_secret_threshold = self.get_shared_secret_threshold()
 
         if shared_secret_threshold >= len(self.selected_authentication_device_uids):
@@ -87,13 +83,23 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
                 #button_text="BUTTON",
                 #button_callback=app.callback
             ).show()
-            main_switch.active = False
-            return
+            return False
+
+        return True
+
+    def _start_recording(self):
+
+        main_switch = self.screen_manager.get_screen(  # FIXME simplify
+                    "MainPage"
+                ).ids.switch
+
+        main_switch.active = False
 
         # FIXME display popup if WRONG PARAMS!!!
 
         # TODO call OSCP starter
 
+    '''
     @safe_catch_unhandled_exception
     def _stop_recording(self):
         print(">>> started stopping recording toolchain")
@@ -102,6 +108,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         self.recording_toolchain = None
         print(">>> finished stopping recording toolchain")
 
+    
     @safe_catch_unhandled_exception
     def switch_callback(self, switch_object, switch_value):  # FIXME RENAME METHOD
         # We just swallow incoherent signals
@@ -111,6 +118,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         else:
             if self.recording_toolchain:
                 self._stop_recording()
+    '''
 
     @property
     def screen_manager(self):
@@ -120,6 +128,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     @property
     def selected_authentication_device_uids(self):
+        """Beware, here we lookup not the config file but the in-GUI data!"""
         if not self.root:
             return  # Early introspection
         return self.screen_manager.get_screen("KeyManagement").selected_authentication_device_uids
@@ -188,7 +197,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         )
         '''
 
-        self.selected_authentication_device_uids = self.get_selected_authentication_device_uids()
+        self.selected_authentication_device_uids = self.load_selected_authentication_device_uids()
 
         # create container for tests
         # self.create_containers_for_test()

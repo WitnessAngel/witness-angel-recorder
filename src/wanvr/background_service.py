@@ -74,7 +74,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     def _get_encryption_conf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         shared_secret_threshold = self.get_shared_secret_threshold()
-        selected_authentication_device_uids = self.get_selected_authentication_device_uids()
+        selected_authentication_device_uids = self.load_selected_authentication_device_uids()
         return self._build_encryption_conf(
                 shared_secret_threshold=shared_secret_threshold,
                 selected_authentication_device_uids=selected_authentication_device_uids,
