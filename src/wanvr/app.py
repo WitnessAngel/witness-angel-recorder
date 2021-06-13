@@ -28,10 +28,12 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def _check_recording_configuration(self):
         shared_secret_threshold = self.get_shared_secret_threshold()
+        selected_device_count = len(self.selected_authentication_device_uids or ())  # Fallback if too-early call to GUi widgets
 
-        if shared_secret_threshold >= len(self.selected_authentication_device_uids):
+        if shared_secret_threshold >= selected_device_count:
             Snackbar(
-                text="Configuration error, not enough selected key devices for configured threshold.",
+                text="Configuration error, not enough selected key devices (%s) for configured threshold (%s)." %
+                     (selected_device_count, shared_secret_threshold),
                 font_size="12sp",
                 duration=5,
                 #button_text="BUTTON",
@@ -102,6 +104,10 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def on_config_change(self, config, section, key, value):
         print("CONFIG CHANGE", section, key, value)
+
+    def get_daemonize_service(self):
+        """We let the background service continue when we close the GUI"""
+        return True
 
     def on_start(self):
         super().on_start()
