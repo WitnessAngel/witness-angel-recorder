@@ -84,7 +84,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         """Beware, here we lookup not the config file but the in-GUI data!"""
         if not self.root:
             return  # Early introspection
-        return self.screen_manager.get_screen("KeyManagement").selected_authentication_device_uids
+        result = self.screen_manager.get_screen("KeyManagement").selected_authentication_device_uids
+        return result
 
     @selected_authentication_device_uids.setter
     def selected_authentication_device_uids(self, device_uids):

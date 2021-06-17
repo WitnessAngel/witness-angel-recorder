@@ -87,7 +87,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                        max_workers=1, # Protect memory usage
                        max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
 
-        assert container_storage, container_storage
+        assert container_storage is not None, container_storage
         tarfile_aggregator = TarfileRecordsAggregator(
             container_storage=container_storage,
             max_duration_s=30*60,  # FIXME  see get_conf_value()

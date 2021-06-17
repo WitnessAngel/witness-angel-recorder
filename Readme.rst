@@ -23,3 +23,8 @@ Workflow
 - Each authentication USB key gets registered near the NVR application
 - When recording is launched, RTSP records are immediately encrypted into Flightbox containers
 - Decrypting some containers required enough escrows to enter their passphrase
+
+
+
+
+rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov
