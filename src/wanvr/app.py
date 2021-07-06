@@ -38,7 +38,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
                 duration=5,
                 #button_text="BUTTON",
                 #button_callback=app.callback
-            ).show()
+            ).open()
             return False
 
         return True
