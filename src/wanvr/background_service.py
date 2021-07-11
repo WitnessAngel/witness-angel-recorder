@@ -9,7 +9,10 @@ from wacryptolib.container import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SE
 from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from waguilib.background_service import WaBackgroundService
-from waguilib.importable_settings import INTERNAL_CACHE_DIR
+from waguilib.importable_settings import INTERNAL_CACHE_DIR, INTERNAL_CONTAINERS_DIR
+from waguilib.logging.handlers import safe_catch_unhandled_exception
+from waguilib.utilities import get_system_information
+from waguilib.gpio_buttons import register_button_callback
 from wanvr.common import WanvrRuntimeSupportMixin
 from wasensorlib.camera.rtsp_stream import RtspCameraSensor
 
@@ -23,6 +26,41 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     thread_pool_executor = ThreadPoolExecutor(
         max_workers=1, thread_name_prefix="service_worker"  # SINGLE worker for now, to avoid concurrency
     )
+
+    _epaper_display = None  # Not always available
+
+    def __init__(self):
+        super().__init__()
+        self._setup_epaper_screen()
+
+    def _setup_epaper_screen(self):
+        try:
+            from waguilib.epaper import EpaperStatusDisplay
+        except ImportError:
+            logger.warning("Could not import EpaperStatusDisplay, aborting setup of epaper display")
+            return
+        logger.info("Setting up epaper screen and refresh button")
+        self._epaper_display = EpaperStatusDisplay()
+        register_button_callback(self._epaper_display.BUTTON_PIN_1, self._epaper_status_refresh_callback)
+
+    @safe_catch_unhandled_exception
+    def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receioved pin number and such as arguments
+        epaper_display = self._epaper_display
+        assert epaper_display, epaper_display
+        epaper_display.initialize_display()
+        status_obj = get_system_information(INTERNAL_CONTAINERS_DIR)
+
+        containers_count = "Unknown"
+        if self._recording_toolchain:
+            containers_count = len(self._recording_toolchain["container_storage"])
+
+        status_obj.update({
+            "recording_status": "ON" if self.is_recording else "OFF",
+            "containers": str(containers_count),
+        })
+
+        epaper_display.display_status(status_obj, preview_image_path=str(PREVIEW_IMAGE_PATH))
+        epaper_display.release_display()
 
     def _get_encryption_conf(self):
         """Return a wacryptolib-compatible encryption configuration"""
