@@ -9,8 +9,12 @@ from wacryptolib.container import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SE
 from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from waguilib.background_service import WaBackgroundService
+from waguilib.importable_settings import INTERNAL_CACHE_DIR
 from wanvr.common import WanvrRuntimeSupportMixin
 from wasensorlib.camera.rtsp_stream import RtspCameraSensor
+
+
+PREVIEW_IMAGE_PATH = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
 
 
 class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
@@ -85,20 +89,21 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                        containers_dir=self.internal_containers_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
-                       max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
+                       max_containers_count=12*24*1)  # 1 DAY OF DATA FOR NOW!!!
 
         assert container_storage is not None, container_storage
         tarfile_aggregator = TarfileRecordsAggregator(
             container_storage=container_storage,
-            max_duration_s=30*60,  # FIXME  see get_conf_value()
+            max_duration_s=5*60 - 10,  # FIXME  see get_conf_value()
         )
 
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
 
         rtsp_camera_sensor = RtspCameraSensor(
-                interval_s=10*60,  # FIXME  see get_conf_value()
+                interval_s=5*60,  # FIXME  see get_conf_value()
                 tarfile_aggregator=tarfile_aggregator,
-                video_stream_url=ip_camera_url)
+                video_stream_url=ip_camera_url,
+                preview_image_path=PREVIEW_IMAGE_PATH)
 
         sensors_manager = SensorsManager(sensors=[rtsp_camera_sensor])
 

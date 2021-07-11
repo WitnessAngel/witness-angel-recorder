@@ -1,10 +1,11 @@
-# Tweak logging before Kivy breaks it
+
 from waguilib import kivy_presetup  # Trigger common kivy setup
 del kivy_presetup
 
+import logging
 from pathlib import Path
-
 import functools
+
 from kivy.clock import Clock
 from kivymd.uix.snackbar import Snackbar
 
@@ -17,6 +18,9 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 # FIXME rename this file as foreground_app
 
 # TODO - add retro "ping" from toolchain when a new record is present
+
+logger = logging.getLogger(__name__)
+
 
 class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
@@ -53,7 +57,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         )
 
     def update_preview_image(self, *args, **kwargs):
-        print("We update_preview_image")
+        #print("We update_preview_image")
         main_page_ids = self.screen_manager.get_screen(
             "MainPage"
         ).ids
@@ -104,7 +108,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     # KIVY APP overrides
 
     def on_config_change(self, config, section, key, value):
-        print("CONFIG CHANGE", section, key, value)
+        #print("CONFIG CHANGE", section, key, value)
+        pass
 
     def get_daemonize_service(self):
         """We let the background service continue when we close the GUI"""
