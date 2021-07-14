@@ -3,11 +3,15 @@ Quick and dirty singleton service launcher, to be replaced by a more solid solut
 """
 
 import socket
+from pathlib import Path
+
 import os
 import sys
 
 from waguilib.service_control.osc_transport import get_osc_client
 from kivy.utils import platform
+
+this_dir = Path(__file__).resolve().parent
 
 if __name__ == "__main__":
     osc_client = get_osc_client(to_app=False)
@@ -23,4 +27,4 @@ if __name__ == "__main__":
         print(">>>>>>>>> WANVR service already started and listening on its socket, aborting relaunch")
     else:
         print(">>>>>>>>> WANVR service not found, relaunching it")
-        os.system("%s %s" % (sys.executable, "service.py"))
+        os.system("%s %s" % (sys.executable, this_dir / "service.py"))
