@@ -6,7 +6,7 @@ from uuid0 import UUID
 
 from wacryptolib.container import ContainerStorage
 from wacryptolib.key_storage import FilesystemKeyStoragePool
-from waguilib.importable_settings import INTERNAL_CACHE_DIR, WIP_RECORDING_MARKER
+from waguilib.importable_settings import INTERNAL_CACHE_DIR
 
 
 class WanvrRuntimeSupportMixin:
@@ -14,7 +14,6 @@ class WanvrRuntimeSupportMixin:
     _config_file_basename = "wanvr_config.ini"
 
     preview_image_path = INTERNAL_CACHE_DIR / "preview_image.jpg"
-    wip_recording_marker = WIP_RECORDING_MARKER
 
     # To be instantiated per-instance
     filesystem_key_storage_pool = None
