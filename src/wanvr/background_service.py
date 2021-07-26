@@ -12,7 +12,7 @@ from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from wacryptolib.utilities import synchronized
 from waguilib.background_service import WaBackgroundService
-from waguilib.importable_settings import INTERNAL_CACHE_DIR, INTERNAL_CONTAINERS_DIR
+from waguilib.importable_settings import INTERNAL_CACHE_DIR
 from waguilib.logging.handlers import safe_catch_unhandled_exception
 from waguilib.utilities import get_system_information
 from waguilib.gpio_buttons import register_button_callback
@@ -72,7 +72,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         epaper_display = self._epaper_display
         assert epaper_display, epaper_display
         epaper_display.initialize_display()
-        status_obj = get_system_information(INTERNAL_CONTAINERS_DIR)
+        status_obj = get_system_information(self.get_containers_dir())
 
         containers_count = "Unknown"
         if self._recording_toolchain:
@@ -161,12 +161,16 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
 
-        container_storage = ContainerStorage(  # FIXME deduplicate paramateres with default (readonly) ContainerStorage
+        containers_dir = self.get_containers_dir()  # Might raise
+
+        VIDEO_CLIP_LENGTH_MN = 15
+
+        container_storage = ContainerStorage(  # FIXME deduplicate paramaters with default (readonly) ContainerStorage
                        default_encryption_conf=self._get_encryption_conf(),
-                       containers_dir=self.internal_containers_dir,
+                       containers_dir=containers_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
-                       max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
+                       max_containers_count=18 * (24 * 60 / VIDEO_CLIP_LENGTH_MN))  # 1 MONTH OF DATA FOR NOW!!!
 
         assert container_storage is not None, container_storage
         tarfile_aggregator = PassthroughTarfileRecordsAggregator(
@@ -177,7 +181,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
 
         rtsp_camera_sensor = RtspCameraSensor(
-                interval_s=15*60,  # FIXME  see get_conf_value()
+                interval_s=VIDEO_CLIP_LENGTH_MN*60,  # FIXME  see get_conf_value()
                 tarfile_aggregator=tarfile_aggregator,
                 video_stream_url=ip_camera_url,
                 preview_image_path=PREVIEW_IMAGE_PATH)

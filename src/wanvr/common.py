@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import os
 from uuid0 import UUID
 
+from kivy.logger import Logger as logger
 from wacryptolib.container import ContainerStorage
 from wacryptolib.key_storage import FilesystemKeyStoragePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
@@ -17,7 +18,6 @@ class WanvrRuntimeSupportMixin:
 
     # To be instantiated per-instance
     filesystem_key_storage_pool = None
-    filesystem_container_storage = None
 
     def __init__(self, *args, **kwargs):
 
@@ -26,23 +26,37 @@ class WanvrRuntimeSupportMixin:
             root_dir=self.internal_keys_dir
         )
 
-        # BEWARE - don't use this one for recording, only for container management (no encryption conf)
-        self.filesystem_container_storage = ContainerStorage(
-               default_encryption_conf=None,
-               containers_dir=self.internal_containers_dir,
-               key_storage_pool=self.filesystem_key_storage_pool,
-               max_workers=1, # Protect memory usage
-               max_containers_count=4*24*1)  # 1 DAY OF DATA FOR NOW!!!
-
         # FIXME move at a better place
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
         logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10 * (1024 ** 2), backupCount=10))
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
+    @property
+    def readonly_container_storage(self):
+        if not self.config:
+            return  # Too early inspection
+
+        # BEWARE - don't use this one for recording, only for container management (no encryption conf)
+        readonly_container_storage = ContainerStorage(
+               default_encryption_conf=None,
+               containers_dir=self.get_containers_dir(),
+               key_storage_pool=self.filesystem_key_storage_pool,
+               max_workers=1, # Protect memory usage
+               max_containers_count=10**6)  # UNLIMITED!
+        readonly_container_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
+        return readonly_container_storage
 
     def get_shared_secret_threshold(self):
         return int(self.config.get("nvr", "shared_secret_threshold"))
+
+    def get_containers_dir(self):
+        containers_dir = self.config.get("nvr", "containers_dir")  # Might be wrong!
+        if not containers_dir or not os.path.exists(containers_dir):
+            logger.warning("Containers directory not existing: %r - falling back to internal folder" % containers_dir)
+            from waguilib.importable_settings import INTERNAL_CONTAINERS_DIR
+            return INTERNAL_CONTAINERS_DIR
+        return containers_dir
 
     def load_selected_authentication_device_uids(self):
         # Beware these are STRINGS

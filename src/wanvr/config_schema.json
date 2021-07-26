@@ -11,7 +11,15 @@
         "key": "shared_secret_threshold",
         "type": "numeric",
         "title": "Shared secret threshold",
-        "desc": "Escrows required to decrypt data, must be strictly below number of selected escrows",
+        "desc": "Escrows required to decrypt data (less than selected escrows)",
+        "section": "nvr"
+    },
+    {
+        "key": "containers_dir",
+        "type": "path",
+        "dirselect": true,
+        "title": "Containers folder",
+        "desc": "Folder to store containers (must reboot app)",
         "section": "nvr"
     }
 ]

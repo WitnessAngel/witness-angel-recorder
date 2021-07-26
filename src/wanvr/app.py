@@ -126,7 +126,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         # Inject dependencies of loading screens
         container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
-        container_store_screen.filesystem_container_storage = self.filesystem_container_storage
+        container_store_screen.filesystem_container_storage = self.readonly_container_storage
         authentication_device_store_screen = self.screen_manager.get_screen("KeyManagement")
         authentication_device_store_screen.filesystem_key_storage_pool = self.filesystem_key_storage_pool
         authentication_device_store_screen.bind(on_selected_authentication_devices_changed=self._handle_selected_authentication_device_changed)
