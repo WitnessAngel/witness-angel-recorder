@@ -1,3 +1,6 @@
+from waguilib import kivy_presetup  # Trigger common kivy setup
+del kivy_presetup
+
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -15,7 +18,10 @@ from waguilib.background_service import WaBackgroundService
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 from waguilib.logging.handlers import safe_catch_unhandled_exception
 from waguilib.utilities import get_system_information
-from waguilib.gpio_buttons import register_button_callback
+try:
+    from waguilib.gpio_buttons import register_button_callback
+except ImportError:
+    register_button_callback = lambda *args, **kwargs: None
 from wanvr.common import WanvrRuntimeSupportMixin
 from wasensorlib.camera.rtsp_stream import RtspCameraSensor
 
