@@ -28,7 +28,11 @@ class WanvrRuntimeSupportMixin:
 
         # FIXME move at a better place
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
-        logging.root.addHandler(RotatingFileHandler(log_path, maxBytes=10 * (1024 ** 2), backupCount=10))
+        handler = RotatingFileHandler(log_path, maxBytes=10 * (1024 ** 2), backupCount=50)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logging.root.addHandler(handler)
+        logging.root.setLevel(logging.DEBUG)
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
