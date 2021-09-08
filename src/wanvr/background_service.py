@@ -8,6 +8,7 @@ import random
 import time
 from kivy.logger import Logger as logger
 from uuid0 import UUID
+from datetime import timedelta
 
 from wacryptolib.container import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
     ContainerStorage
@@ -130,11 +131,11 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             share_escrow["authentication_device_uid"] = UUID(authentication_device_uid)
 
             info_escrows.append(
-                dict(
-                    share_encryption_algo=key["key_type"],
+                dict(key_encryption_strata=[dict(
+                    key_encryption_algo=key["key_type"],
                     keychain_uid=key["keychain_uid"],
-                    share_escrow=share_escrow,
-                 )
+                    key_escrow=share_escrow,
+                 )])
             )
         shared_secret_encryption = [
                                       dict(
@@ -145,7 +146,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                    ]
         data_signatures = [
                               dict(
-                                  message_prehash_algo="SHA256",
+                                  message_digest_algo="SHA256",
                                   signature_algo="DSA_DSS",
                                   signature_escrow=LOCAL_ESCROW_MARKER,
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
@@ -176,7 +177,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                        containers_dir=containers_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
-                       max_containers_count=18 * (24 * 60 / VIDEO_CLIP_LENGTH_MN))  # 1 MONTH OF DATA FOR NOW!!!
+                       max_container_age=timedelta(days=30))  # 1 MONTH OF DATA
 
         assert container_storage is not None, container_storage
         tarfile_aggregator = PassthroughTarfileRecordsAggregator(

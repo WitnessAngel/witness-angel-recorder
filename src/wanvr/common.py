@@ -46,8 +46,7 @@ class WanvrRuntimeSupportMixin:
                default_encryption_conf=None,
                containers_dir=self.get_containers_dir(),
                key_storage_pool=self.filesystem_key_storage_pool,
-               max_workers=1, # Protect memory usage
-               max_containers_count=10**6)  # UNLIMITED!
+               max_workers=1,) # Protect memory usage
         readonly_container_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
         return readonly_container_storage
 
