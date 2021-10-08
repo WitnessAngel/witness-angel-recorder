@@ -31,7 +31,7 @@ PREVIEW_IMAGE_PATH = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
 
 
 # FIXME move this to wacryptolib
-class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):
+class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRONG NAME
 
     @synchronized
     def add_record(self, sensor_name: str, from_datetime, to_datetime, extension: str, data: bytes):

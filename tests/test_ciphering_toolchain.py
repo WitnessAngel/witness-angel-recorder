@@ -60,7 +60,7 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
             ],
             data_signatures=[
                 dict(
-                    message_prehash_algo="SHA256",
+                    message_digest_algo="SHA256",
                     signature_algo="DSA_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 )
@@ -85,7 +85,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
             ],
             data_signatures=[
                 dict(
-                    message_prehash_algo="SHA3_512",
+                    message_digest_algo="SHA3_512",
                     signature_algo="DSA_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 )
@@ -123,12 +123,12 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
             ],
             data_signatures=[
                 dict(
-                    message_prehash_algo="SHA3_256",
+                    message_digest_algo="SHA3_256",
                     signature_algo="RSA_PSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 ),
                 dict(
-                    message_prehash_algo="SHA512",
+                    message_digest_algo="SHA512",
                     signature_algo="ECC_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 ),
