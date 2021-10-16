@@ -34,7 +34,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         shared_secret_threshold = self.get_shared_secret_threshold()
         selected_device_count = len(self.selected_authentication_device_uids or ())  # Fallback if too-early call to GUi widgets
 
-        if shared_secret_threshold >= selected_device_count:
+        if shared_secret_threshold > selected_device_count:
             Snackbar(
                 text="Configuration error, not enough selected key devices (%s) for configured threshold (%s)." %
                      (selected_device_count, shared_secret_threshold),
