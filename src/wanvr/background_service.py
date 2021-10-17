@@ -180,16 +180,12 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                        max_container_age=timedelta(days=30))  # 1 MONTH OF DATA
 
         assert container_storage is not None, container_storage
-        tarfile_aggregator = PassthroughTarfileRecordsAggregator(
-            container_storage=container_storage,
-            max_duration_s=10,  # UNUSED
-        )
 
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
 
         rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=VIDEO_CLIP_LENGTH_MN*60,  # FIXME  see get_conf_value()
-                tarfile_aggregator=tarfile_aggregator,
+                container_storage=container_storage,
                 video_stream_url=ip_camera_url,
                 preview_image_path=PREVIEW_IMAGE_PATH)
 
@@ -198,7 +194,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         toolchain = dict(
             sensors_manager=sensors_manager,
             data_aggregators=[],
-            tarfile_aggregators=[tarfile_aggregator],
+            tarfile_aggregators=[],
             container_storage=container_storage,
             free_keys_generator_worker=None,  # For now
         )
