@@ -7,6 +7,7 @@ from pathlib import Path
 
 import os
 import sys
+import datetime
 
 from waguilib.service_control.osc_transport import get_osc_client
 from kivy.utils import platform
@@ -23,8 +24,10 @@ if __name__ == "__main__":
         address = (osc_client.address, osc_client.port)
     result = sock.connect_ex(address)
 
+    dt = datetime.datetime.now()
+
     if result == 0:
-        print(">>>>>>>>> WANVR service already started and listening on its socket, aborting relaunch")
+        print(">>>>>>>>> %s - WANVR service already started and listening on its socket, aborting relaunch" % dt)
     else:
-        print(">>>>>>>>> WANVR service not found, relaunching it")
+        print(">>>>>>>>> %s - WANVR service not found, relaunching it" % dt)
         os.system("%s %s" % (sys.executable, this_dir / "service.py"))
