@@ -22,6 +22,11 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 logger = logging.getLogger(__name__)
 
 
+if True:  #  ACTIVATE TO DEBUG GUI
+    from waguilib.widgets.layout_helpers import activate_widget_debug_outline
+    activate_widget_debug_outline()
+
+
 class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     title = "Witness Angel - NVR"
@@ -29,6 +34,11 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
+
+    def build(self):  # FIXME deduplicate!!!
+        self.theme_cls.primary_palette = "Blue"
+        #self.theme_cls.theme_style = "Dark"  # or "Light"
+        self.theme_cls.primary_hue = "900"  # "500"
 
     def _check_recording_configuration(self):
         shared_secret_threshold = self.get_shared_secret_threshold()
