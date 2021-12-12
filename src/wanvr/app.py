@@ -115,6 +115,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         self.screen_manager.current = screen_name
         self.navigation_drawer.set_state("screen_name")
 
+    def get_back_to_home_screen(self):
+        self.switch_to_screen(screen_name="MainPage")
+
     # KIVY APP overrides
 
     def on_config_change(self, config, section, key, value):
