@@ -16,10 +16,23 @@
     },
     {
         "key": "containers_dir",
-        "type": "path",
-        "dirselect": true,
+        "type": "string",
         "title": "Containers folder",
-        "desc": "Folder to store containers (must reboot app)",
+        "desc": "Folder to store containers",
+        "section": "nvr"
+    },
+    {
+        "key": "max_container_age_day",
+        "type": "numeric",
+        "title": "Max retention period (days)",
+        "desc": "For how long to keep a container before deletion",
+        "section": "nvr"
+    },
+    {
+        "key": "video_recording_duration_mn",
+        "type": "numeric",
+        "title": "Video recording duration (mn)",
+        "desc": "How long each video clip must last",
         "section": "nvr"
     }
 ]

@@ -111,7 +111,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     def _get_encryption_conf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         shared_secret_threshold = self.get_shared_secret_threshold()
-        selected_authentication_device_uids = self.load_selected_authentication_device_uids()
+        selected_authentication_device_uids = self._load_selected_authentication_device_uids()
         return self._build_encryption_conf(
                 shared_secret_threshold=shared_secret_threshold,
                 selected_authentication_device_uids=selected_authentication_device_uids,
@@ -169,22 +169,24 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
 
         containers_dir = self.get_containers_dir()  # Might raise
+        if not containers_dir.is_dir():
+            raise RuntimeError(f"Invalid containers dir setting: {containers_dir}")
 
-        VIDEO_CLIP_LENGTH_MN = 15
+        print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_container_age_day())
 
         container_storage = ContainerStorage(  # FIXME deduplicate paramaters with default (readonly) ContainerStorage
                        default_encryption_conf=self._get_encryption_conf(),
                        containers_dir=containers_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
-                       max_container_age=timedelta(days=30))  # 1 MONTH OF DATA
+                       max_container_age=timedelta(days=self.get_max_container_age_day()))
 
         assert container_storage is not None, container_storage
 
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
 
         rtsp_camera_sensor = RtspCameraSensor(
-                interval_s=VIDEO_CLIP_LENGTH_MN*60,  # FIXME  see get_conf_value()
+                interval_s=self.get_video_recording_duration_mn()*60,
                 container_storage=container_storage,
                 video_stream_url=ip_camera_url,
                 preview_image_path=PREVIEW_IMAGE_PATH)

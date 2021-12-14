@@ -122,7 +122,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def on_config_change(self, config, section, key, value):
         #print("CONFIG CHANGE", section, key, value)
-        pass
+        self._update_app_after_config_change()  # We brutally reload everything, for now
 
     def get_daemonize_service(self):
         """We let the background service continue when we close the GUI"""
@@ -138,21 +138,27 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             pass  # Optional debug stuff
 
         # Inject dependencies of loading screens
-        container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
-        container_store_screen.filesystem_container_storage = self.readonly_container_storage
+
         authentication_device_store_screen = self.screen_manager.get_screen("KeyManagement")
         authentication_device_store_screen.filesystem_key_storage_pool = self.filesystem_key_storage_pool
+
+        self.selected_authentication_device_uids = self._load_selected_authentication_device_uids()
         authentication_device_store_screen.bind(on_selected_authentication_devices_changed=self._handle_selected_authentication_device_changed)
+
+        self._update_app_after_config_change()
 
         self._insert_app_menu()
 
-        self.selected_authentication_device_uids = self.load_selected_authentication_device_uids()
-
         Clock.schedule_interval(
-            self.update_preview_image, 30
+            self.update_preview_image, 30  # FIXME repair this!
         )
 
         ##self.fps_monitor_start()  # FPS display for debugging, requires FpsMonitoring mixin
+
+    def _update_app_after_config_change(self):
+        container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
+        container_store_screen.filesystem_container_storage = self.get_readonly_container_storage()
+        print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
 
     def _insert_app_menu(self):
         screen_options = {
