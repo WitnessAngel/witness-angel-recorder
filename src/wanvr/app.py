@@ -149,7 +149,6 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
         container_store_screen.filesystem_container_storage = self.get_readonly_container_storage()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
-        display_info_toast(tr._("Configuration changes will apply at next recording start"))
 
     def _insert_app_menu(self):
         screen_options = {
