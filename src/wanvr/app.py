@@ -1,6 +1,8 @@
 from kivy.properties import StringProperty
 
 from waguilib import kivy_presetup  # Trigger common kivy setup
+from waguilib.widgets.popups import display_info_toast
+
 del kivy_presetup
 
 import logging
@@ -12,6 +14,7 @@ from kivymd.uix.snackbar import Snackbar
 
 from waguilib.application import WAGuiApp
 from waguilib.widgets.navigation_drawer import ItemDrawer
+from waguilib.i18n import tr
 from wanvr.common import WanvrRuntimeSupportMixin
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
@@ -40,23 +43,6 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         self.theme_cls.primary_palette = "Blue"
         #self.theme_cls.theme_style = "Dark"  # or "Light"
         self.theme_cls.primary_hue = "900"  # "500"
-
-    def _check_recording_configuration(self):
-        shared_secret_threshold = self.get_shared_secret_threshold()
-        selected_device_count = len(self.selected_authentication_device_uids or ())  # Fallback if too-early call to GUi widgets
-
-        if shared_secret_threshold > selected_device_count:
-            Snackbar(
-                text="Configuration error, not enough selected key devices (%s) for configured threshold (%s)." %
-                     (selected_device_count, shared_secret_threshold),
-                font_size="12sp",
-                duration=5,
-                #button_text="BUTTON",
-                #button_callback=app.callback
-            ).open()
-            return False
-
-        return True
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW
@@ -160,7 +146,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         super()._update_app_after_config_change()
         container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
         container_store_screen.filesystem_container_storage = self.get_readonly_container_storage()
-        print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
+        #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
+        display_info_toast(tr._("Configuration changes will apply at next recording start"))
 
     def _insert_app_menu(self):
         screen_options = {
