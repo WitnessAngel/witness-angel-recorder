@@ -27,9 +27,6 @@ from wanvr.common import WanvrRuntimeSupportMixin
 from wasensorlib.camera.rtsp_stream import RtspCameraSensor
 
 
-PREVIEW_IMAGE_PATH = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
-
-
 # FIXME move this to wacryptolib
 class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRONG NAME
 
@@ -87,7 +84,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         preview_image_age_s = "Unknown"
         try:
-            preview_image_age_s = "%ss" % int(time.time() - os.path.getmtime(PREVIEW_IMAGE_PATH))
+            preview_image_age_s = "%ss" % int(time.time() - os.path.getmtime(self.preview_image_path))
         except FileNotFoundError:
             pass
 
@@ -97,7 +94,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             "Thumbnail age": preview_image_age_s
         })
 
-        epaper_display.display_status(status_obj, preview_image_path=str(PREVIEW_IMAGE_PATH))
+        epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
         epaper_display.release_display()
 
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
@@ -189,7 +186,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                 interval_s=self.get_video_recording_duration_mn()*60,
                 container_storage=container_storage,
                 video_stream_url=ip_camera_url,
-                preview_image_path=PREVIEW_IMAGE_PATH)
+                preview_image_path=self.preview_image_path)
 
         sensors_manager = SensorsManager(sensors=[rtsp_camera_sensor])
  

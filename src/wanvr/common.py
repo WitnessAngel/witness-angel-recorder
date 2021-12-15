@@ -15,7 +15,7 @@ class WanvrRuntimeSupportMixin:
 
     _config_file_basename = "wanvr_config.ini"
 
-    preview_image_path = INTERNAL_CACHE_DIR / "preview_image.jpg"  # FIXME everyone should use this one??
+    preview_image_path = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
 
     # To be instantiated per-instance
     filesystem_key_storage_pool = None

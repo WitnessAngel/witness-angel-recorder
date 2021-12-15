@@ -53,7 +53,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             msg
         )
 
-    def update_preview_image(self, *args, **kwargs):
+    def __BROKEN_update_preview_image(self, *args, **kwargs):
+        # FIXME we must only display image if RECENT ENOUGH!!!
         #print("We update_preview_image")
         main_page_ids = self.screen_manager.get_screen(
             "MainPage"
@@ -136,9 +137,10 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         self._insert_app_menu()
 
-        Clock.schedule_interval(
-            self.update_preview_image, 30  # FIXME repair this!
-        )
+        # FIXME AWAITING REPAIR
+        #Clock.schedule_interval(
+        #    self.update_preview_image, 30  # FIXME repair this!
+        #)
 
         ##self.fps_monitor_start()  # FPS display for debugging, requires FpsMonitoring mixin
 
