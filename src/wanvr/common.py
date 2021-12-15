@@ -96,4 +96,12 @@ class WanvrRuntimeSupportMixin:
     def get_video_recording_duration_mn(self):
         return int(self.config.get("nvr", "video_recording_duration_mn"))
 
+    def _get_status_checkers(self):
+        return [
+            lambda: self.check_camera_url(self.get_ip_camera_url()),
+            lambda: self.check_keyguardian_counts(
+                    keyguardian_threshold=self.get_shared_secret_threshold(),
+                    keyguardian_count=len(self._load_selected_authentication_device_uids())),
+            lambda: self.check_container_output_dir(self.get_containers_dir()),
+        ]
 

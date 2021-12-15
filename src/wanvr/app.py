@@ -1,3 +1,4 @@
+from kivy.properties import StringProperty
 
 from waguilib import kivy_presetup  # Trigger common kivy setup
 del kivy_presetup
@@ -156,6 +157,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         ##self.fps_monitor_start()  # FPS display for debugging, requires FpsMonitoring mixin
 
     def _update_app_after_config_change(self):
+        super()._update_app_after_config_change()
         container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
         container_store_screen.filesystem_container_storage = self.get_readonly_container_storage()
         print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
