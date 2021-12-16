@@ -37,7 +37,7 @@ class WanvrRuntimeSupportMixin:
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
-    def get_readonly_container_storage(self):
+    def get_readonly_container_storage_or_none(self):
         if not self.config:
             return  # Too early inspection
 
@@ -90,11 +90,11 @@ class WanvrRuntimeSupportMixin:
     def get_ip_camera_url(self):
         return self.config.get("nvr", "ip_camera_url")
 
-    def get_max_container_age_day(self):
-        return int(self.config.get("nvr", "max_container_age_day"))
-
     def get_video_recording_duration_mn(self):
         return int(self.config.get("nvr", "video_recording_duration_mn"))
+
+    def get_max_container_age_day(self):
+        return int(self.config.get("nvr", "max_container_age_day"))
 
     def _get_status_checkers(self):
         return [
@@ -103,5 +103,7 @@ class WanvrRuntimeSupportMixin:
                     keyguardian_threshold=self.get_shared_secret_threshold(),
                     keyguardian_count=len(self._load_selected_authentication_device_uids())),
             lambda: self.check_container_output_dir(self.get_containers_dir()),
+            lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
+            lambda: self.check_max_container_age_day(self.get_max_container_age_day()),
         ]
 
