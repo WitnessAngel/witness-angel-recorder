@@ -23,11 +23,13 @@ if __name__ == "__main__":
     if platform != 'win' and sock.family == getattr(socket, "AF_UNIX", None):
 
         address = osc_client.address
-        result = sock.connect(address)
 
-        if result == 0:
+        try:
+            result = sock.connect(address)
             print(">>>>>>>>> %s - WANVR service already started and listening on its socket, aborting relaunch" % dt)
             sys.exit()
+        except ConnectionRefusedError:
+            pass
 
     # INET sockets ALWAYS "connect" when in UDP mode, so we can't know if a server already listens
     # but we don't care since then the service will crash at boot when attempting to reuse port
