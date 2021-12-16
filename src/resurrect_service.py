@@ -15,19 +15,21 @@ from kivy.utils import platform
 this_dir = Path(__file__).resolve().parent
 
 if __name__ == "__main__":
+    dt = datetime.datetime.now()
+
     osc_client = get_osc_client(to_app=False)
 
     sock = osc_client.sock
-    if platform != 'win32' and sock.family == socket.AF_UNIX:
+    if platform != 'win' and sock.family == getattr(socket, "AF_UNIX", None):
+
         address = osc_client.address
-    else:
-        address = (osc_client.address, osc_client.port)
-    result = sock.connect_ex(address)
+        result = sock.connect(address)
 
-    dt = datetime.datetime.now()
+        if result == 0:
+            print(">>>>>>>>> %s - WANVR service already started and listening on its socket, aborting relaunch" % dt)
+            sys.exit()
 
-    if result == 0:
-        print(">>>>>>>>> %s - WANVR service already started and listening on its socket, aborting relaunch" % dt)
-    else:
-        print(">>>>>>>>> %s - WANVR service not found, relaunching it" % dt)
-        os.system("%s %s" % (sys.executable, this_dir / "service.py"))
+    # INET sockets ALWAYS "connect" when in UDP mode, so we can't know if a server already listens
+    # but we don't care since then the service will crash at boot when attempting to reuse port
+    print(">>>>>>>>> %s - WANVR service not detectable, relaunching it" % dt)
+    os.system("%s %s" % (sys.executable, this_dir / "service.py"))
