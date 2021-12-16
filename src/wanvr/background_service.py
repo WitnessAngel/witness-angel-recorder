@@ -176,7 +176,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         if not containers_dir.is_dir():
             raise RuntimeError(f"Invalid containers dir setting: {containers_dir}")
 
-        print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_container_age_day())
+        #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_container_age_day())
 
         container_storage = ContainerStorage(  # FIXME deduplicate paramaters with default (readonly) ContainerStorage
                        default_encryption_conf=self._get_encryption_conf(),

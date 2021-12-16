@@ -63,7 +63,7 @@ class WanvrRuntimeSupportMixin:
     def get_containers_dir(self) -> Path:
         containers_dir_str = self.config.get("nvr", "containers_dir")  # Might be wrong!
         if not containers_dir_str:
-            logger.warning("Containers directory not configured, falling back to internal folder")
+            logger.info("Containers directory not configured, falling back to internal folder")
             from waguilib.importable_settings import INTERNAL_CONTAINERS_DIR
             return INTERNAL_CONTAINERS_DIR
         return Path(containers_dir_str)  # Might NOT exist!
@@ -81,7 +81,7 @@ class WanvrRuntimeSupportMixin:
             x for x in selected_authentication_device_uids
             if x and (UUID(x) in available_authentication_device_uids)
         ]
-        print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
+        #print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
 
         # TODO issue warning() if some uids were wrong!
 
