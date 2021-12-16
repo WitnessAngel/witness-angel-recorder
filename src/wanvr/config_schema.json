@@ -18,7 +18,7 @@
         "key": "containers_dir",
         "type": "string",
         "title": "Containers folder",
-        "desc": "Folder to store containers",
+        "desc": "Folder to store containers (defaults to user profile)",
         "section": "nvr"
     },
     {

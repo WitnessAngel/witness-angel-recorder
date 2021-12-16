@@ -26,7 +26,7 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 logger = logging.getLogger(__name__)
 
 
-if True:  #  ACTIVATE TO DEBUG GUI
+if False:  #  ACTIVATE TO DEBUG GUI
     from waguilib.widgets.layout_helpers import activate_widget_debug_outline
     activate_widget_debug_outline()
 
@@ -147,7 +147,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
         container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
-        container_store_screen.filesystem_container_storage = self.get_readonly_container_storage()
+        container_store_screen.filesystem_container_storage = self.get_readonly_container_storage_or_none()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
 
     def _insert_app_menu(self):

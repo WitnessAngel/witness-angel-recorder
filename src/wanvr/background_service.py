@@ -18,7 +18,8 @@ from wacryptolib.utilities import synchronized
 from waguilib.background_service import WaBackgroundService
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 from waguilib.logging.handlers import safe_catch_unhandled_exception
-from waguilib.utilities import get_system_information
+from waguilib.utilities import get_system_information, convert_bytes_to_human_representation
+from waguilib.i18n import tr
 try:
     from waguilib.gpio_buttons import register_button_callback
 except ImportError:
@@ -78,9 +79,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         epaper_display.initialize_display()
         status_obj = get_system_information(self.get_containers_dir())
 
-        containers_count = "Unknown"
-        if self._recording_toolchain:
-            containers_count = len(self._recording_toolchain["container_storage"])
+        readonly_container_storage: ContainerStorage = self.get_readonly_container_storage_or_none()
+        containers_count = last_container_name = last_container_size = tr._("Unknown")
+        if readonly_container_storage:
+            container_names = readonly_container_storage.list_container_names(as_sorted=True)
+            containers_count = len(container_names)
+            if container_names:
+                last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
+                last_container_size = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(last_container_name))
 
         preview_image_age_s = "Unknown"
         try:
@@ -90,8 +96,10 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         status_obj.update({
             "recording_status": "ON" if self.is_recording else "OFF",
-            "containers": str(containers_count),
-            "Thumbnail age": preview_image_age_s
+            "container_count": str(containers_count),
+            "last_container": "{last_container_name} ({last_container_size})".format(last_container_name=last_container_name,
+                                                                                     last_container_size=last_container_size),
+            "last_thumbnail_age": preview_image_age_s
         })
 
         epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
