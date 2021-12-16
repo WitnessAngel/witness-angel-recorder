@@ -80,13 +80,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         status_obj = get_system_information(self.get_containers_dir())
 
         readonly_container_storage: ContainerStorage = self.get_readonly_container_storage_or_none()
-        containers_count = last_container_name = last_container_size = tr._("Unknown")
+        containers_count = last_container_size_str = tr._("Unknown")
         if readonly_container_storage:
             container_names = readonly_container_storage.list_container_names(as_sorted=True)
             containers_count = len(container_names)
             if container_names:
-                last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
-                last_container_size = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(last_container_name))
+                _last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
+                last_container_size_str = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(_last_container_name))
 
         preview_image_age_s = "Unknown"
         try:
@@ -97,9 +97,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         status_obj.update({
             "recording_status": "ON" if self.is_recording else "OFF",
             "container_count": str(containers_count),
-            "last_container": "{last_container_name} ({last_container_size})".format(last_container_name=last_container_name,
-                                                                                     last_container_size=last_container_size),
-            "last_thumbnail_age": preview_image_age_s
+            "last_container": last_container_size_str,
+            "last_thumbnail": preview_image_age_s
         })
 
         epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
