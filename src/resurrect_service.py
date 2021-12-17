@@ -28,7 +28,7 @@ if __name__ == "__main__":
             result = sock.connect(address)
             print(">>>>>>>>> %s - WANVR service already started and listening on its socket, aborting relaunch" % dt)
             sys.exit()
-        except ConnectionRefusedError:
+        except (ConnectionRefusedError, FileNotFoundError):
             pass
 
     # INET sockets ALWAYS "connect" when in UDP mode, so we can't know if a server already listens
