@@ -8,7 +8,7 @@ import random
 import time
 from kivy.logger import Logger as logger
 from uuid0 import UUID
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
 from wacryptolib.container import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
     ContainerStorage
@@ -80,13 +80,16 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         status_obj = get_system_information(self.get_containers_dir())
 
         readonly_container_storage: ContainerStorage = self.get_readonly_container_storage_or_none()
-        containers_count = last_container_size_str = tr._("Unknown")
+        containers_count = last_container_size_str = last_container_age_s = tr._("Unknown")
         if readonly_container_storage:
             container_names = readonly_container_storage.list_container_names(as_sorted=True)
             containers_count = len(container_names)
             if container_names:
                 _last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
                 last_container_size_str = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(_last_container_name))
+                utcnow = datetime.utcnow()
+                utcnow = utcnow.replace(tzinfo=timezone.utc)
+                last_container_age_s = "%ds" % (utcnow - readonly_container_storage._get_container_datetime(_last_container_name)).total_seconds()
 
         preview_image_age_s = "Unknown"
         try:
@@ -97,7 +100,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         status_obj.update({
             "recording_status": "ON" if self.is_recording else "OFF",
             "container_count": str(containers_count),
-            "last_container": last_container_size_str,
+            "last_container": "%s (%s)" % (last_container_age_s, last_container_size_str),
             "last_thumbnail": preview_image_age_s
         })
 
