@@ -24,9 +24,7 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-ROOT_DIR = WANVR_PACKAGE_DIR.parent
-
-LOCALE_DIR = ROOT_DIR / "locale"
+LOCALE_DIR = WANVR_PACKAGE_DIR / "locale"
 tr.add_locale_dirs(LOCALE_DIR, GUILIB_LOCALE_DIR)
 
 logger = logging.getLogger(__name__)
@@ -39,8 +37,8 @@ if False:  #  ACTIVATE TO DEBUG GUI
 
 class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
-    title = "Witness Angel - NVR"
-    title_conf_panel = "NVR"
+    title = tr._("Witness Angel - Network Video Recorder")
+    title_conf_panel = tr._("Recorder settings")
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
@@ -159,9 +157,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def _insert_app_menu(self):
         screen_options = {
-            "MainPage": ("home", "Main Page"),
-            "KeyManagement": ("key", "Key Management"),
-            "ContainerManagement": ("lock", "Container Management"),
+            "MainPage": ("home", tr._("Main Page")),
+            "KeyManagement": ("key", tr._("Key Management")),
+            "ContainerManagement": ("lock", tr._("Container Management")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
             item_draw = ItemDrawer(icon=icon_name, text=screen_title)
