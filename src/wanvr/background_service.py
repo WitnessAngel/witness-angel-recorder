@@ -71,27 +71,24 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         register_button_callback(self._epaper_display.BUTTON_PIN_1, self._epaper_status_refresh_callback)
         register_button_callback(self._epaper_display.BUTTON_PIN_2, self._epaper_switch_recording_callback)
 
-    @safe_catch_unhandled_exception
-    def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
-        logger.info("Epaper status refresh callback was triggered")
-        epaper_display = self._epaper_display
-        assert epaper_display, epaper_display
-        epaper_display.initialize_display()
+    def _retrieve_epaper_display_information(self):
+
         status_obj = get_system_information(self.get_containers_dir())
 
+        containers_count_str = last_container_str = preview_image_age_s =  tr._("N/A")
+
         readonly_container_storage: ContainerStorage = self.get_readonly_container_storage_or_none()
-        containers_count = last_container_size_str = last_container_age_s = tr._("Unknown")
+
         if readonly_container_storage:
             container_names = readonly_container_storage.list_container_names(as_sorted=True)
-            containers_count = len(container_names)
+            containers_count_str = str(len(container_names))
             if container_names:
                 _last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
-                last_container_size_str = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(_last_container_name))
-                utcnow = datetime.utcnow()
-                utcnow = utcnow.replace(tzinfo=timezone.utc)
-                last_container_age_s = "%ds" % (utcnow - readonly_container_storage._get_container_datetime(_last_container_name)).total_seconds()
+                _last_container_size_str = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(_last_container_name))
+                _utcnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+                _last_container_age_s = "%ds" % (_utcnow - readonly_container_storage._get_container_datetime(_last_container_name)).total_seconds()
+                last_container_str = "%s (%s)" % (_last_container_age_s, _last_container_size_str)
 
-        preview_image_age_s = "Unknown"
         try:
             preview_image_age_s = "%ss" % int(time.time() - os.path.getmtime(self.preview_image_path))
         except FileNotFoundError:
@@ -99,10 +96,21 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         status_obj.update({
             "recording_status": "ON" if self.is_recording else "OFF",
-            "container_count": str(containers_count),
-            "last_container": "%s (%s)" % (last_container_age_s, last_container_size_str),
+            "container_count": containers_count_str,
+            "last_container": last_container_str,
             "last_thumbnail": preview_image_age_s
         })
+        return status_obj
+
+    @safe_catch_unhandled_exception
+    def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
+
+        logger.info("Epaper status refresh callback was triggered")
+        epaper_display = self._epaper_display
+        assert epaper_display, epaper_display
+        epaper_display.initialize_display()
+
+        status_obj = self._retrieve_epaper_display_information()
 
         epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
         epaper_display.release_display()
