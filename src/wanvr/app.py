@@ -15,6 +15,7 @@ from kivymd.uix.snackbar import Snackbar
 from waguilib.application import WAGuiApp
 from waguilib.widgets.navigation_drawer import ItemDrawer
 from waguilib.i18n import tr
+from waguilib.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
 from wanvr.common import WanvrRuntimeSupportMixin
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
@@ -22,6 +23,11 @@ WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 # FIXME rename this file as foreground_app
 
 # TODO - add retro "ping" from toolchain when a new record is present
+
+ROOT_DIR = WANVR_PACKAGE_DIR.parent
+
+LOCALE_DIR = ROOT_DIR / "locale"
+tr.add_locale_dirs(LOCALE_DIR, GUILIB_LOCALE_DIR)
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +59,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             msg
         )
 
-    def __BROKEN_update_preview_image(self, *args, **kwargs):
+    def _update_preview_image(self, *args, **kwargs):
         # FIXME we must only display image if RECENT ENOUGH!!!
-        #print("We update_preview_image")
+        print(">> We update_preview_image")
         main_page_ids = self.screen_manager.get_screen(
             "MainPage"
         ).ids
@@ -63,9 +69,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
         if self.preview_image_path.exists():
             preview_image_widget.source = str(self.preview_image_path)
-            preview_image_widget.reload()  # Necessary to update texture
         else:
             preview_image_widget.source = str(self.fallback_preview_image_path)
+        preview_image_widget.reload()  # Necessary to update texture
 
     # GUI WIDGETS AND PROPERTIES SHORTCUTS #
 
@@ -138,9 +144,10 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         self._insert_app_menu()
 
         # FIXME AWAITING REPAIR
-        #Clock.schedule_interval(
-        #    self.update_preview_image, 30  # FIXME repair this!
-        #)
+        Clock.schedule_interval(
+            self._update_preview_image, 30  # FIXME repair this!
+        )
+        self._update_preview_image()  # Immediate call
 
         ##self.fps_monitor_start()  # FPS display for debugging, requires FpsMonitoring mixin
 
