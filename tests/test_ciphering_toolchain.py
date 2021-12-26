@@ -12,7 +12,7 @@ from client.ciphering_toolchain import (
 )
 from wacryptolib.utilities import generate_uuid0
 
-from wacryptolib.container import (
+from wacryptolib.cryptainer import (
     LOCAL_ESCROW_MARKER,
     SHARED_SECRET_MARKER,
     decrypt_data_from_container,

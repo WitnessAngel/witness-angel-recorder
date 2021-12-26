@@ -6,7 +6,7 @@ import os
 from uuid0 import UUID
 
 from kivy.logger import Logger as logger
-from wacryptolib.container import ContainerStorage
+from wacryptolib.cryptainer import ContainerStorage
 from wacryptolib.key_storage import FilesystemKeyStoragePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 

@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid0 import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.container import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
+from wacryptolib.cryptainer import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
     ContainerStorage
 from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
