@@ -8,7 +8,7 @@ from client.ciphering_toolchain import (
     RecordingToolchain,
     NewVideoHandler,
     save_container,
-    generate_asymmetric_keypair,
+    generate_keypair,
 )
 from wacryptolib.utilities import generate_uuid0
 
