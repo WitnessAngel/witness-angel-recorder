@@ -50,7 +50,7 @@ class WanvrRuntimeSupportMixin:
         # FIXME - use ReadonlYContainerStorage class when implemented in wacryptolib!
         # BEWARE - don't use this one for recording, only for container management (no encryption conf)
         readonly_container_storage = ContainerStorage(
-               default_encryption_conf=None,
+               default_cryptoconf=None,
                containers_dir=self.get_containers_dir(),
                key_storage_pool=self.filesystem_key_storage_pool,
                max_workers=1,) # Protect memory usage

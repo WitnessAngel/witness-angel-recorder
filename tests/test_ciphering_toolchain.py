@@ -138,11 +138,11 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
 )
 
 
-@pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
-def test_create_observer_thread(container_conf):
+@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CONTAINER_CONF])
+def test_create_observer_thread(cryptoconf):
     encryption_algo = "RSA_OAEP"
     new_video_handler = NewVideoHandler(
-        conf=container_conf,
+       cryptoconf=cryptoconf,
         key_type=encryption_algo,
         recordings_folder="ffmpeg_video_stream/",
     )
@@ -159,8 +159,8 @@ def test_decipher_container():
             decrypt_data_from_container(container=container)
 
 
-@pytest.mark.parametrize("container_conf", [SIMPLE_SHAMIR_CONTAINER_CONF])
-def test_recording_toolchain(container_conf):
+@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CONTAINER_CONF])
+def test_recording_toolchain(cryptoconf):
     key_type = "RSA_OAEP"
     # camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
     camera_url = "rtsp://viewer:SomePwd8162@92.89.81.50:554/Streaming/Channels/101"
@@ -168,7 +168,7 @@ def test_recording_toolchain(container_conf):
     segment_time = 10
     recording_toolchain = RecordingToolchain(
         recordings_folder="ffmpeg_video_stream/",
-        conf=container_conf,
+       cryptoconf=cryptoconf,
         key_type=key_type,
         camera_url=camera_url,
         recording_time=str(recording_time),

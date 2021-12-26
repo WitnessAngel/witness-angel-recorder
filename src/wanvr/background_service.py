@@ -123,17 +123,17 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             self.start_recording()
 
 
-    def _get_encryption_conf(self):
+    def _get_cryptoconf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         shared_secret_threshold = self.get_shared_secret_threshold()
         selected_authentication_device_uids = self._load_selected_authentication_device_uids()
-        return self._build_encryption_conf(
+        return self._build_cryptoconf(
                 shared_secret_threshold=shared_secret_threshold,
                 selected_authentication_device_uids=selected_authentication_device_uids,
                 filesystem_key_storage_pool=self.filesystem_key_storage_pool)
 
     @staticmethod
-    def _build_encryption_conf(shared_secret_threshold: int,
+    def _build_cryptoconf(shared_secret_threshold: int,
                                selected_authentication_device_uids: list,
                                filesystem_key_storage_pool: KeyStorageBase):
         info_escrows = []
@@ -173,11 +173,11 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                  key_encryption_strata=shared_secret_encryption,
                  data_signatures=data_signatures)
         ]
-        container_conf = dict(data_encryption_strata=data_encryption_strata)
+        cryptoconf = dict(data_encryption_strata=data_encryption_strata)
 
         #print(">>>>> USING ENCRYPTION CONF")
-        #import pprint ; pprint.pprint(container_conf)
-        return container_conf
+        #import pprint ; pprint.pprint(cryptoconf)
+        return cryptoconf
 
     def _build_recording_toolchain(self):
 
@@ -190,7 +190,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_container_age_day())
 
         container_storage = ContainerStorage(  # FIXME deduplicate paramaters with default (readonly) ContainerStorage
-                       default_encryption_conf=self._get_encryption_conf(),
+                       default_cryptoconf=self._get_cryptoconf(),
                        containers_dir=containers_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
