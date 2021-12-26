@@ -20,7 +20,7 @@ from wacryptolib.container import (
 )
 from wacryptolib.key_storage import FilesystemKeyStorage
 
-SIMPLE_SHAMIR_CONTAINER_CONF = dict(
+SIMPLE_SHAMIR_CRYPTOCONF = dict(
     data_encryption_strata=[
         dict(
             data_encryption_algo="AES_CBC",
@@ -69,7 +69,7 @@ SIMPLE_SHAMIR_CONTAINER_CONF = dict(
     ]
 )
 
-COMPLEX_SHAMIR_CONTAINER_CONF = dict(
+COMPLEX_SHAMIR_CRYPTOCONF = dict(
     data_encryption_strata=[
         dict(
             data_encryption_algo="AES_EAX",
@@ -138,7 +138,7 @@ COMPLEX_SHAMIR_CONTAINER_CONF = dict(
 )
 
 
-@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CONTAINER_CONF])
+@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])
 def test_create_observer_thread(cryptoconf):
     encryption_algo = "RSA_OAEP"
     new_video_handler = NewVideoHandler(
@@ -159,7 +159,7 @@ def test_decipher_container():
             decrypt_data_from_container(container=container)
 
 
-@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CONTAINER_CONF])
+@pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])
 def test_recording_toolchain(cryptoconf):
     key_type = "RSA_OAEP"
     # camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
