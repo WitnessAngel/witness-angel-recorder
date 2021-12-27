@@ -57,8 +57,8 @@ class WanvrRuntimeSupportMixin:
         readonly_cryptainer_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
         return readonly_cryptainer_storage
 
-    def get_shared_secret_threshold(self):
-        return int(self.config.get("nvr", "shared_secret_threshold"))
+    def get_keyguardian_threshold(self):
+        return int(self.config.get("nvr", "keyguardian_threshold"))
 
     def get_cryptainer_dir(self) -> Path:
         cryptainer_dir_str = self.config.get("nvr", "cryptainer_dir")  # Might be wrong!
@@ -100,7 +100,7 @@ class WanvrRuntimeSupportMixin:
         return [
             lambda: self.check_camera_url(self.get_ip_camera_url()),
             lambda: self.check_keyguardian_counts(
-                    keyguardian_threshold=self.get_shared_secret_threshold(),
+                    keyguardian_threshold=self.get_keyguardian_threshold(),
                     keyguardian_count=len(self._load_selected_authdevice_uids())),
             lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),

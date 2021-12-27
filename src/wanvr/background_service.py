@@ -125,15 +125,15 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
     def _get_cryptoconf(self):
         """Return a wacryptolib-compatible encryption configuration"""
-        shared_secret_threshold = self.get_shared_secret_threshold()
+        keyguardian_threshold = self.get_keyguardian_threshold()
         selected_authdevice_uids = self._load_selected_authdevice_uids()
         return self._build_cryptoconf(
-                shared_secret_threshold=shared_secret_threshold,
+                keyguardian_threshold=keyguardian_threshold,
                 selected_authdevice_uids=selected_authdevice_uids,
                 filesystem_key_storage_pool=self.filesystem_key_storage_pool)
 
     @staticmethod
-    def _build_cryptoconf(shared_secret_threshold: int,
+    def _build_cryptoconf(keyguardian_threshold: int,
                                selected_authdevice_uids: list,
                                filesystem_key_storage_pool: KeyStorageBase):
         info_escrows = []
@@ -155,7 +155,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         shared_secret_encryption = [
                                       dict(
                                          key_encryption_algo=SHARED_SECRET_MARKER,
-                                         key_shared_secret_threshold=shared_secret_threshold,
+                                         key_shared_secret_threshold=keyguardian_threshold,
                                          key_shared_secret_escrows=info_escrows,
                                       )
                                    ]

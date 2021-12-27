@@ -8,10 +8,10 @@
         "section": "nvr"
     },
     {
-        "key": "shared_secret_threshold",
+        "key": "keyguardian_threshold",
         "type": "numeric",
-        "title": "Shared secret threshold",
-        "desc": "Escrows required to decrypt data (less than selected escrows)",
+        "title": "Key guardian threshold",
+        "desc": "Count of key guardians required to decrypt data",
         "section": "nvr"
     },
     {
