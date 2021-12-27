@@ -156,7 +156,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                       dict(
                                          key_encryption_algo=SHARED_SECRET_MARKER,
                                          key_shared_secret_threshold=keyguardian_threshold,
-                                         key_shared_secret_escrows=info_escrows,
+                                         key_shared_secret_shards=info_escrows,
                                       )
                                    ]
         data_signatures = [

@@ -29,7 +29,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
-                    key_shared_secret_escrows=[
+                    key_shared_secret_shards=[
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
@@ -97,7 +97,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=2,
-                    key_shared_secret_escrows=[
+                    key_shared_secret_shards=[
                         dict(
                             share_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
