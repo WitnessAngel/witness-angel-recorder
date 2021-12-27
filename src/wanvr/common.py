@@ -68,24 +68,24 @@ class WanvrRuntimeSupportMixin:
             return INTERNAL_CRYPTAINER_DIR
         return Path(cryptainer_dir_str)  # Might NOT exist!
 
-    def _load_selected_authentication_device_uids(self):
+    def _load_selected_authdevice_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
 
         # Beware these are STRINGS
-        selected_authentication_device_uids = self.config.get("nvr", "selected_authentication_device_uids").split(",")
+        selected_authdevice_uids = self.config.get("nvr", "selected_authdevice_uids").split(",")
 
-        available_authentication_device_uids = self.filesystem_key_storage_pool.list_imported_key_storage_uids()
+        available_authdevice_uids = self.filesystem_key_storage_pool.list_imported_key_storage_uids()
 
         # Check integrity of escrow selection
-        selected_authentication_device_uids_filtered = [
-            x for x in selected_authentication_device_uids
-            if x and (UUID(x) in available_authentication_device_uids)
+        selected_authdevice_uids_filtered = [
+            x for x in selected_authdevice_uids
+            if x and (UUID(x) in available_authdevice_uids)
         ]
-        #print("> Initial selected_authentication_device_uids", selected_authentication_device_uids)
+        #print("> Initial selected_authdevice_uids", selected_authdevice_uids)
 
         # TODO issue warning() if some uids were wrong!
 
-        return selected_authentication_device_uids_filtered
+        return selected_authdevice_uids_filtered
 
     def get_ip_camera_url(self):
         return self.config.get("nvr", "ip_camera_url")
@@ -101,7 +101,7 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_camera_url(self.get_ip_camera_url()),
             lambda: self.check_keyguardian_counts(
                     keyguardian_threshold=self.get_shared_secret_threshold(),
-                    keyguardian_count=len(self._load_selected_authentication_device_uids())),
+                    keyguardian_count=len(self._load_selected_authdevice_uids())),
             lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),

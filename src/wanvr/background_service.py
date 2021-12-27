@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid0 import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.cryptainer import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
+from wacryptolib.cryptainer import AUTHDEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
     CryptainerStorage
 from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
@@ -126,24 +126,24 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     def _get_cryptoconf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         shared_secret_threshold = self.get_shared_secret_threshold()
-        selected_authentication_device_uids = self._load_selected_authentication_device_uids()
+        selected_authdevice_uids = self._load_selected_authdevice_uids()
         return self._build_cryptoconf(
                 shared_secret_threshold=shared_secret_threshold,
-                selected_authentication_device_uids=selected_authentication_device_uids,
+                selected_authdevice_uids=selected_authdevice_uids,
                 filesystem_key_storage_pool=self.filesystem_key_storage_pool)
 
     @staticmethod
     def _build_cryptoconf(shared_secret_threshold: int,
-                               selected_authentication_device_uids: list,
+                               selected_authdevice_uids: list,
                                filesystem_key_storage_pool: KeyStorageBase):
         info_escrows = []
-        for authentication_device_uid in selected_authentication_device_uids:
-            key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=authentication_device_uid) # Fixme rename key_storage_uid
+        for authdevice_uid in selected_authdevice_uids:
+            key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=authdevice_uid) # Fixme rename key_storage_uid
             key_information_list = key_storage.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
-            share_escrow = AUTHENTICATION_DEVICE_ESCROW_MARKER.copy()
-            share_escrow["authentication_device_uid"] = UUID(authentication_device_uid)
+            share_escrow = AUTHDEVICE_ESCROW_MARKER.copy()
+            share_escrow["authdevice_uid"] = UUID(authdevice_uid)
 
             info_escrows.append(
                 dict(key_encryption_layers=[dict(
