@@ -21,8 +21,8 @@ Workflow
 
 - Each escrow creates an authentication USB key using the W.A "keygen" project, protected by a passphrase
 - Each authentication USB key gets registered near the NVR application
-- When recording is launched, RTSP records are immediately encrypted into Flightbox containers
-- Decrypting some containers required enough escrows to enter their passphrase
+- When recording is launched, RTSP records are immediately encrypted into Flightbox cryptainers
+- Decrypting some cryptainers required enough escrows to enter their passphrase
 
 
 

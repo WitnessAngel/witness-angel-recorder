@@ -11,7 +11,7 @@ from uuid0 import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import AUTHENTICATION_DEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
-    ContainerStorage
+    CryptainerStorage
 from wacryptolib.key_storage import KeyStorageBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from wacryptolib.utilities import synchronized
@@ -37,7 +37,7 @@ class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRO
         filename = self._build_record_filename(
             sensor_name=sensor_name, from_datetime=from_datetime, to_datetime=to_datetime, extension=extension
         )
-        self._container_storage.enqueue_file_for_encryption(
+        self._cryptainer_storage.enqueue_file_for_encryption(
             filename_base=filename, data=data, metadata={}
         )
 
@@ -73,31 +73,31 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
     def _retrieve_epaper_display_information(self):
 
-        status_obj = get_system_information(self.get_containers_dir())
+        status_obj = get_system_information(self.get_cryptainer_dir())
 
-        containers_count_str = last_container_str = preview_image_age_s =  tr._("N/A")
+        cryptainers_count_str = last_cryptainer_str = preview_image_age_s =  tr._("N/A")
 
-        readonly_container_storage: ContainerStorage = self.get_readonly_container_storage_or_none()
+        readonly_cryptainer_storage: CryptainerStorage = self.get_readonly_cryptainer_storage_or_none()
 
-        if readonly_container_storage:
-            container_names = readonly_container_storage.list_container_names(as_sorted=True)
-            containers_count_str = str(len(container_names))
-            if container_names:
-                _last_container_name = container_names[-1]  # We consider that their names contain proper timestamps
-                _last_container_size_str = convert_bytes_to_human_representation(readonly_container_storage._get_container_size(_last_container_name))
+        if readonly_cryptainer_storage:
+            cryptainer_names = readonly_cryptainer_storage.list_cryptainer_names(as_sorted=True)
+            cryptainers_count_str = str(len(cryptainer_names))
+            if cryptainer_names:
+                _last_cryptainer_name = cryptainer_names[-1]  # We consider that their names contain proper timestamps
+                _last_cryptainer_size_str = convert_bytes_to_human_representation(readonly_cryptainer_storage._get_cryptainer_size(_last_cryptainer_name))
                 _utcnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-                _last_container_age_s = "%ds" % (_utcnow - readonly_container_storage._get_container_datetime(_last_container_name)).total_seconds()
-                last_container_str = "%s (%s)" % (_last_container_age_s, _last_container_size_str)
+                _last_cryptainer_age_s = "%ds" % (_utcnow - readonly_cryptainer_storage._get_cryptainer_datetime(_last_cryptainer_name)).total_seconds()
+                last_cryptainer_str = "%s (%s)" % (_last_cryptainer_age_s, _last_cryptainer_size_str)
 
         try:
             preview_image_age_s = "%ss" % int(time.time() - os.path.getmtime(self.preview_image_path))
         except FileNotFoundError:
             pass
 
-        status_obj.update({
+        status_obj.update({  # Maps will-be-labels to values
             "recording_status": "ON" if self.is_recording else "OFF",
-            "container_count": containers_count_str,
-            "last_container": last_container_str,
+            "container_count": cryptainers_count_str,
+            "last_cryptainer": last_cryptainer_str,
             "last_thumbnail": preview_image_age_s
         })
         return status_obj
@@ -183,26 +183,26 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
 
-        containers_dir = self.get_containers_dir()  # Might raise
-        if not containers_dir.is_dir():
-            raise RuntimeError(f"Invalid containers dir setting: {containers_dir}")
+        cryptainer_dir = self.get_cryptainer_dir()  # Might raise
+        if not cryptainer_dir.is_dir():
+            raise RuntimeError(f"Invalid containers dir setting: {cryptainer_dir}")
 
-        #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_container_age_day())
+        #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_cryptainer_age_day())
 
-        container_storage = ContainerStorage(  # FIXME deduplicate paramaters with default (readonly) ContainerStorage
+        cryptainer_storage = CryptainerStorage(  # FIXME deduplicate paramaters with default (readonly) CryptainerStorage
                        default_cryptoconf=self._get_cryptoconf(),
-                       containers_dir=containers_dir,
+                       cryptainer_dir=cryptainer_dir,
                        key_storage_pool=self.filesystem_key_storage_pool,
                        max_workers=1, # Protect memory usage
-                       max_container_age=timedelta(days=self.get_max_container_age_day()))
+                       max_cryptainer_age=timedelta(days=self.get_max_cryptainer_age_day()))
 
-        assert container_storage is not None, container_storage
+        assert cryptainer_storage is not None, cryptainer_storage
 
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
 
         rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=self.get_video_recording_duration_mn()*60,
-                container_storage=container_storage,
+                cryptainer_storage=cryptainer_storage,
                 video_stream_url=ip_camera_url,
                 preview_image_path=self.preview_image_path)
 
@@ -212,7 +212,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             sensors_manager=sensors_manager,
             data_aggregators=[],
             tarfile_aggregators=[],
-            container_storage=container_storage,
+            cryptainer_storage=cryptainer_storage,
             free_keys_generator_worker=None,  # For now
         )
         return toolchain

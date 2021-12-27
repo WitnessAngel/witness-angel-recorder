@@ -15,14 +15,14 @@
         "section": "nvr"
     },
     {
-        "key": "containers_dir",
+        "key": "cryptainer_dir",
         "type": "string",
         "title": "Containers folder",
         "desc": "Folder to store containers (defaults to user profile)",
         "section": "nvr"
     },
     {
-        "key": "max_container_age_day",
+        "key": "max_cryptainer_age_day",
         "type": "numeric",
         "title": "Max retention period (days)",
         "desc": "For how long to keep a container before deletion",

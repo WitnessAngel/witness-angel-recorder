@@ -6,7 +6,7 @@ import os
 from uuid0 import UUID
 
 from kivy.logger import Logger as logger
-from wacryptolib.cryptainer import ContainerStorage
+from wacryptolib.cryptainer import CryptainerStorage
 from wacryptolib.key_storage import FilesystemKeyStoragePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 
@@ -37,36 +37,36 @@ class WanvrRuntimeSupportMixin:
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
-    def get_readonly_container_storage_or_none(self):
+    def get_readonly_cryptainer_storage_or_none(self):
         if not self.config:
             return  # Too early inspection
 
-        containers_dir = self.get_containers_dir()
+        cryptainer_dir = self.get_cryptainer_dir()
 
-        if not containers_dir.is_dir():
+        if not cryptainer_dir.is_dir():
             logger.warning("No valid containers dir configured for readonly visualization")
             return None
 
-        # FIXME - use ReadonlYContainerStorage class when implemented in wacryptolib!
+        # FIXME - use ReadonlYCryptainerStorage class when implemented in wacryptolib!
         # BEWARE - don't use this one for recording, only for container management (no encryption conf)
-        readonly_container_storage = ContainerStorage(
+        readonly_cryptainer_storage = CryptainerStorage(
                default_cryptoconf=None,
-               containers_dir=self.get_containers_dir(),
+               cryptainer_dir=self.get_cryptainer_dir(),
                key_storage_pool=self.filesystem_key_storage_pool,
                max_workers=1,) # Protect memory usage
-        readonly_container_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
-        return readonly_container_storage
+        readonly_cryptainer_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
+        return readonly_cryptainer_storage
 
     def get_shared_secret_threshold(self):
         return int(self.config.get("nvr", "shared_secret_threshold"))
 
-    def get_containers_dir(self) -> Path:
-        containers_dir_str = self.config.get("nvr", "containers_dir")  # Might be wrong!
-        if not containers_dir_str:
+    def get_cryptainer_dir(self) -> Path:
+        cryptainer_dir_str = self.config.get("nvr", "cryptainer_dir")  # Might be wrong!
+        if not cryptainer_dir_str:
             logger.info("Containers directory not configured, falling back to internal folder")
-            from waguilib.importable_settings import INTERNAL_CONTAINERS_DIR
-            return INTERNAL_CONTAINERS_DIR
-        return Path(containers_dir_str)  # Might NOT exist!
+            from waguilib.importable_settings import INTERNAL_CRYPTAINER_DIR
+            return INTERNAL_CRYPTAINER_DIR
+        return Path(cryptainer_dir_str)  # Might NOT exist!
 
     def _load_selected_authentication_device_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
@@ -93,8 +93,8 @@ class WanvrRuntimeSupportMixin:
     def get_video_recording_duration_mn(self):
         return int(self.config.get("nvr", "video_recording_duration_mn"))
 
-    def get_max_container_age_day(self):
-        return int(self.config.get("nvr", "max_container_age_day"))
+    def get_max_cryptainer_age_day(self):
+        return int(self.config.get("nvr", "max_cryptainer_age_day"))
 
     def _get_status_checkers(self):
         return [
@@ -102,8 +102,8 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_keyguardian_counts(
                     keyguardian_threshold=self.get_shared_secret_threshold(),
                     keyguardian_count=len(self._load_selected_authentication_device_uids())),
-            lambda: self.check_container_output_dir(self.get_containers_dir()),
+            lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
-            lambda: self.check_max_container_age_day(self.get_max_container_age_day()),
+            lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),
         ]
 

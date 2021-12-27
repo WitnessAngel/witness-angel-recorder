@@ -7,7 +7,7 @@ import time
 from client.ciphering_toolchain import (
     RecordingToolchain,
     NewVideoHandler,
-    save_container,
+    save_cryptainer,
     generate_keypair,
 )
 from wacryptolib.utilities import generate_uuid0
@@ -15,8 +15,8 @@ from wacryptolib.utilities import generate_uuid0
 from wacryptolib.cryptainer import (
     LOCAL_ESCROW_MARKER,
     SHARED_SECRET_MARKER,
-    decrypt_data_from_container,
-    load_container_from_filesystem,
+    decrypt_data_from_cryptainer,
+    load_cryptainer_from_filesystem,
 )
 from wacryptolib.key_storage import FilesystemKeyStorage
 
@@ -149,14 +149,14 @@ def test_create_observer_thread(cryptoconf):
     new_video_handler.start_observer()
 
 
-def test_decipher_container():
+def test_decipher_cryptainer():
     video_files = os.listdir("ciphered_video_stream/")
     for file in video_files:
         if file.endswith(".crypt"):
-            container = load_container_from_filesystem(
-                container_filepath=Path("ciphered_video_stream/{}".format(file))
+            cryptainer = load_cryptainer_from_filesystem(
+                cryptainer_filepath=Path("ciphered_video_stream/{}".format(file))
             )
-            decrypt_data_from_container(container=container)
+            decrypt_data_from_cryptainer(cryptainer=cryptainer)
 
 
 @pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])

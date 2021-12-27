@@ -151,15 +151,15 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
-        container_store_screen = self.screen_manager.get_screen("ContainerManagement")  # FIXME simplify
-        container_store_screen.filesystem_container_storage = self.get_readonly_container_storage_or_none()
-        #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_container_storage)
+        cryptainer_store_screen = self.screen_manager.get_screen("CryptainerManagement")  # FIXME simplify
+        cryptainer_store_screen.filesystem_cryptainer_storage = self.get_readonly_cryptainer_storage_or_none()
+        #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _insert_app_menu(self):
         screen_options = {
             "MainPage": ("home", tr._("Main Page")),
             "KeyManagement": ("key", tr._("Key Management")),
-            "ContainerManagement": ("lock", tr._("Container Management")),
+            "CryptainerManagement": ("lock", tr._("Container Management")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
             item_draw = ItemDrawer(icon=icon_name, text=screen_title)
