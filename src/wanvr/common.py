@@ -7,7 +7,7 @@ from uuid import UUID
 
 from kivy.logger import Logger as logger
 from wacryptolib.cryptainer import CryptainerStorage
-from wacryptolib.key_storage import FilesystemKeyStoragePool
+from wacryptolib.keystore import FilesystemKeystorePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 
 
@@ -18,12 +18,12 @@ class WanvrRuntimeSupportMixin:
     preview_image_path = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
 
     # To be instantiated per-instance
-    filesystem_key_storage_pool = None
+    filesystem_keystore_pool = None
 
     def __init__(self, *args, **kwargs):
 
         assert self.internal_keys_dir, self.internal_keys_dir
-        self.filesystem_key_storage_pool = FilesystemKeyStoragePool(
+        self.filesystem_keystore_pool = FilesystemKeystorePool(
             root_dir=self.internal_keys_dir
         )
 
@@ -52,7 +52,7 @@ class WanvrRuntimeSupportMixin:
         readonly_cryptainer_storage = CryptainerStorage(
                default_cryptoconf=None,
                cryptainer_dir=self.get_cryptainer_dir(),
-               key_storage_pool=self.filesystem_key_storage_pool,
+               keystore_pool=self.filesystem_keystore_pool,
                max_workers=1,) # Protect memory usage
         readonly_cryptainer_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
         return readonly_cryptainer_storage
@@ -74,7 +74,7 @@ class WanvrRuntimeSupportMixin:
         # Beware these are STRINGS
         selected_authdevice_uids = self.config.get("nvr", "selected_authdevice_uids").split(",")
 
-        available_authdevice_uids = self.filesystem_key_storage_pool.list_imported_key_storage_uids()
+        available_authdevice_uids = self.filesystem_keystore_pool.list_imported_keystore_uids()
 
         # Check integrity of escrow selection
         selected_authdevice_uids_filtered = [

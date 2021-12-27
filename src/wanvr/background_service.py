@@ -12,7 +12,7 @@ from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import AUTHDEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
     CryptainerStorage
-from wacryptolib.key_storage import KeyStorageBase
+from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
 from wacryptolib.utilities import synchronized
 from waguilib.background_service import WaBackgroundService
@@ -32,13 +32,13 @@ from wasensorlib.camera.rtsp_stream import RtspCameraSensor
 class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRONG NAME
 
     @synchronized
-    def add_record(self, sensor_name: str, from_datetime, to_datetime, extension: str, data: bytes):
+    def add_record(self, sensor_name: str, from_datetime, to_datetime, extension: str, payload: bytes):
 
         filename = self._build_record_filename(
             sensor_name=sensor_name, from_datetime=from_datetime, to_datetime=to_datetime, extension=extension
         )
         self._cryptainer_storage.enqueue_file_for_encryption(
-            filename_base=filename, data=data, metadata={}
+            filename_base=filename, payload=payload, metadata={}
         )
 
     @synchronized
@@ -130,16 +130,16 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         return self._build_cryptoconf(
                 keyguardian_threshold=keyguardian_threshold,
                 selected_authdevice_uids=selected_authdevice_uids,
-                filesystem_key_storage_pool=self.filesystem_key_storage_pool)
+                filesystem_keystore_pool=self.filesystem_keystore_pool)
 
     @staticmethod
     def _build_cryptoconf(keyguardian_threshold: int,
                                selected_authdevice_uids: list,
-                               filesystem_key_storage_pool: KeyStorageBase):
+                               filesystem_keystore_pool: KeystoreBase):
         info_escrows = []
         for authdevice_uid in selected_authdevice_uids:
-            key_storage = filesystem_key_storage_pool.get_imported_key_storage(key_storage_uid=authdevice_uid) # Fixme rename key_storage_uid
-            key_information_list = key_storage.list_keypair_identifiers()
+            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authdevice_uid) # Fixme rename keystore_uid
+            key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
             share_escrow = AUTHDEVICE_ESCROW_MARKER.copy()
@@ -159,7 +159,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                          key_shared_secret_shards=info_escrows,
                                       )
                                    ]
-        data_signatures = [
+        payload_signatures = [
                               dict(
                                   message_digest_algo="SHA256",
                                   signature_algo="DSA_DSS",
@@ -167,13 +167,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]
-        data_encryption_layers = [
+        payload_encryption_layers = [
             dict(
-                 data_encryption_algo="AES_CBC",
+                 payload_encryption_algo="AES_CBC",
                  key_encryption_layers=shared_secret_encryption,
-                 data_signatures=data_signatures)
+                 payload_signatures=payload_signatures)
         ]
-        cryptoconf = dict(data_encryption_layers=data_encryption_layers)
+        cryptoconf = dict(payload_encryption_layers=payload_encryption_layers)
 
         #print(">>>>> USING ENCRYPTION CONF")
         #import pprint ; pprint.pprint(cryptoconf)
@@ -192,7 +192,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         cryptainer_storage = CryptainerStorage(  # FIXME deduplicate paramaters with default (readonly) CryptainerStorage
                        default_cryptoconf=self._get_cryptoconf(),
                        cryptainer_dir=cryptainer_dir,
-                       key_storage_pool=self.filesystem_key_storage_pool,
+                       keystore_pool=self.filesystem_keystore_pool,
                        max_workers=1, # Protect memory usage
                        max_cryptainer_age=timedelta(days=self.get_max_cryptainer_age_day()))
 

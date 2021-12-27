@@ -15,15 +15,15 @@ from wacryptolib.utilities import generate_uuid0
 from wacryptolib.cryptainer import (
     LOCAL_ESCROW_MARKER,
     SHARED_SECRET_MARKER,
-    decrypt_data_from_cryptainer,
+    decrypt_payload_from_cryptainer,
     load_cryptainer_from_filesystem,
 )
-from wacryptolib.key_storage import FilesystemKeyStorage
+from wacryptolib.keystore import FilesystemKeystore
 
 SIMPLE_SHAMIR_CRYPTOCONF = dict(
-    data_encryption_layers=[
+    payload_encryption_layers=[
         dict(
-            data_encryption_algo="AES_CBC",
+            payload_encryption_algo="AES_CBC",
             key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER),
                 dict(
@@ -58,7 +58,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                     ],
                 ),
             ],
-            data_signatures=[
+            payload_signatures=[
                 dict(
                     message_digest_algo="SHA256",
                     signature_algo="DSA_DSS",
@@ -70,20 +70,20 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
 )
 
 COMPLEX_SHAMIR_CRYPTOCONF = dict(
-    data_encryption_layers=[
+    payload_encryption_layers=[
         dict(
-            data_encryption_algo="AES_EAX",
+            payload_encryption_algo="AES_EAX",
             key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
-            data_signatures=[],
+            payload_signatures=[],
         ),
         dict(
-            data_encryption_algo="AES_CBC",
+            payload_encryption_algo="AES_CBC",
             key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
-            data_signatures=[
+            payload_signatures=[
                 dict(
                     message_digest_algo="SHA3_512",
                     signature_algo="DSA_DSS",
@@ -92,7 +92,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
             ],
         ),
         dict(
-            data_encryption_algo="CHACHA20_POLY1305",
+            payload_encryption_algo="CHACHA20_POLY1305",
             key_encryption_layers=[
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
@@ -121,7 +121,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                     ],
                 )
             ],
-            data_signatures=[
+            payload_signatures=[
                 dict(
                     message_digest_algo="SHA3_256",
                     signature_algo="RSA_PSS",
@@ -156,7 +156,7 @@ def test_decipher_cryptainer():
             cryptainer = load_cryptainer_from_filesystem(
                 cryptainer_filepath=Path("ciphered_video_stream/{}".format(file))
             )
-            decrypt_data_from_cryptainer(cryptainer=cryptainer)
+            decrypt_payload_from_cryptainer(cryptainer=cryptainer)
 
 
 @pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])

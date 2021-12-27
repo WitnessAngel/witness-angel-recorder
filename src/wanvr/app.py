@@ -132,7 +132,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         # Inject dependencies of loading screens
 
         authdevice_store_screen = self.screen_manager.get_screen("KeyManagement")
-        authdevice_store_screen.filesystem_key_storage_pool = self.filesystem_key_storage_pool
+        authdevice_store_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
         self.selected_authdevice_uids = self._load_selected_authdevice_uids()
         authdevice_store_screen.bind(on_selected_authdevices_changed=self._handle_selected_authdevice_changed)
