@@ -7,7 +7,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import random
 import time
 from kivy.logger import Logger as logger
-from uuid0 import UUID
+from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import AUTHDEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \

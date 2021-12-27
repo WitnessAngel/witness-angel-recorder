@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import os
-from uuid0 import UUID
+from uuid import UUID
 
 from kivy.logger import Logger as logger
 from wacryptolib.cryptainer import CryptainerStorage
