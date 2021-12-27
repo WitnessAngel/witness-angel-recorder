@@ -147,7 +147,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
             info_escrows.append(
                 dict(key_encryption_layers=[dict(
-                    key_encryption_algo=key["key_type"],
+                    key_encryption_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
                     key_escrow=share_escrow,
                  )])

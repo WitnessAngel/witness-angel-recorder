@@ -143,7 +143,7 @@ def test_create_observer_thread(cryptoconf):
     encryption_algo = "RSA_OAEP"
     new_video_handler = NewVideoHandler(
        cryptoconf=cryptoconf,
-        key_type=encryption_algo,
+        key_algo=encryption_algo,
         recordings_folder="ffmpeg_video_stream/",
     )
     new_video_handler.start_observer()
@@ -161,7 +161,7 @@ def test_decipher_cryptainer():
 
 @pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])
 def test_recording_toolchain(cryptoconf):
-    key_type = "RSA_OAEP"
+    key_algo = "RSA_OAEP"
     # camera_url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
     camera_url = "rtsp://viewer:SomePwd8162@92.89.81.50:554/Streaming/Channels/101"
     recording_time = 30
@@ -169,7 +169,7 @@ def test_recording_toolchain(cryptoconf):
     recording_toolchain = RecordingToolchain(
         recordings_folder="ffmpeg_video_stream/",
        cryptoconf=cryptoconf,
-        key_type=key_type,
+        key_algo=key_algo,
         camera_url=camera_url,
         recording_time=str(recording_time),
         segment_time=str(segment_time),
