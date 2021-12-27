@@ -31,29 +31,29 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                     key_shared_secret_threshold=3,
                     key_shared_secret_shards=[
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                     ],
                 ),
@@ -99,24 +99,24 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                     key_shared_secret_threshold=2,
                     key_shared_secret_shards=[
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                         dict(
-                            share_encryption_algo="RSA_OAEP",
+                            shard_encryption_algo="RSA_OAEP",
                             # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            share_escrow=LOCAL_ESCROW_MARKER,
+                            shard_escrow=LOCAL_ESCROW_MARKER,
                         ),
                     ],
                 )

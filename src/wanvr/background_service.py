@@ -142,14 +142,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
-            share_escrow = AUTHDEVICE_ESCROW_MARKER.copy()
-            share_escrow["authdevice_uid"] = UUID(authdevice_uid)
+            shard_escrow = AUTHDEVICE_ESCROW_MARKER.copy()
+            shard_escrow["authdevice_uid"] = UUID(authdevice_uid)
 
             info_escrows.append(
                 dict(key_encryption_layers=[dict(
                     key_encryption_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
-                    key_escrow=share_escrow,
+                    key_escrow=shard_escrow,
                  )])
             )
         shared_secret_encryption = [
