@@ -21,10 +21,10 @@ from wacryptolib.cryptainer import (
 from wacryptolib.key_storage import FilesystemKeyStorage
 
 SIMPLE_SHAMIR_CRYPTOCONF = dict(
-    data_encryption_strata=[
+    data_encryption_layers=[
         dict(
             data_encryption_algo="AES_CBC",
-            key_encryption_strata=[
+            key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER),
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
@@ -70,17 +70,17 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
 )
 
 COMPLEX_SHAMIR_CRYPTOCONF = dict(
-    data_encryption_strata=[
+    data_encryption_layers=[
         dict(
             data_encryption_algo="AES_EAX",
-            key_encryption_strata=[
+            key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
             data_signatures=[],
         ),
         dict(
             data_encryption_algo="AES_CBC",
-            key_encryption_strata=[
+            key_encryption_layers=[
                 dict(key_encryption_algo="RSA_OAEP", key_escrow=LOCAL_ESCROW_MARKER)
             ],
             data_signatures=[
@@ -93,7 +93,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
         ),
         dict(
             data_encryption_algo="CHACHA20_POLY1305",
-            key_encryption_strata=[
+            key_encryption_layers=[
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=2,

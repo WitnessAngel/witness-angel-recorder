@@ -146,7 +146,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             share_escrow["authentication_device_uid"] = UUID(authentication_device_uid)
 
             info_escrows.append(
-                dict(key_encryption_strata=[dict(
+                dict(key_encryption_layers=[dict(
                     key_encryption_algo=key["key_type"],
                     keychain_uid=key["keychain_uid"],
                     key_escrow=share_escrow,
@@ -167,13 +167,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]
-        data_encryption_strata = [
+        data_encryption_layers = [
             dict(
                  data_encryption_algo="AES_CBC",
-                 key_encryption_strata=shared_secret_encryption,
+                 key_encryption_layers=shared_secret_encryption,
                  data_signatures=data_signatures)
         ]
-        cryptoconf = dict(data_encryption_strata=data_encryption_strata)
+        cryptoconf = dict(data_encryption_layers=data_encryption_layers)
 
         #print(">>>>> USING ENCRYPTION CONF")
         #import pprint ; pprint.pprint(cryptoconf)
