@@ -147,14 +147,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
             info_trustees.append(
                 dict(key_encryption_layers=[dict(
-                    key_encryption_algo=key["key_algo"],
+                    key_cipher_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
                     key_encryption_trustee=shard_trustee,
                  )])
             )
         shared_secret_encryption = [
                                       dict(
-                                         key_encryption_algo=SHARED_SECRET_MARKER,
+                                         key_cipher_algo=SHARED_SECRET_MARKER,
                                          key_shared_secret_threshold=keyguardian_threshold,
                                          key_shared_secret_shards=info_trustees,
                                       )
@@ -169,7 +169,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                           ]
         payload_encryption_layers = [
             dict(
-                 payload_encryption_algo="AES_CBC",
+                 payload_cipher_algo="AES_CBC",
                  key_encryption_layers=shared_secret_encryption,
                  payload_signatures=payload_signatures)
         ]

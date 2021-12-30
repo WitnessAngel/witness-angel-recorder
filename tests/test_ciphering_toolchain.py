@@ -23,35 +23,35 @@ from wacryptolib.keystore import FilesystemKeystore
 SIMPLE_SHAMIR_CRYPTOCONF = dict(
     payload_encryption_layers=[
         dict(
-            payload_encryption_algo="AES_CBC",
+            payload_cipher_algo="AES_CBC",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER),
+                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER),
                 dict(
-                    key_encryption_algo=SHARED_SECRET_MARKER,
+                    key_cipher_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
                     key_shared_secret_shards=[
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
@@ -72,16 +72,16 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
 COMPLEX_SHAMIR_CRYPTOCONF = dict(
     payload_encryption_layers=[
         dict(
-            payload_encryption_algo="AES_EAX",
+            payload_cipher_algo="AES_EAX",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
+                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
             ],
             payload_signatures=[],
         ),
         dict(
-            payload_encryption_algo="AES_CBC",
+            payload_cipher_algo="AES_CBC",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
+                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
             ],
             payload_signatures=[
                 dict(
@@ -92,29 +92,29 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
             ],
         ),
         dict(
-            payload_encryption_algo="CHACHA20_POLY1305",
+            payload_cipher_algo="CHACHA20_POLY1305",
             key_encryption_layers=[
                 dict(
-                    key_encryption_algo=SHARED_SECRET_MARKER,
+                    key_cipher_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=2,
                     key_shared_secret_shards=[
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
-                            shard_encryption_algo="RSA_OAEP",
+                            shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
                             shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
@@ -140,10 +140,10 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
 
 @pytest.mark.parametrize("cryptoconf", [SIMPLE_SHAMIR_CRYPTOCONF])
 def test_create_observer_thread(cryptoconf):
-    encryption_algo = "RSA_OAEP"
+    cipher_algo = "RSA_OAEP"
     new_video_handler = NewVideoHandler(
        cryptoconf=cryptoconf,
-        key_algo=encryption_algo,
+        key_algo=cipher_algo,
         recordings_folder="ffmpeg_video_stream/",
     )
     new_video_handler.start_observer()
