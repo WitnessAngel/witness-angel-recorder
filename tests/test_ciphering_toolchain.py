@@ -60,7 +60,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
             ],
             payload_signatures=[
                 dict(
-                    message_digest_algo="SHA256",
+                    payload_digest_algo="SHA256",
                     signature_algo="DSA_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 )
@@ -85,7 +85,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
             ],
             payload_signatures=[
                 dict(
-                    message_digest_algo="SHA3_512",
+                    payload_digest_algo="SHA3_512",
                     signature_algo="DSA_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 )
@@ -123,12 +123,12 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
             ],
             payload_signatures=[
                 dict(
-                    message_digest_algo="SHA3_256",
+                    payload_digest_algo="SHA3_256",
                     signature_algo="RSA_PSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 ),
                 dict(
-                    message_digest_algo="SHA512",
+                    payload_digest_algo="SHA512",
                     signature_algo="ECC_DSS",
                     signature_escrow=LOCAL_ESCROW_MARKER,
                 ),

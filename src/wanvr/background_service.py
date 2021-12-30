@@ -161,7 +161,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                    ]
         payload_signatures = [
                               dict(
-                                  message_digest_algo="SHA256",
+                                  payload_digest_algo="SHA256",
                                   signature_algo="DSA_DSS",
                                   signature_escrow=LOCAL_ESCROW_MARKER,
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
