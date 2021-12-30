@@ -13,7 +13,7 @@ from datetime import timedelta, datetime, timezone
 from wacryptolib.cryptainer import AUTHDEVICE_TRUSTEE_MARKER, SHARED_SECRET_MARKER, LOCAL_TRUSTEE_MARKER, \
     CryptainerStorage
 from wacryptolib.keystore import KeystoreBase
-from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
+from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
 from wacryptolib.utilities import synchronized
 from waguilib.background_service import WaBackgroundService
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
@@ -206,7 +206,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                 video_stream_url=ip_camera_url,
                 preview_image_path=self.preview_image_path)
 
-        sensors_manager = SensorsManager(sensors=[rtsp_camera_sensor])
+        sensors_manager = SensorManager(sensors=[rtsp_camera_sensor])
  
         toolchain = dict(
             sensors_manager=sensors_manager,
