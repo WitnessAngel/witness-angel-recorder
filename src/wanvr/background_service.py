@@ -80,7 +80,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         readonly_cryptainer_storage: CryptainerStorage = self.get_readonly_cryptainer_storage_or_none()
 
         if readonly_cryptainer_storage:
-            cryptainer_names = readonly_cryptainer_storage.list_cryptainer_names(as_sorted=True)
+            cryptainer_names = readonly_cryptainer_storage.list_cryptainer_names(as_sorted_list=True)
             cryptainers_count_str = str(len(cryptainer_names))
             if cryptainer_names:
                 _last_cryptainer_name = cryptainer_names[-1]  # We consider that their names contain proper timestamps
