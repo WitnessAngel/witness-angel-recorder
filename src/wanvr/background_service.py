@@ -86,7 +86,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                 _last_cryptainer_name = cryptainer_names[-1]  # We consider that their names contain proper timestamps
                 _last_cryptainer_size_str = convert_bytes_to_human_representation(readonly_cryptainer_storage._get_cryptainer_size(_last_cryptainer_name))
                 _utcnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-                _last_cryptainer_age_s = "%ds" % (_utcnow - readonly_cryptainer_storage._get_cryptainer_datetime(_last_cryptainer_name)).total_seconds()
+                _last_cryptainer_age_s = "%ds" % (_utcnow - readonly_cryptainer_storage._get_cryptainer_datetime_utc(_last_cryptainer_name)).total_seconds()
                 last_cryptainer_str = "%s (%s)" % (_last_cryptainer_age_s, _last_cryptainer_size_str)
 
         try:
