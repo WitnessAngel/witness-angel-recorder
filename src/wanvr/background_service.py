@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.cryptainer import AUTHDEVICE_ESCROW_MARKER, SHARED_SECRET_MARKER, LOCAL_ESCROW_MARKER, \
+from wacryptolib.cryptainer import AUTHDEVICE_TRUSTEE_MARKER, SHARED_SECRET_MARKER, LOCAL_TRUSTEE_MARKER, \
     CryptainerStorage
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorsManager
@@ -136,34 +136,34 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     def _build_cryptoconf(keyguardian_threshold: int,
                                selected_authdevice_uids: list,
                                filesystem_keystore_pool: KeystoreBase):
-        info_escrows = []
+        info_trustees = []
         for authdevice_uid in selected_authdevice_uids:
             keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authdevice_uid) # Fixme rename keystore_uid
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
-            shard_escrow = AUTHDEVICE_ESCROW_MARKER.copy()
-            shard_escrow["authdevice_uid"] = UUID(authdevice_uid)
+            shard_trustee = AUTHDEVICE_TRUSTEE_MARKER.copy()
+            shard_trustee["authdevice_uid"] = UUID(authdevice_uid)
 
-            info_escrows.append(
+            info_trustees.append(
                 dict(key_encryption_layers=[dict(
                     key_encryption_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
-                    key_encryption_escrow=shard_escrow,
+                    key_encryption_trustee=shard_trustee,
                  )])
             )
         shared_secret_encryption = [
                                       dict(
                                          key_encryption_algo=SHARED_SECRET_MARKER,
                                          key_shared_secret_threshold=keyguardian_threshold,
-                                         key_shared_secret_shards=info_escrows,
+                                         key_shared_secret_shards=info_trustees,
                                       )
                                    ]
         payload_signatures = [
                               dict(
                                   payload_digest_algo="SHA256",
                                   payload_signature_algo="DSA_DSS",
-                                  payload_signature_escrow=LOCAL_ESCROW_MARKER,
+                                  payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]

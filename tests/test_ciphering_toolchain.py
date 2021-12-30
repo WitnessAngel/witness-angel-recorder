@@ -13,7 +13,7 @@ from client.ciphering_toolchain import (
 from wacryptolib.utilities import generate_uuid0
 
 from wacryptolib.cryptainer import (
-    LOCAL_ESCROW_MARKER,
+    LOCAL_TRUSTEE_MARKER,
     SHARED_SECRET_MARKER,
     decrypt_payload_from_cryptainer,
     load_cryptainer_from_filesystem,
@@ -25,35 +25,35 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
         dict(
             payload_encryption_algo="AES_CBC",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_escrow=LOCAL_ESCROW_MARKER),
+                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER),
                 dict(
                     key_encryption_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
                     key_shared_secret_shards=[
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                     ],
                 ),
@@ -62,7 +62,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     payload_digest_algo="SHA256",
                     payload_signature_algo="DSA_DSS",
-                    payload_signature_escrow=LOCAL_ESCROW_MARKER,
+                    payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
                 )
             ],
         )
@@ -74,20 +74,20 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
         dict(
             payload_encryption_algo="AES_EAX",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_escrow=LOCAL_ESCROW_MARKER)
+                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
             ],
             payload_signatures=[],
         ),
         dict(
             payload_encryption_algo="AES_CBC",
             key_encryption_layers=[
-                dict(key_encryption_algo="RSA_OAEP", key_encryption_escrow=LOCAL_ESCROW_MARKER)
+                dict(key_encryption_algo="RSA_OAEP", key_encryption_trustee=LOCAL_TRUSTEE_MARKER)
             ],
             payload_signatures=[
                 dict(
                     payload_digest_algo="SHA3_512",
                     payload_signature_algo="DSA_DSS",
-                    payload_signature_escrow=LOCAL_ESCROW_MARKER,
+                    payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
                 )
             ],
         ),
@@ -100,23 +100,23 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                     key_shared_secret_shards=[
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_encryption_algo="RSA_OAEP",
-                            # shared_escrow=dict(url="http://example.com/jsonrpc"),
-                            shard_escrow=LOCAL_ESCROW_MARKER,
+                            # shared_trustee=dict(url="http://example.com/jsonrpc"),
+                            shard_trustee=LOCAL_TRUSTEE_MARKER,
                         ),
                     ],
                 )
@@ -125,12 +125,12 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     payload_digest_algo="SHA3_256",
                     payload_signature_algo="RSA_PSS",
-                    payload_signature_escrow=LOCAL_ESCROW_MARKER,
+                    payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
                 ),
                 dict(
                     payload_digest_algo="SHA512",
                     payload_signature_algo="ECC_DSS",
-                    payload_signature_escrow=LOCAL_ESCROW_MARKER,
+                    payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
                 ),
             ],
         ),

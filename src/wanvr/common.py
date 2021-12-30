@@ -76,7 +76,7 @@ class WanvrRuntimeSupportMixin:
 
         available_authdevice_uids = self.filesystem_keystore_pool.list_imported_keystore_uids()
 
-        # Check integrity of escrow selection
+        # Check integrity of trustee selection
         selected_authdevice_uids_filtered = [
             x for x in selected_authdevice_uids
             if x and (UUID(x) in available_authdevice_uids)
