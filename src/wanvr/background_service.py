@@ -149,7 +149,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                 dict(key_encryption_layers=[dict(
                     key_encryption_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
-                    key_escrow=shard_escrow,
+                    key_encryption_escrow=shard_escrow,
                  )])
             )
         shared_secret_encryption = [
@@ -162,8 +162,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
         payload_signatures = [
                               dict(
                                   payload_digest_algo="SHA256",
-                                  signature_algo="DSA_DSS",
-                                  signature_escrow=LOCAL_ESCROW_MARKER,
+                                  payload_signature_algo="DSA_DSS",
+                                  payload_signature_escrow=LOCAL_ESCROW_MARKER,
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]
