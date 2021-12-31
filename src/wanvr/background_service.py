@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_MARKER, LOCAL_TRUSTEE_MARKER, \
+from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_MARKER, LOCAL_FACTORY_TRUSTEE_MARKER, \
     CryptainerStorage
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
@@ -165,7 +165,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                               dict(
                                   payload_digest_algo="SHA256",
                                   payload_signature_algo="DSA_DSS",
-                                  payload_signature_trustee=LOCAL_TRUSTEE_MARKER,
+                                  payload_signature_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]
