@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_MARKER, LOCAL_FACTORY_TRUSTEE_MARKER, \
+from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, LOCAL_FACTORY_TRUSTEE_MARKER, \
     CryptainerStorage
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
@@ -156,7 +156,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             )
         shared_secret_encryption = [
                                       dict(
-                                         key_cipher_algo=SHARED_SECRET_MARKER,
+                                         key_cipher_algo=SHARED_SECRET_ALGO_MARKER,
                                          key_shared_secret_threshold=keyguardian_threshold,
                                          key_shared_secret_shards=info_trustees,
                                       )

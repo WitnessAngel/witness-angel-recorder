@@ -14,7 +14,7 @@ from wacryptolib.utilities import generate_uuid0
 
 from wacryptolib.cryptainer import (
     LOCAL_FACTORY_TRUSTEE_MARKER,
-    SHARED_SECRET_MARKER,
+    SHARED_SECRET_ALGO_MARKER,
     decrypt_payload_from_cryptainer,
     load_cryptainer_from_filesystem,
 )
@@ -27,7 +27,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
             key_cipher_layers=[
                 dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER),
                 dict(
-                    key_cipher_algo=SHARED_SECRET_MARKER,
+                    key_cipher_algo=SHARED_SECRET_ALGO_MARKER,
                     key_shared_secret_threshold=3,
                     key_shared_secret_shards=[
                         dict(
@@ -95,7 +95,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
             payload_cipher_algo="CHACHA20_POLY1305",
             key_cipher_layers=[
                 dict(
-                    key_cipher_algo=SHARED_SECRET_MARKER,
+                    key_cipher_algo=SHARED_SECRET_ALGO_MARKER,
                     key_shared_secret_threshold=2,
                     key_shared_secret_shards=[
                         dict(
