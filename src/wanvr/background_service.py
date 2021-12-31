@@ -10,7 +10,7 @@ from kivy.logger import Logger as logger
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacryptolib.cryptainer import AUTHDEVICE_TRUSTEE_MARKER, SHARED_SECRET_MARKER, LOCAL_TRUSTEE_MARKER, \
+from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_MARKER, LOCAL_TRUSTEE_MARKER, \
     CryptainerStorage
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
@@ -137,13 +137,15 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                selected_authdevice_uids: list,
                                filesystem_keystore_pool: KeystoreBase):
         info_trustees = []
-        for authdevice_uid in selected_authdevice_uids:
-            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authdevice_uid) # Fixme rename keystore_uid
+        for authdevice_uid_str in selected_authdevice_uids:
+            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authdevice_uid_str)
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
-            shard_trustee = AUTHDEVICE_TRUSTEE_MARKER.copy()
-            shard_trustee["authdevice_uid"] = UUID(authdevice_uid)
+            shard_trustee = dict(
+                trustee_type=TRUSTEE_TYPES.AUTHDEVICE_TRUSTEE,
+                authdevice_uid=UUID(authdevice_uid_str)
+            )
 
             info_trustees.append(
                 dict(key_encryption_layers=[dict(
