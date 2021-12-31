@@ -126,25 +126,25 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
     def _get_cryptoconf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         keyguardian_threshold = self.get_keyguardian_threshold()
-        selected_authdevice_uids = self._load_selected_authdevice_uids()
+        selected_authenticator_uids = self._load_selected_authenticator_uids()
         return self._build_cryptoconf(
                 keyguardian_threshold=keyguardian_threshold,
-                selected_authdevice_uids=selected_authdevice_uids,
+                selected_authenticator_uids=selected_authenticator_uids,
                 filesystem_keystore_pool=self.filesystem_keystore_pool)
 
     @staticmethod
     def _build_cryptoconf(keyguardian_threshold: int,
-                               selected_authdevice_uids: list,
+                               selected_authenticator_uids: list,
                                filesystem_keystore_pool: KeystoreBase):
         info_trustees = []
-        for authdevice_uid_str in selected_authdevice_uids:
-            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authdevice_uid_str)
+        for authenticator_uid_str in selected_authenticator_uids:
+            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=authenticator_uid_str)
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
             shard_trustee = dict(
                 trustee_type=TRUSTEE_TYPES.AUTHDEVICE_TRUSTEE,
-                authdevice_uid=UUID(authdevice_uid_str)
+                authenticator_uid=UUID(authenticator_uid_str)
             )
 
             info_trustees.append(
