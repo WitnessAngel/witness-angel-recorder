@@ -21,11 +21,11 @@ from wacryptolib.cryptainer import (
 from wacryptolib.keystore import FilesystemKeystore
 
 SIMPLE_SHAMIR_CRYPTOCONF = dict(
-    payload_encryption_layers=[
+    payload_cipher_layers=[
         dict(
             payload_cipher_algo="AES_CBC",
-            key_encryption_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_FACTORY_TRUSTEE_MARKER),
+            key_cipher_layers=[
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER),
                 dict(
                     key_cipher_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=3,
@@ -70,18 +70,18 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
 )
 
 COMPLEX_SHAMIR_CRYPTOCONF = dict(
-    payload_encryption_layers=[
+    payload_cipher_layers=[
         dict(
             payload_cipher_algo="AES_EAX",
-            key_encryption_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
+            key_cipher_layers=[
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
             ],
             payload_signatures=[],
         ),
         dict(
             payload_cipher_algo="AES_CBC",
-            key_encryption_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_encryption_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
+            key_cipher_layers=[
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
             ],
             payload_signatures=[
                 dict(
@@ -93,7 +93,7 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
         ),
         dict(
             payload_cipher_algo="CHACHA20_POLY1305",
-            key_encryption_layers=[
+            key_cipher_layers=[
                 dict(
                     key_cipher_algo=SHARED_SECRET_MARKER,
                     key_shared_secret_threshold=2,

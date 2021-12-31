@@ -148,10 +148,10 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
             )
 
             info_trustees.append(
-                dict(key_encryption_layers=[dict(
+                dict(key_cipher_layers=[dict(
                     key_cipher_algo=key["key_algo"],
                     keychain_uid=key["keychain_uid"],
-                    key_encryption_trustee=shard_trustee,
+                    key_cipher_trustee=shard_trustee,
                  )])
             )
         shared_secret_encryption = [
@@ -169,13 +169,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
                                   keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
                               )
                           ]
-        payload_encryption_layers = [
+        payload_cipher_layers = [
             dict(
                  payload_cipher_algo="AES_CBC",
-                 key_encryption_layers=shared_secret_encryption,
+                 key_cipher_layers=shared_secret_encryption,
                  payload_signatures=payload_signatures)
         ]
-        cryptoconf = dict(payload_encryption_layers=payload_encryption_layers)
+        cryptoconf = dict(payload_cipher_layers=payload_cipher_layers)
 
         #print(">>>>> USING ENCRYPTION CONF")
         #import pprint ; pprint.pprint(cryptoconf)
