@@ -1,4 +1,5 @@
 from kivy.properties import StringProperty
+from kivy.resources import resource_find
 
 from waguilib import kivy_presetup  # Trigger common kivy setup
 from waguilib.widgets.popups import display_info_toast
@@ -39,6 +40,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     title = tr._("Witness Angel - Network Video Recorder")
     title_conf_panel = tr._("Recorder settings")
+
+    icon = resource_find("icons/witness_angel_logo_blue_32x32.png")
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
