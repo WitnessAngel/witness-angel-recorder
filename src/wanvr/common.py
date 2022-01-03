@@ -68,24 +68,24 @@ class WanvrRuntimeSupportMixin:
             return INTERNAL_CRYPTAINER_DIR
         return Path(cryptainer_dir_str)  # Might NOT exist!
 
-    def _load_selected_authenticator_uids(self):
+    def _load_selected_keystore_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
 
         # Beware these are STRINGS
-        selected_authenticator_uids = self.config.get("nvr", "selected_authenticator_uids").split(",")
+        selected_keystore_uids = self.config.get("nvr", "selected_keystore_uids").split(",")
 
-        available_authenticator_uids = self.filesystem_keystore_pool.list_imported_keystore_uids()
+        available_keystore_uids = self.filesystem_keystore_pool.list_imported_keystore_uids()
 
         # Check integrity of trustee selection
-        selected_authenticator_uids_filtered = [
-            x for x in selected_authenticator_uids
-            if x and (UUID(x) in available_authenticator_uids)
+        selected_keystore_uids_filtered = [
+            x for x in selected_keystore_uids
+            if x and (UUID(x) in available_keystore_uids)
         ]
-        #print("> Initial selected_authenticator_uids", selected_authenticator_uids)
+        #print("> Initial selected_keystore_uids", selected_keystore_uids)
 
         # TODO issue warning() if some uids were wrong!
 
-        return selected_authenticator_uids_filtered
+        return selected_keystore_uids_filtered
 
     def get_ip_camera_url(self):
         return self.config.get("nvr", "ip_camera_url")
@@ -101,7 +101,7 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_camera_url(self.get_ip_camera_url()),
             lambda: self.check_keyguardian_counts(
                     keyguardian_threshold=self.get_keyguardian_threshold(),
-                    keyguardian_count=len(self._load_selected_authenticator_uids())),
+                    keyguardian_count=len(self._load_selected_keystore_uids())),
             lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),

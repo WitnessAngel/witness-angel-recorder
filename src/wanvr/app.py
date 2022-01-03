@@ -89,16 +89,16 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         return self.root.ids.navigation_drawer
 
     @property
-    def selected_authenticator_uids(self):
+    def selected_keystore_uids(self):
         """Beware, here we lookup not the config file but the in-GUI data!"""
         if not self.root:
             return  # Early introspection
-        result = self.screen_manager.get_screen("KeyManagement").selected_authenticator_uids
+        result = self.screen_manager.get_screen("KeyManagement").selected_keystore_uids
         return result
 
-    @selected_authenticator_uids.setter
-    def selected_authenticator_uids(self, authenticator_uids):
-        self.screen_manager.get_screen("KeyManagement").selected_authenticator_uids = authenticator_uids
+    @selected_keystore_uids.setter
+    def selected_keystore_uids(self, keystore_uids):
+        self.screen_manager.get_screen("KeyManagement").selected_keystore_uids = keystore_uids
 
     @property
     def recording_button(self): # IMPORTANT, expected by generic Screens!
@@ -137,7 +137,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
         authdevice_store_screen = self.screen_manager.get_screen("KeyManagement")
         authdevice_store_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
-        self.selected_authenticator_uids = self._load_selected_authenticator_uids()
+        self.selected_keystore_uids = self._load_selected_keystore_uids()
         authdevice_store_screen.bind(on_selected_authdevices_changed=self._handle_selected_authdevice_changed)
 
         self._update_app_after_config_change()
@@ -170,9 +170,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
             self.navigation_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
 
     # FIXME rename these "authdevice" functions
-    def _handle_selected_authdevice_changed(self, event, authenticator_uids, *args):
+    def _handle_selected_authdevice_changed(self, event, keystore_uids, *args):
         """Save to config file so that the Service can access the new list"""
-        self.config["nvr"]["selected_authenticator_uids"] = ",".join(authenticator_uids)
+        self.config["nvr"]["selected_keystore_uids"] = ",".join(keystore_uids)
         self.save_config()
 
 
