@@ -11,7 +11,7 @@ from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, LOCAL_FACTORY_TRUSTEE_MARKER, \
-    CryptainerStorage
+    CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
 from wacryptolib.utilities import synchronized
@@ -77,7 +77,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         cryptainers_count_str = last_cryptainer_str = preview_image_age_s =  tr._("N/A")
 
-        readonly_cryptainer_storage: CryptainerStorage = self.get_readonly_cryptainer_storage_or_none()
+        readonly_cryptainer_storage: ReadonlyCryptainerStorage = self.get_readonly_cryptainer_storage_or_none()
 
         if readonly_cryptainer_storage:
             cryptainer_names = readonly_cryptainer_storage.list_cryptainer_names(as_sorted_list=True)

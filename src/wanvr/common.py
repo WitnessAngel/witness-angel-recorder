@@ -6,7 +6,7 @@ import os
 from uuid import UUID
 
 from kivy.logger import Logger as logger
-from wacryptolib.cryptainer import CryptainerStorage
+from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
 from waguilib.importable_settings import INTERNAL_CACHE_DIR
 
@@ -47,15 +47,7 @@ class WanvrRuntimeSupportMixin:
             logger.warning("No valid containers dir configured for readonly visualization")
             return None
 
-        # FIXME - use ReadonlYCryptainerStorage class when implemented in wacryptolib!
-        # BEWARE - don't use this one for recording, only for container management (no encryption conf)
-        readonly_cryptainer_storage = CryptainerStorage(
-               default_cryptoconf=None,
-               cryptainer_dir=self.get_cryptainer_dir(),
-               keystore_pool=self.filesystem_keystore_pool,
-               max_workers=1,) # Protect memory usage
-        readonly_cryptainer_storage.enqueue_file_for_encryption = None  # HACK, we want it readonly!
-        return readonly_cryptainer_storage
+        return ReadonlyCryptainerStorage(cryptainer_dir=self.get_cryptainer_dir())
 
     def get_keyguardian_threshold(self):
         return int(self.config.get("nvr", "keyguardian_threshold"))
