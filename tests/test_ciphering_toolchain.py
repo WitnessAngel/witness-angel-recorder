@@ -13,7 +13,7 @@ from client.ciphering_toolchain import (
 from wacryptolib.utilities import generate_uuid0
 
 from wacryptolib.cryptainer import (
-    LOCAL_FACTORY_TRUSTEE_MARKER,
+    LOCAL_KEYFACTORY_TRUSTEE_MARKER,
     SHARED_SECRET_ALGO_MARKER,
     decrypt_payload_from_cryptainer,
     load_cryptainer_from_filesystem,
@@ -25,7 +25,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
         dict(
             payload_cipher_algo="AES_CBC",
             key_cipher_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER),
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER),
                 dict(
                     key_cipher_algo=SHARED_SECRET_ALGO_MARKER,
                     key_shared_secret_threshold=3,
@@ -33,27 +33,27 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                     ],
                 ),
@@ -62,7 +62,7 @@ SIMPLE_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     payload_digest_algo="SHA256",
                     payload_signature_algo="DSA_DSS",
-                    payload_signature_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                    payload_signature_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                 )
             ],
         )
@@ -74,20 +74,20 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
         dict(
             payload_cipher_algo="AES_EAX",
             key_cipher_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER)
             ],
             payload_signatures=[],
         ),
         dict(
             payload_cipher_algo="AES_CBC",
             key_cipher_layers=[
-                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_FACTORY_TRUSTEE_MARKER)
+                dict(key_cipher_algo="RSA_OAEP", key_cipher_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER)
             ],
             payload_signatures=[
                 dict(
                     payload_digest_algo="SHA3_512",
                     payload_signature_algo="DSA_DSS",
-                    payload_signature_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                    payload_signature_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                 )
             ],
         ),
@@ -101,22 +101,22 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                         dict(
                             shard_cipher_algo="RSA_OAEP",
                             # shared_trustee=dict(url="http://example.com/jsonrpc"),
-                            shard_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                            shard_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                         ),
                     ],
                 )
@@ -125,12 +125,12 @@ COMPLEX_SHAMIR_CRYPTOCONF = dict(
                 dict(
                     payload_digest_algo="SHA3_256",
                     payload_signature_algo="RSA_PSS",
-                    payload_signature_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                    payload_signature_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                 ),
                 dict(
                     payload_digest_algo="SHA512",
                     payload_signature_algo="ECC_DSS",
-                    payload_signature_trustee=LOCAL_FACTORY_TRUSTEE_MARKER,
+                    payload_signature_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
                 ),
             ],
         ),
