@@ -126,11 +126,12 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     def on_start(self):
         super().on_start()
 
-        try:
-            import logging_tree
-            logging_tree.printout()
-        except ImportError:
-            pass  # Optional debug stuff
+        if False:
+            try:
+                import logging_tree
+                logging_tree.printout()
+            except ImportError:
+                pass  # Optional debug stuff
 
         # Inject dependencies of loading screens
 
@@ -155,7 +156,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
         cryptainer_store_screen = self.screen_manager.get_screen("CryptainerManagement")  # FIXME simplify
-        cryptainer_store_screen.filesystem_cryptainer_storage = self.get_readonly_cryptainer_storage_or_none()
+        cryptainer_store_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()  # FIXME SIMPLIFY with App methods ???
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _insert_app_menu(self):

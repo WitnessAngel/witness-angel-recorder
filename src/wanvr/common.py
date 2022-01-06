@@ -37,7 +37,7 @@ class WanvrRuntimeSupportMixin:
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
-    def get_readonly_cryptainer_storage_or_none(self):
+    def get_cryptainer_storage_or_none(self, read_only=False):
         if not self.config:
             return  # Too early inspection
 
@@ -47,7 +47,8 @@ class WanvrRuntimeSupportMixin:
             logger.warning("No valid containers dir configured for readonly visualization")
             return None
 
-        return ReadonlyCryptainerStorage(cryptainer_dir=self.get_cryptainer_dir())
+        klass = ReadonlyCryptainerStorage if read_only else CryptainerStorage
+        return klass(cryptainer_dir=self.get_cryptainer_dir(), keystore_pool=self.filesystem_keystore_pool)
 
     def get_keyguardian_threshold(self):
         return int(self.config.get("nvr", "keyguardian_threshold"))

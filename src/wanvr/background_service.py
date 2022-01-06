@@ -77,7 +77,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
 
         cryptainers_count_str = last_cryptainer_str = preview_image_age_s =  tr._("N/A")
 
-        readonly_cryptainer_storage: ReadonlyCryptainerStorage = self.get_readonly_cryptainer_storage_or_none()
+        readonly_cryptainer_storage: ReadonlyCryptainerStorage = self.get_cryptainer_storage_or_none(read_only=True)
 
         if readonly_cryptainer_storage:
             cryptainer_names = readonly_cryptainer_storage.list_cryptainer_names(as_sorted_list=True)
