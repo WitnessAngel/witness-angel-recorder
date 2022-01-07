@@ -8,7 +8,7 @@ from uuid import UUID
 from kivy.logger import Logger as logger
 from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
-from waguilib.importable_settings import INTERNAL_CACHE_DIR
+from waguilib.default_settings import INTERNAL_CACHE_DIR
 
 
 class WanvrRuntimeSupportMixin:
@@ -57,7 +57,7 @@ class WanvrRuntimeSupportMixin:
         cryptainer_dir_str = self.config.get("nvr", "cryptainer_dir")  # Might be wrong!
         if not cryptainer_dir_str:
             logger.info("Containers directory not configured, falling back to internal folder")
-            from waguilib.importable_settings import INTERNAL_CRYPTAINER_DIR
+            from waguilib.default_settings import INTERNAL_CRYPTAINER_DIR
             return INTERNAL_CRYPTAINER_DIR
         return Path(cryptainer_dir_str)  # Might NOT exist!
 

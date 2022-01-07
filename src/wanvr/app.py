@@ -11,7 +11,7 @@ import functools
 from kivy.clock import Clock
 
 from waguilib.application.recorder_gui import WaRecorderGui
-from waguilib.widgets.navigation_drawer import ItemDrawer
+from waguilib.widgets.navigation_drawer import NavigationDrawerItem
 from waguilib.i18n import tr
 from waguilib.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
 from wanvr.common import WanvrRuntimeSupportMixin
@@ -158,7 +158,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this
             "CryptainerManagement": ("lock", tr._("Container Management")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
-            item_draw = ItemDrawer(icon=icon_name, text=screen_title)
+            item_draw = NavigationDrawerItem(icon=icon_name, text=screen_title)
             item_draw.bind(on_release=functools.partial(self.switch_to_screen, screen_name=screen_name))
             self.navigation_drawer.ids.content_drawer.ids.md_list.add_widget(item_draw)
 
