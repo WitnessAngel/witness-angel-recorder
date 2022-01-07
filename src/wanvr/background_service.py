@@ -17,7 +17,7 @@ from waguilib.logging.handlers import safe_catch_unhandled_exception
 from waguilib.utilities import get_system_information, convert_bytes_to_human_representation
 from waguilib.i18n import tr
 try:
-    from waguilib.gpio_buttons import register_button_callback
+    from waguilib.devices.gpio_buttons import register_button_callback
 except ImportError:
     register_button_callback = lambda *args, **kwargs: None
 from wanvr.common import WanvrRuntimeSupportMixin
@@ -58,7 +58,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):
 
     def _setup_epaper_screen(self):
         try:
-            from waguilib.epaper import EpaperStatusDisplay
+            from waguilib.devices.epaper import EpaperStatusDisplay
         except ImportError:
             logger.warning("Could not import EpaperStatusDisplay, aborting setup of epaper display")
             return

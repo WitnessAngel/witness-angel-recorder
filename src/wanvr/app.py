@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 if False:  #  ACTIVATE TO DEBUG GUI
-    from waguilib.widgets.layout_helpers import activate_widget_debug_outline
+    from waguilib.widgets.layout_components import activate_widget_debug_outline
     activate_widget_debug_outline()
 
 
