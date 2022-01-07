@@ -1,5 +1,5 @@
 
-from waguilib.application import setup_app_environment
+from wacomponents.application import setup_app_environment
 
 setup_app_environment(setup_kivy=True)
 
@@ -10,10 +10,10 @@ import functools
 
 from kivy.clock import Clock
 
-from waguilib.application.recorder_gui import WaRecorderGui
-from waguilib.widgets.navigation_drawer import NavigationDrawerItem
-from waguilib.i18n import tr
-from waguilib.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
+from wacomponents.application.recorder_gui import WaRecorderGui
+from wacomponents.widgets.navigation_drawer import NavigationDrawerItem
+from wacomponents.i18n import tr
+from wacomponents.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
 from wanvr.common_runtime import WanvrRuntimeSupportMixin
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 if False:  #  ACTIVATE TO DEBUG GUI
-    from waguilib.widgets.layout_components import activate_widget_debug_outline
+    from wacomponents.widgets.layout_components import activate_widget_debug_outline
     activate_widget_debug_outline()
 
 

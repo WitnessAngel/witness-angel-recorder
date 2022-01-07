@@ -35,7 +35,7 @@ python = ">=3.7,<=3.10"
 wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "wanvr_stable" }
 wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components.git", branch = "wanvr_stable" }
 
-# WaGuiLib dependencies - FIXME remove this!
+# Wacomponents dependencies
 oscpy = "^0.5.0"
 plyer = "^1.4"
 

@@ -12,16 +12,16 @@ from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
 from wacryptolib.utilities import synchronized
-from waguilib.application.recorder_service import WaRecorderService
-from waguilib.logging.handlers import safe_catch_unhandled_exception
-from waguilib.utilities import get_system_information, convert_bytes_to_human_representation
-from waguilib.i18n import tr
+from wacomponents.application.recorder_service import WaRecorderService
+from wacomponents.logging.handlers import safe_catch_unhandled_exception
+from wacomponents.utilities import get_system_information, convert_bytes_to_human_representation
+from wacomponents.i18n import tr
 try:
-    from waguilib.devices.gpio_buttons import register_button_callback
+    from wacomponents.devices.gpio_buttons import register_button_callback
 except ImportError:
     register_button_callback = lambda *args, **kwargs: None
 from wanvr.common_runtime import WanvrRuntimeSupportMixin
-from wasensorlib.camera.rtsp_stream import RtspCameraSensor
+from wacomponents.sensors.camera.rtsp_stream import RtspCameraSensor
 
 
 # FIXME move this to wacryptolib
@@ -58,7 +58,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     def _setup_epaper_screen(self):
         try:
-            from waguilib.devices.epaper import EpaperStatusDisplay
+            from wacomponents.devices.epaper import EpaperStatusDisplay
         except ImportError:
             logger.warning("Could not import EpaperStatusDisplay, aborting setup of epaper display")
             return

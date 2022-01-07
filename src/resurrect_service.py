@@ -9,7 +9,7 @@ import os
 import sys
 import datetime
 
-from waguilib.service_control import get_osc_client
+from wacomponents.service_control import get_osc_client
 from kivy.utils import platform
 
 this_dir = Path(__file__).resolve().parent
