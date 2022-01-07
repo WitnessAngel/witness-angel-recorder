@@ -133,7 +133,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         authdevice_store_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
         self.selected_keystore_uids = self._load_selected_keystore_uids()
-        authdevice_store_screen.bind(on_selected_authdevices_changed=self._handle_selected_authdevice_changed)
+        authdevice_store_screen.bind(on_selected_keyguardians_changed=self._handle_selected_authdevice_changed)
 
         self._update_app_after_config_change()
 
