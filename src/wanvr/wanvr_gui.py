@@ -14,7 +14,7 @@ from waguilib.application.recorder_gui import WaRecorderGui
 from waguilib.widgets.navigation_drawer import NavigationDrawerItem
 from waguilib.i18n import tr
 from waguilib.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
-from wanvr.common import WanvrRuntimeSupportMixin
+from wanvr.common_runtime import WanvrRuntimeSupportMixin
 
 WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
 
@@ -33,7 +33,7 @@ if False:  #  ACTIVATE TO DEBUG GUI
     activate_widget_debug_outline()
 
 
-class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this
+class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this to WANVR
 
     title = tr._("Witness Angel - Network Video Recorder")
     title_conf_panel = tr._("Recorder settings")
@@ -42,6 +42,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
+
+    kv_file = str(WANVR_PACKAGE_DIR / "wanvr_gui.kv")
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW
