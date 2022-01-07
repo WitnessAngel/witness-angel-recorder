@@ -1,19 +1,16 @@
-from kivy.properties import StringProperty
+
+from waguilib.application import setup_app_environment
+
+setup_app_environment(setup_kivy=True)
+
 from kivy.resources import resource_find
-
-from waguilib import kivy_presetup  # Trigger common kivy setup
-from waguilib.widgets.popups import display_info_toast
-
-del kivy_presetup
-
 import logging
 from pathlib import Path
 import functools
 
 from kivy.clock import Clock
-from kivymd.uix.snackbar import Snackbar
 
-from waguilib.application import WAGuiApp
+from waguilib.application.recorder_gui import WaRecorderGui
 from waguilib.widgets.navigation_drawer import ItemDrawer
 from waguilib.i18n import tr
 from waguilib.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
@@ -36,7 +33,7 @@ if False:  #  ACTIVATE TO DEBUG GUI
     activate_widget_debug_outline()
 
 
-class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
+class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this
 
     title = tr._("Witness Angel - Network Video Recorder")
     title_conf_panel = tr._("Recorder settings")
@@ -45,11 +42,6 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WAGuiApp):  # FIXME rename this
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
-
-    def build(self):  # FIXME deduplicate!!!
-        self.theme_cls.primary_palette = "Blue"
-        #self.theme_cls.theme_style = "Dark"  # or "Light"
-        self.theme_cls.primary_hue = "900"  # "500"
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW

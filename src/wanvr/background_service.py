@@ -1,6 +1,3 @@
-from waguilib import kivy_presetup  # Trigger common kivy setup
-del kivy_presetup
-
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -15,8 +12,7 @@ from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
 from wacryptolib.utilities import synchronized
-from waguilib.background_service import WaBackgroundService
-from waguilib.importable_settings import INTERNAL_CACHE_DIR
+from waguilib.application.recorder_service import WaRecorderService
 from waguilib.logging.handlers import safe_catch_unhandled_exception
 from waguilib.utilities import get_system_information, convert_bytes_to_human_representation
 from waguilib.i18n import tr
@@ -47,7 +43,7 @@ class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRO
 
 
 
-class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaBackgroundService):
+class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):
 
     # CLASS VARIABLES #
     thread_pool_executor = ThreadPoolExecutor(
