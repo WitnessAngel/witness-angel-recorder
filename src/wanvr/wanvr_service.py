@@ -10,7 +10,7 @@ from datetime import timedelta, datetime, timezone
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, LOCAL_KEYFACTORY_TRUSTEE_MARKER, \
     CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import KeystoreBase
-from wacryptolib.sensor import TarfileRecordsAggregator, SensorManager
+from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
 from wacryptolib.utilities import synchronized
 from wacomponents.application.recorder_service import WaRecorderService
 from wacomponents.logging.handlers import safe_catch_unhandled_exception
@@ -25,7 +25,7 @@ from wacomponents.sensors.camera.rtsp_stream import RtspCameraSensor
 
 
 # FIXME move this to wacryptolib
-class PassthroughTarfileRecordsAggregator(TarfileRecordsAggregator):  #FIXME WRONG NAME
+class PassthroughTarfileRecordAggregator(TarfileRecordAggregator):  #FIXME WRONG NAME
 
     @synchronized
     def add_record(self, sensor_name: str, from_datetime, to_datetime, extension: str, payload: bytes):
