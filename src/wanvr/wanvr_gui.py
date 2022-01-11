@@ -155,9 +155,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
     def _insert_app_menu(self):
         screen_options = {
-            "MainPage": ("home", tr._("Main Page")),
-            "KeyManagement": ("key", tr._("Key Management")),
-            "CryptainerManagement": ("lock", tr._("Container Management")),
+            "MainPage": ("home", tr._("Recorder")),
+            "KeyManagement": ("key", tr._("Key Guardians")),
+            "CryptainerManagement": ("lock", tr._("Video Containers")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
             item_draw = NavigationDrawerItem(icon=icon_name, text=screen_title)
