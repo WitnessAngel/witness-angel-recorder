@@ -36,12 +36,12 @@ wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.g
 wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components.git", branch = "wanvr_stable" }
 
 # Wacomponents dependencies
-oscpy = "^0.5.0"
-plyer = "^1.4"
-
-# Graphic interface
 Kivy = {version = "^2.0.0", extras = ["base"]}
 kivymd = "^0.104.1"
+plyer = "^2.0.0"
+oscpy = "^0.5.0"
+
+Pillow = "8.1.2"  # Fix bug with _imagingft.cp38-win_amd64.pyd crash of Pillow 8.3.2
 
 # FIXME remove this asap!
 watchdog = "0.10.3"
