@@ -1,4 +1,3 @@
-
 from wacomponents.application import setup_app_environment
 
 setup_app_environment(setup_kivy=True)
@@ -131,6 +130,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         authdevice_store_screen = self.screen_manager.get_screen("KeyManagement")
         authdevice_store_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
+        cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")
+        cryptainer_decryption_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
+
         self.selected_keystore_uids = self._load_selected_keystore_uids()
         authdevice_store_screen.bind(on_selected_keyguardians_changed=self._handle_selected_authdevice_changed)
 
@@ -150,6 +152,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         super()._update_app_after_config_change()
         cryptainer_store_screen = self.screen_manager.get_screen("CryptainerManagement")  # FIXME simplify
         cryptainer_store_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()  # FIXME SIMPLIFY with App methods ???
+        cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")  # FIXME simplify
+        cryptainer_decryption_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _insert_app_menu(self):
