@@ -35,15 +35,14 @@ if False:  #  ACTIVATE TO DEBUG GUI
 
 class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this to WANVR
 
-    title = tr._("Witness Angel - Network Video Recorder")
+    title_app_window = tr._("Witness Angel - Network Video Recorder")
     title_conf_panel = tr._("Recorder settings")
 
+    kv_file = str(WANVR_PACKAGE_DIR / "wanvr_gui.kv")
     icon = resource_find("icons/witness_angel_logo_blue_32x32.png")
 
     app_logo_path = WANVR_PACKAGE_DIR.joinpath("logo-wa.png")
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
-
-    kv_file = str(WANVR_PACKAGE_DIR / "wanvr_gui.kv")
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW
