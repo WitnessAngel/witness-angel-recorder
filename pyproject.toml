@@ -9,7 +9,7 @@ description = "Witness Angel NVR"
 version = "0.1"
 license = "MIT"
 readme = "Readme.rst"
-authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi"]
+authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi", "Francinette Atchade"]
 homepage = "https://github.com/WitnessAngel/witness-angel-nvr"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
