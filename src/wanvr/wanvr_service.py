@@ -138,7 +138,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                                filesystem_keystore_pool: KeystoreBase):
         info_trustees = []
         for keystore_uid_str in selected_keystore_uids:
-            keystore = filesystem_keystore_pool.get_imported_keystore(keystore_uid=keystore_uid_str)
+            keystore = filesystem_keystore_pool.get_foreign_keystore(keystore_uid=keystore_uid_str)
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 

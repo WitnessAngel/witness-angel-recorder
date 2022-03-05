@@ -67,7 +67,7 @@ class WanvrRuntimeSupportMixin:
         # Beware these are STRINGS
         selected_keystore_uids = self.config.get("nvr", "selected_keystore_uids").split(",")
 
-        available_keystore_uids = self.filesystem_keystore_pool.list_imported_keystore_uids()
+        available_keystore_uids = self.filesystem_keystore_pool.list_foreign_keystore_uids()
 
         # Check integrity of trustee selection
         selected_keystore_uids_filtered = [
@@ -89,6 +89,9 @@ class WanvrRuntimeSupportMixin:
     def get_max_cryptainer_age_day(self):
         return int(self.config.get("nvr", "max_cryptainer_age_day"))
 
+    def get_wagateway_url(self):
+        return self.config.get("nvr", "wagateway_url")
+
     def _get_status_checkers(self):
         return [
             lambda: self.check_camera_url(self.get_ip_camera_url()),
@@ -99,4 +102,3 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),
         ]
-

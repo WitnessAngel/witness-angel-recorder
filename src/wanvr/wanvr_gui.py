@@ -173,6 +173,51 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         self.config["nvr"]["selected_keystore_uids"] = ",".join(keystore_uids)
         self.save_config()
 
+    def get_config_schema_data(self) -> list:
+        return [
+            {
+                "key": "ip_camera_url",
+                "type": "string_truncated",
+                "title": tr._("IP Camera URL"),
+                "desc": tr._("URL to the RTSP stream"),
+                "section": "nvr"
+            },
+            {
+                "key": "keyguardian_threshold",
+                "type": "numeric",
+                "title": tr._("Key guardian threshold"),
+                "desc": tr._("Count of key guardians required to decrypt data"),
+                "section": "nvr"
+            },
+            {
+                "key": "cryptainer_dir",
+                "type": "string_truncated",
+                "title": tr._("Containers folder"),
+                "desc": tr._("Folder to store containers (defaults to user profile)"),
+                "section": "nvr"
+            },
+            {
+                "key": "max_cryptainer_age_day",
+                "type": "numeric",
+                "title": tr._("Max retention period (days)"),
+                "desc": tr._("For how long to keep a container before deletion"),
+                "section": "nvr"
+            },
+            {
+                "key": "video_recording_duration_mn",
+                "type": "numeric",
+                "title": tr._("Video recording duration (mn)"),
+                "desc": tr._("How long each video clip must last"),
+                "section": "nvr"
+            },
+            {
+                "key": "wagateway_url",
+                "type": "string_truncated",
+                "title": tr._("Witness Angel Gateway URL"),
+                "desc": tr._("Registry of key guardians"),
+                "section": "nvr"
+            }
+        ]
 
 def main():
     WardGuiApp().run()
