@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Pascal <pythoniks@gmail.com>, 2021.
+# Pascal <pythoniks@gmail.com>, 2021, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: WitnessAngelNVR\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-09 19:41+0100\n"
-"PO-Revision-Date: 2021-12-25 14:00+0200\n"
+"POT-Creation-Date: 2022-03-05 19:27+0100\n"
+"PO-Revision-Date: 2022-03-05 19:32+0200\n"
 "Last-Translator: Pascal <pythoniks@gmail.com>\n"
 "Language-Team: Nothing\n"
 "Language: fr\n"
@@ -17,26 +17,74 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Virtaal 0.7.1\n"
 
-#: src/wanvr/wanvr_gui.py:38
+#: src/wanvr/wanvr_gui.py:37
 msgid "Witness Angel - Network Video Recorder"
 msgstr "Witness Angel - Enregistreur Vidéo Réseau (NVR)"
 
-#: src/wanvr/wanvr_gui.py:39
+#: src/wanvr/wanvr_gui.py:38
 msgid "Recorder settings"
 msgstr "Paramètres d'enregistrement"
 
-#: src/wanvr/wanvr_gui.py:158
+#: src/wanvr/wanvr_gui.py:161
 msgid "Recorder"
 msgstr "Enregistreur"
 
-#: src/wanvr/wanvr_gui.py:159
+#: src/wanvr/wanvr_gui.py:162
 msgid "Key Guardians"
 msgstr "Gardiens des Clés"
 
-#: src/wanvr/wanvr_gui.py:160
+#: src/wanvr/wanvr_gui.py:163
 msgid "Video Containers"
 msgstr "Conteneurs Vidéo"
 
-#: src/wanvr/wanvr_service.py:74
+#: src/wanvr/wanvr_gui.py:181
+msgid "IP Camera URL"
+msgstr "URL Caméra IP"
+
+#: src/wanvr/wanvr_gui.py:182
+msgid "URL to the RTSP stream"
+msgstr "URL vers le flux RTSP"
+
+#: src/wanvr/wanvr_gui.py:188
+msgid "Key guardian threshold"
+msgstr "Seuil de gardiens de clés"
+
+#: src/wanvr/wanvr_gui.py:189
+msgid "Count of key guardians required to decrypt data"
+msgstr "Nombre de gardiens de clés requis pour déchiffrer les données"
+
+#: src/wanvr/wanvr_gui.py:195
+msgid "Containers folder"
+msgstr "Dossier des conteneurs"
+
+#: src/wanvr/wanvr_gui.py:196
+msgid "Folder to store containers (defaults to user profile)"
+msgstr "Dossier de stockage des conteneurs (par défaut, le profil utilisateur)"
+
+#: src/wanvr/wanvr_gui.py:202
+msgid "Max retention period (days)"
+msgstr "Période de rétention max (jours)"
+
+#: src/wanvr/wanvr_gui.py:203
+msgid "For how long to keep a container before deletion"
+msgstr "Combien de temps garder les conteneurs avant suppression"
+
+#: src/wanvr/wanvr_gui.py:209
+msgid "Video recording duration (mn)"
+msgstr "Durée des enregistrements vidéo (mn)"
+
+#: src/wanvr/wanvr_gui.py:210
+msgid "How long each video clip must last"
+msgstr "Combien de temps chaque clip vidéo doit durer"
+
+#: src/wanvr/wanvr_gui.py:216
+msgid "Witness Angel Gateway URL"
+msgstr "URL de la Passerelle Witness Angel"
+
+#: src/wanvr/wanvr_gui.py:217
+msgid "Registry of key guardians"
+msgstr "Registre des gardiens de clés"
+
+#: src/wanvr/wanvr_service.py:78
 msgid "N/A"
 msgstr "N/A"
