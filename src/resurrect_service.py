@@ -3,6 +3,7 @@ Quick and dirty singleton service launcher, to be replaced by a more solid solut
 """
 
 import socket
+import subprocess
 from pathlib import Path
 
 import os
@@ -34,4 +35,6 @@ if __name__ == "__main__":
     # INET sockets ALWAYS "connect" when in UDP mode, so we can't know if a server already listens
     # but we don't care since then the service will crash at boot when attempting to reuse port
     print(">>>>>>>>> %s - WANVR service not detectable, relaunching it" % dt)
-    os.system("%s %s" % (sys.executable, this_dir / "service.py"))
+    # os.system("%s %s" % (sys.executable, this_dir / "service.py"))
+    subprocess.call([sys.executable, this_dir / "service.py"])
+
