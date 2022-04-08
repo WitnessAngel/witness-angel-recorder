@@ -161,14 +161,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                                          key_shared_secret_shards=info_trustees,
                                       )
                                    ]
-        payload_signatures = [
-                              dict(
-                                  payload_digest_algo="SHA256",
-                                  payload_signature_algo="DSA_DSS",
-                                  payload_signature_trustee=LOCAL_KEYFACTORY_TRUSTEE_MARKER,
-                                  # keychain_uid=UUID("06c4ae77-abed-40d9-8adf-82c11261c8d6"),  # Arbitrary but FIXED!
-                              )
-                          ]
+        payload_signatures = []
         payload_cipher_layers = [
             dict(
                  payload_cipher_algo="AES_CBC",
