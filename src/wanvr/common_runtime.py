@@ -92,7 +92,11 @@ class WanvrRuntimeSupportMixin:
     def get_wagateway_url(self):
         return self.config.get("nvr", "wagateway_url")
 
+    def get_min_ffmpeg_version(self):
+        return 4.3
+
     def _get_status_checkers(self):
+
         return [
             lambda: self.check_camera_url(self.get_ip_camera_url()),
             lambda: self.check_keyguardian_counts(
@@ -101,4 +105,9 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
             lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),
+            lambda: self.check_ffmpeg(self.get_min_ffmpeg_version()),
         ]
+
+
+
+
