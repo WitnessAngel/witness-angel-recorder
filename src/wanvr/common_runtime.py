@@ -107,7 +107,3 @@ class WanvrRuntimeSupportMixin:
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),
             lambda: self.check_ffmpeg(self.get_min_ffmpeg_version()),
         ]
-
-
-
-

@@ -35,6 +35,5 @@ if __name__ == "__main__":
     # INET sockets ALWAYS "connect" when in UDP mode, so we can't know if a server already listens
     # but we don't care since then the service will crash at boot when attempting to reuse port
     print(">>>>>>>>> %s - WANVR service not detectable, relaunching it" % dt)
-    # os.system("%s %s" % (sys.executable, this_dir / "service.py"))
     subprocess.call([sys.executable, this_dir / "service.py"])
 
