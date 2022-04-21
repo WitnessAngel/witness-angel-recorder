@@ -151,6 +151,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         cryptainer_store_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()  # FIXME SIMPLIFY with App methods ???
         cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")  # FIXME simplify
         cryptainer_decryption_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
+
+        remote_decryption_request_screen = self.screen_manager.get_screen("DecryptionRequestForm")  # FIXME simplify
+        remote_decryption_request_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _insert_app_menu(self):
