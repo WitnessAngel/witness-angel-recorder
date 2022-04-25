@@ -130,6 +130,9 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")
         cryptainer_decryption_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
+        decryption_request_screen = self.screen_manager.get_screen("DecryptionRequestForm")
+        decryption_request_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
+
         self.selected_keystore_uids = self._load_selected_keystore_uids()
         authdevice_store_screen.bind(on_selected_keyguardians_changed=self._handle_selected_authdevice_changed)
 
