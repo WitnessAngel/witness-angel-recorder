@@ -1,6 +1,4 @@
-from wacomponents.application import setup_app_environment
 
-setup_app_environment(setup_kivy=False)
 
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
