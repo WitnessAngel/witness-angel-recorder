@@ -24,7 +24,3 @@ Workflow
 - When recording is launched, RTSP records are immediately encrypted into Flightbox cryptainers
 - Decrypting some cryptainers required enough trustees to enter their passphrase
 
-
-
-
-rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov

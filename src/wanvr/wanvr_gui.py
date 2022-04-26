@@ -1,6 +1,3 @@
-from wacomponents.application import setup_app_environment
-
-setup_app_environment(setup_kivy=True)
 
 from kivy.resources import resource_find
 import logging
@@ -40,7 +37,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
     kv_file = str(WANVR_PACKAGE_DIR / "wanvr_gui.kv")
     icon = resource_find("icons/witness_angel_logo_blue_32x32.png")
 
-    app_logo_path = WANVR_PACKAGE_DIR.joinpath("desktop_icon_authenticator_512x512.png")
+    app_logo_path = WANVR_PACKAGE_DIR.joinpath("desktop_icon_authenticator_512x512.png")  # E.g. for side menu
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
