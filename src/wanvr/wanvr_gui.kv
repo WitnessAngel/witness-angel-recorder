@@ -4,6 +4,7 @@
 #:import CryptainerStoreScreen wacomponents.screens.cryptainer_storage_management
 #:import CryptainerDecryptionScreen wacomponents.screens.cryptainer_decryption
 #:import DecryptionRequestFormScreen wacomponents.screens.decryption_request_form
+#:import DecryptionRequestListScreen wacomponents.screens.decryption_request_list
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
 MDNavigationLayout:
@@ -32,6 +33,9 @@ MDNavigationLayout:
             id: remote_decryption_request_id
             name: "DecryptionRequestForm"
             selected_cryptainer_names: remote_decryption_request_id.selected_cryptainer_names
+
+        DecryptionRequestListScreen:
+            name: "DecryptionRequestList"
 
     WaNavigationDrawer:
         id: navigation_drawer
