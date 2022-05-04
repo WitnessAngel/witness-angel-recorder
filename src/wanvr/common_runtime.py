@@ -8,7 +8,8 @@ from uuid import UUID
 from kivy.logger import Logger as logger
 from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
-from wacomponents.default_settings import INTERNAL_CACHE_DIR
+from wacomponents.default_settings import INTERNAL_CACHE_DIR, INTERNAL_APP_ROOT
+from wacryptolib.utilities import load_from_json_file, generate_uuid0, dump_to_json_file
 
 
 class WanvrRuntimeSupportMixin:
@@ -94,6 +95,22 @@ class WanvrRuntimeSupportMixin:
 
     def get_min_ffmpeg_version(self):
         return 4.3
+
+    def get_wa_device_uid(self):
+        root_dir = INTERNAL_APP_ROOT
+        device_uid_file = root_dir.joinpath(".wa_device_uid.json")
+        try:
+            device_uid = load_from_json_file(device_uid_file)
+        except FileNotFoundError:
+
+            device_uid_file.parent.mkdir(exist_ok=True)
+
+            device_uid = {
+                "wa_device_uid": generate_uuid0()
+            }
+
+            dump_to_json_file(device_uid_file, device_uid)
+        return device_uid
 
     def _get_status_checkers(self):
 
