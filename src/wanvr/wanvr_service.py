@@ -9,7 +9,7 @@ from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
-    CryptainerStorage, ReadonlyCryptainerStorage
+    CryptainerStorage, ReadonlyCryptainerStorage, check_conf_sanity
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
 from wacryptolib.utilities import synchronized
@@ -134,14 +134,20 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                                selected_keystore_uids: list,
                                filesystem_keystore_pool: KeystoreBase):
         info_trustees = []
+
+        all_foreign_keystore_metadata = filesystem_keystore_pool.get_all_foreign_keystore_metadata()
+
         for keystore_uid_str in selected_keystore_uids:
-            keystore = filesystem_keystore_pool.get_foreign_keystore(keystore_uid=keystore_uid_str)
+            keystore_uid = UUID(keystore_uid_str)
+            keystore_owner = all_foreign_keystore_metadata[keystore_uid]["keystore_owner"]  # Shall exist
+            keystore = filesystem_keystore_pool.get_foreign_keystore(keystore_uid=keystore_uid)
             key_information_list = keystore.list_keypair_identifiers()
             key = random.choice(key_information_list)
 
             shard_trustee = dict(
                 trustee_type=CRYPTAINER_TRUSTEE_TYPES.AUTHENTICATOR_TRUSTEE,
-                keystore_uid=UUID(keystore_uid_str)
+                keystore_uid=keystore_uid,
+                keystore_owner=keystore_owner,
             )
 
             info_trustees.append(
@@ -166,7 +172,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                  payload_signatures=payload_signatures)
         ]
         cryptoconf = dict(payload_cipher_layers=payload_cipher_layers)
-
+        check_conf_sanity(cryptoconf)  # Sanity check
         #print(">>>>> USING ENCRYPTION CONF")
         #import pprint ; pprint.pprint(cryptoconf)
         return cryptoconf
