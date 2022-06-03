@@ -9,7 +9,7 @@ from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
-    CryptainerStorage, ReadonlyCryptainerStorage, check_conf_sanity
+    CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
 from wacryptolib.utilities import synchronized
@@ -172,7 +172,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                  payload_signatures=payload_signatures)
         ]
         cryptoconf = dict(payload_cipher_layers=payload_cipher_layers)
-        check_conf_sanity(cryptoconf)  # Sanity check
+        check_cryptoconf_sanity(cryptoconf)  # Sanity check
         #print(">>>>> USING ENCRYPTION CONF")
         #import pprint ; pprint.pprint(cryptoconf)
         return cryptoconf
