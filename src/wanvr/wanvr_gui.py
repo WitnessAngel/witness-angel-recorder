@@ -136,7 +136,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         self.selected_keystore_uids = self._load_selected_keystore_uids()
         authdevice_store_screen.bind(on_selected_keyguardians_changed=self._handle_selected_authdevice_changed)
 
-        self._update_app_after_config_change()
+        self._update_app_after_config_change()  # Force advanced setup of Screens
 
         self._insert_app_menu()
 
