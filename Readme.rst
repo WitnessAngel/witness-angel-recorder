@@ -14,3 +14,9 @@ Setup
 - Install all dependencies using Poetry, and add "Pyobjus" package with pip if you're on OSX
 - Launch "main.py"
 
+To generate an executable version of the program::
+
+    $ pip install pyinstaller
+    $ python -m PyInstaller pyinstaller.spec
+
+    Note that arguments like "--windowed --onefile" are overridden by the content of the spec file
