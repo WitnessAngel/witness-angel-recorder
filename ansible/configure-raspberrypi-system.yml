@@ -96,6 +96,12 @@
       dest: "{{ ansible_env.HOME }}/witness-angel-nvr"
       version: "main"
       #depth: "1" - shallow clones are impractical
+  - name: Remove git-based WA dependencies so that they are properly updated by poetry later
+    pip:
+      name: ["wacryptolib", "wacomponents"]
+      state: "absent"
+      virtualenv: "{{ ansible_env.HOME }}/.venv"
+      virtualenv_python: "python3"
   - name: Install wa-nvr dependencies with poetry
     script:
       cmd: files/install_poetry_dependencies.sh
@@ -106,12 +112,12 @@
     cron:
       name: "wanvr-launch-boot"
       special_time: reboot
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/src/resurrect_service.py"
+      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/main.py --service"
   - name: Create a cron entry for NVR service periodic re-launch
     cron:
       name: "wanvr-launch-periodic"
       minute: "*/5"
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/src/resurrect_service.py"
+      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/main.py --service"
   - name: Copy desktop shortcut to WANVR GUI
     copy:
       src: wanvr.desktop

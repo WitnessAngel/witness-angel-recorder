@@ -2,6 +2,6 @@
 Comment=Launch Witness Angel NVR GUI
 Terminal=true
 Name=VideoTestimonyGUI
-Exec=/home/pi/.venv/bin/python /home/pi/witness-angel-nvr/src/main.py
+Exec=/home/pi/.venv/bin/python /home/pi/witness-angel-nvr/main.py
 Type=Application
 Icon=/home/pi/witness-angel-nvr/src/wanvr/desktop_icon_authenticator_512x512.png
