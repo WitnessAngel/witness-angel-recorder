@@ -455,14 +455,6 @@ srv = ["dnspython (>=1.16.0,<3.0.0)"]
 zstd = ["zstandard"]
 
 [[package]]
-name = "pyobjus"
-version = "1.2.1"
-description = ""
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pyparsing"
 version = "3.0.8"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -721,7 +713,7 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "wanvr_stable"
-resolved_reference = "3899c4b2eba4aa25ebcd28a6d24a0ef89287d15a"
+resolved_reference = "b6ee48e7265b3232a752212066f800ae1e70ea7b"
 
 [[package]]
 name = "wacryptolib"
@@ -752,7 +744,7 @@ wmi = {version = "^1.5.1 ", markers = "sys_platform == \"win32\""}
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-cryptolib.git"
 reference = "wanvr_stable"
-resolved_reference = "3b74f40fff114b2b0c0b307d6a938fa804b5d7c9"
+resolved_reference = "902179a26522604579225164a03b54ffaa06ad62"
 
 [[package]]
 name = "watchdog"
@@ -809,7 +801,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<=3.10"
-content-hash = "ad4543a41d37d843dbedfabaaec2307b3b4de819b936c8eca1978f27f0704036"
+content-hash = "36f38e488630c9c29126a30cc64a7ab919023bacfa20de1dc397ccaaf557d844"
 
 [metadata.files]
 atomicwrites = [
@@ -1092,7 +1084,6 @@ py = [
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
 pybase62 = [
-    {file = "pybase62-0.4.3-py3-none-any.whl", hash = "sha256:aaf020d0cf0959cb8576f502138b8e3daecf691b9b30626792d34df6103da7c1"},
     {file = "pybase62-0.4.3.tar.gz", hash = "sha256:0fbbe8474fc5fb020cc7f94dc88adfd12ef9bf38640c46612568ea07f046438c"},
 ]
 pycryptodome = [
@@ -1215,20 +1206,6 @@ pymongo = [
     {file = "pymongo-4.1.0-cp39-cp39-win32.whl", hash = "sha256:2cb0148f197891cce964b53192225eee7ffac61ae39311c3447592eee4474b98"},
     {file = "pymongo-4.1.0-cp39-cp39-win_amd64.whl", hash = "sha256:52f636c67f8aab3b9736e4f2e1f366cb96f28f6a00baebe0885a919830866130"},
     {file = "pymongo-4.1.0.tar.gz", hash = "sha256:dbba77bc0b706c7ee496fc75a6c6ed406d85f6091d5fec488a8944c3828e6462"},
-]
-pyobjus = [
-    {file = "pyobjus-1.2.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9f83fe1bcb05b9f88efb0acaaeeb77b9a40351ec66cd2ec4479c0abad9613d5f"},
-    {file = "pyobjus-1.2.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3ca1aef5bfef64b57465cfd1a8ac04c5d6afac9a280d9bfa13bc0b357884aaff"},
-    {file = "pyobjus-1.2.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:3be276e6141326885943fb0bc9b0d3bd265e2f8c2cf5f97d1121020d3c05604e"},
-    {file = "pyobjus-1.2.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:281de6699d6d50f7186ec8c5f416ae788999c1cf059aaad28afc390f8201ccaa"},
-    {file = "pyobjus-1.2.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:fa1a3875335ebc85b78e64d71c0212cee59609c3105467ff28e943e206fb0223"},
-    {file = "pyobjus-1.2.1-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:1443cb43059b0b2a0378f2a98c0432b87d626c3fd92f6516a50d831b7226c7ad"},
-    {file = "pyobjus-1.2.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:a0c5781b74dc2dcc3125ac2557474e5e3ded170f1a02773480de75b3ee750d18"},
-    {file = "pyobjus-1.2.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:8dccaa1809daa8022918cfbfbb0b9a42900ee8d5226d52496ca07e3f14b0c8c4"},
-    {file = "pyobjus-1.2.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:66b745888ad110d8431ac3992abaa41c2ad34cf190f4c25a194360b1c9913f1d"},
-    {file = "pyobjus-1.2.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:83b057ade0ce809235e2d4c0a29bfe0ba992d14be4a29bc405b727223dd137c8"},
-    {file = "pyobjus-1.2.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:7058582f73cca807f2a07a8992c062f2a86b503c4de8841ba2d2ec93519c8a99"},
-    {file = "pyobjus-1.2.1.tar.gz", hash = "sha256:6fdd31df086cbcbcb2ab39c747d8fabe4d486192c0238a619473e330549d9cb4"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.8-py3-none-any.whl", hash = "sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06"},
