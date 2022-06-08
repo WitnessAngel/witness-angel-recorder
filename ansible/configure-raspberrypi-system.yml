@@ -102,6 +102,10 @@
       state: "absent"
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"
+  - name: Delete 'src/' folder of venv, to ensure pip doesn't reuse obsolete git checkout data
+    file:
+      path: "{{ ansible_env.HOME }}/.venv/src"
+      state: "absent"
   - name: Install wa-nvr dependencies with poetry
     script:
       cmd: files/install_poetry_dependencies.sh
@@ -122,5 +126,15 @@
     copy:
       src: wanvr.desktop
       dest: "{{ ansible_env.HOME }}/Desktop/wanvr.desktop"
+  - name: Precreate .witnessangel/ data folder
+    file:
+      path: "{{ ansible_env.HOME }}/.witnessangel"
+      state: directory
+  - name: Add shortcut to .witnessangel/ data folder on Desktop
+    file:
+      src: "{{ ansible_env.HOME }}/.witnessangel"
+      dest: "{{ ansible_env.HOME }}/Desktop/WitnessAngelData"
+      state: link
+
 # TODO later : put MOTD for SSH connections!
 
