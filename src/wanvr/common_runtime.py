@@ -96,22 +96,6 @@ class WanvrRuntimeSupportMixin:
     def get_min_ffmpeg_version(self):
         return 4.3
 
-    def get_wa_device_uid(self):  # TODO later, move that to wacomponents so that other WA devices can use it too
-        root_dir = INTERNAL_APP_ROOT
-        device_uid_file = root_dir.joinpath(".wa_device_uid.json")
-        try:
-            device_uid = load_from_json_file(device_uid_file)
-        except FileNotFoundError:
-
-            device_uid_file.parent.mkdir(exist_ok=True)  # FIXME INTERNAL_APP_ROOT is already auto-created
-
-            device_uid = {
-                "wa_device_uid": generate_uuid0()
-            }
-
-            dump_to_json_file(device_uid_file, device_uid)
-        return device_uid  # FIXME this is false, here it returns a DICT, it should already extract and return the wa_device_uid field
-
     def _get_status_checkers(self):
 
         return [
