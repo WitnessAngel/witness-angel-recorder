@@ -30,7 +30,7 @@ include = ["CHANGELOG", "tests/*.py"]
 exclude = ["_build", "__pycache__"]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<=3.10"
+python = ">=3.7, <3.11"
 
 # For now WA dependencies must be manually installed at selected versions !
 wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "wanvr_stable" }
