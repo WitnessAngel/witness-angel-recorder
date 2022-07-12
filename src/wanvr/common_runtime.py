@@ -5,11 +5,13 @@ from pathlib import Path
 import os
 from uuid import UUID
 
-from kivy.logger import Logger as logger
+
 from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
-from wacomponents.default_settings import INTERNAL_CACHE_DIR, INTERNAL_APP_ROOT
-from wacryptolib.utilities import load_from_json_file, generate_uuid0, dump_to_json_file
+from wacomponents.default_settings import INTERNAL_CACHE_DIR
+
+
+logger = logging.getLogger(__name__)
 
 
 class WanvrRuntimeSupportMixin:

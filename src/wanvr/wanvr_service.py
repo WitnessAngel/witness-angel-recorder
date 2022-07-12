@@ -1,10 +1,9 @@
-
+import logging
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
 
 import random
 import time
-from kivy.logger import Logger as logger
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
@@ -23,6 +22,9 @@ except ImportError:
     register_button_callback = lambda *args, **kwargs: None
 from wanvr.common_runtime import WanvrRuntimeSupportMixin
 from wacomponents.sensors.camera.rtsp_stream import RtspCameraSensor
+
+
+logger = logging.getLogger(__name__)
 
 
 # FIXME move this to wacryptolib
@@ -142,7 +144,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             keystore_owner = all_foreign_keystore_metadata[keystore_uid]["keystore_owner"]  # Shall exist
             keystore = filesystem_keystore_pool.get_foreign_keystore(keystore_uid=keystore_uid)
             key_information_list = keystore.list_keypair_identifiers()
-            key = random.choice(key_information_list)
+            key = random.choice(key_information_list)  # IMPORTANT - randomly select a key
 
             shard_trustee = dict(
                 trustee_type=CRYPTAINER_TRUSTEE_TYPES.AUTHENTICATOR_TRUSTEE,
