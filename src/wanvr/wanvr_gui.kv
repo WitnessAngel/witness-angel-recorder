@@ -1,10 +1,10 @@
 
-#:import LauncherWithImagePreviewScreen wacomponents.screens.recorder_homepage
-#:import AuthdeviceStoreScreen wacomponents.screens.foreign_keystore_management
-#:import CryptainerStoreScreen wacomponents.screens.cryptainer_storage_management
-#:import CryptainerDecryptionScreen wacomponents.screens.cryptainer_decryption
-#:import DecryptionRequestFormScreen wacomponents.screens.decryption_request_form
-#:import DecryptionRequestListScreen wacomponents.screens.decryption_request_list
+#:import RecorderHomepageScreen wacomponents.screens.recorder_homepage
+#:import ForeignKeystoreManagementScreen wacomponents.screens.foreign_keystore_management
+#:import CryptainerStorageManagementScreen wacomponents.screens.cryptainer_storage_management
+#:import CryptainerDecryptionProcessScreen wacomponents.screens.cryptainer_decryption_process
+#:import ClaimantRevelationRequestCreationForm wacomponents.screens.claimant_revelation_request_creation_form
+#:import ClaimantRevelationRequestManagementScreen wacomponents.screens.claimant_revelation_request_management
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
 MDNavigationLayout:
@@ -13,28 +13,28 @@ MDNavigationLayout:
 
         id: screen_manager
 
-        LauncherWithImagePreviewScreen:
-            name: "MainPage"  # FIXME rename with "Screen"
+        RecorderHomepageScreen:
+            name: "MainPage"  # FIXME rename with "Screen", and rename ALL "name:" here
 
-        AuthdeviceStoreScreen:
-            id:authdevice_store_screen_id
+        ForeignKeystoreManagementScreen:
+            id: foreign_keystore_management_screen_id
             name: "KeyManagement"
 
-        CryptainerStoreScreen:
-            id: cryptainer_store_screen_id
+        CryptainerStorageManagementScreen:
+            id: cryptainer_storage_management_screen_id
             name: "CryptainerManagement"
 
-        CryptainerDecryptionScreen:
-            id: cryptainer_decryption_screen_id
+        CryptainerDecryptionProcessScreen:
+            id: cryptainer_decryption_process_screen_id
             name: "CryptainerDecryption"
-            selected_cryptainer_names: cryptainer_decryption_screen_id.selected_cryptainer_names
+            ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
 
-        DecryptionRequestFormScreen:  # FIXME naming unclear, "CreationForm" should be in it
-            id: remote_decryption_request_id
+        ClaimantRevelationRequestCreationForm:
+            id: claimant_revelation_request_creation_form_id
             name: "DecryptionRequestForm"
-            selected_cryptainer_names: remote_decryption_request_id.selected_cryptainer_names
+            selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
 
-        DecryptionRequestListScreen:
+        ClaimantRevelationRequestManagementScreen:
             name: "DecryptionRequestList"
 
     WaNavigationDrawer:
