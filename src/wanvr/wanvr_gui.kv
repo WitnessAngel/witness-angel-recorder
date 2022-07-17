@@ -3,7 +3,7 @@
 #:import ForeignKeystoreManagementScreen wacomponents.screens.foreign_keystore_management
 #:import CryptainerStorageManagementScreen wacomponents.screens.cryptainer_storage_management
 #:import CryptainerDecryptionProcessScreen wacomponents.screens.cryptainer_decryption_process
-#:import ClaimantRevelationRequestCreationForm wacomponents.screens.claimant_revelation_request_creation_form
+#:import ClaimantRevelationRequestCreationFormScreen wacomponents.screens.claimant_revelation_request_creation_form
 #:import ClaimantRevelationRequestManagementScreen wacomponents.screens.claimant_revelation_request_management
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
@@ -29,10 +29,10 @@ MDNavigationLayout:
             name: "CryptainerDecryption"
             ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
 
-        ClaimantRevelationRequestCreationForm:
+        ClaimantRevelationRequestCreationFormScreen:
             id: claimant_revelation_request_creation_form_id
             name: "DecryptionRequestForm"
-            selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
+            ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
 
         ClaimantRevelationRequestManagementScreen:
             name: "DecryptionRequestList"
