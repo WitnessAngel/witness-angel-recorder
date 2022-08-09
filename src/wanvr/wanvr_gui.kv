@@ -5,6 +5,7 @@
 #:import CryptainerDecryptionProcessScreen wacomponents.screens.cryptainer_decryption_process
 #:import ClaimantRevelationRequestCreationFormScreen wacomponents.screens.claimant_revelation_request_creation_form
 #:import ClaimantRevelationRequestManagementScreen wacomponents.screens.claimant_revelation_request_management
+#:import RevelationRequestErrorReportScreen wacomponents.screens.revelation_request_error_report
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
 MDNavigationLayout:
@@ -36,6 +37,9 @@ MDNavigationLayout:
 
         ClaimantRevelationRequestManagementScreen:
             name: "DecryptionRequestList"
+
+        RevelationRequestErrorReportScreen:
+            name: "DecryptionRequestError"
 
     WaNavigationDrawer:
         id: navigation_drawer
