@@ -5,7 +5,7 @@
 #:import CryptainerDecryptionProcessScreen wacomponents.screens.cryptainer_decryption_process
 #:import ClaimantRevelationRequestCreationFormScreen wacomponents.screens.claimant_revelation_request_creation_form
 #:import ClaimantRevelationRequestManagementScreen wacomponents.screens.claimant_revelation_request_management
-#:import RevelationRequestErrorReportScreen wacomponents.screens.revelation_request_error_report
+#:import CryptainerDecryptionResultScreen wacomponents.screens.cryptainer_decryption_result
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
 MDNavigationLayout:
@@ -15,31 +15,31 @@ MDNavigationLayout:
         id: screen_manager
 
         RecorderHomepageScreen:
-            name: "MainPage"  # FIXME rename with "Screen", and rename ALL "name:" here
+            name: "recorder_homepage"  # FIXME rename with "Screen", and rename ALL "name:" here
 
         ForeignKeystoreManagementScreen:
-            id: foreign_keystore_management_screen_id
-            name: "KeyManagement"
+            id: foreign_keystore_management_id
+            name: "foreign_keystore_management"
 
         CryptainerStorageManagementScreen:
-            id: cryptainer_storage_management_screen_id
-            name: "CryptainerManagement"
+            id: cryptainer_storage_management_id
+            name: "cryptainer_storage_management"
 
         CryptainerDecryptionProcessScreen:
-            id: cryptainer_decryption_process_screen_id
-            name: "CryptainerDecryption"
+            id: cryptainer_decryption_process_id
+            name: "cryptainer_decryption_process"
             ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
 
         ClaimantRevelationRequestCreationFormScreen:
             id: claimant_revelation_request_creation_form_id
-            name: "DecryptionRequestForm"
+            name: "claimant_revelation_request_creation_form"
             ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
 
         ClaimantRevelationRequestManagementScreen:
-            name: "DecryptionRequestList"
+            name: "claimant_revelation_request_management"
 
-        RevelationRequestErrorReportScreen:
-            name: "DecryptionRequestError"
+        CryptainerDecryptionResultScreen:
+            name: "cryptainer_decryption_result"
 
     WaNavigationDrawer:
         id: navigation_drawer

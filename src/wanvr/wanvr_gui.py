@@ -43,7 +43,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW
         console_output = self.screen_manager.get_screen(
-            "MainPage"
+            "recorder_homepage"
         ).ids.kivy_console.ids.console_output
         console_output.add_text(
             msg
@@ -53,7 +53,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         # FIXME we must only display image if RECENT ENOUGH!!!
         print(">> We update_preview_image")
         main_page_ids = self.screen_manager.get_screen(
-            "MainPage"
+            "recorder_homepage"
         ).ids
         preview_image_widget = main_page_ids.preview_image
 
@@ -82,25 +82,25 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         """Beware, here we lookup not the config file but the in-GUI data!"""
         if not self.root:
             return  # Early introspection
-        result = self.screen_manager.get_screen("KeyManagement").selected_keystore_uids
+        result = self.screen_manager.get_screen("foreign_keystore_management").selected_keystore_uids
         return result
 
     @selected_keystore_uids.setter
     def selected_keystore_uids(self, keystore_uids):
-        self.screen_manager.get_screen("KeyManagement").selected_keystore_uids = keystore_uids
+        self.screen_manager.get_screen("foreign_keystore_management").selected_keystore_uids = keystore_uids
 
     @property
     def recording_button(self): # IMPORTANT, expected by generic Screens!
         if not self.root:
             return  # Early introspection
-        return self.screen_manager.get_screen("MainPage").ids.recording_button
+        return self.screen_manager.get_screen("recorder_homepage").ids.recording_button
 
     def switch_to_screen(self, *args, screen_name):
         self.screen_manager.current = screen_name
         self.navigation_drawer.set_state("screen_name")
 
     def get_back_to_home_screen(self):
-        self.switch_to_screen(screen_name="MainPage")
+        self.switch_to_screen(screen_name="recorder_homepage")
 
     # KIVY APP overrides
 
@@ -124,13 +124,13 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
         # Inject dependencies of loading screens
 
-        authdevice_store_screen = self.screen_manager.get_screen("KeyManagement")
+        authdevice_store_screen = self.screen_manager.get_screen("foreign_keystore_management")
         authdevice_store_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
-        cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")
+        cryptainer_decryption_screen = self.screen_manager.get_screen("cryptainer_decryption_process")
         cryptainer_decryption_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
-        decryption_request_screen = self.screen_manager.get_screen("DecryptionRequestForm")
+        decryption_request_screen = self.screen_manager.get_screen("claimant_revelation_request_creation_form")
         decryption_request_screen.filesystem_keystore_pool = self.filesystem_keystore_pool
 
         self.selected_keystore_uids = self._load_selected_keystore_uids()
@@ -150,20 +150,20 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
-        cryptainer_store_screen = self.screen_manager.get_screen("CryptainerManagement")  # FIXME simplify
+        cryptainer_store_screen = self.screen_manager.get_screen("cryptainer_storage_management")  # FIXME simplify
         cryptainer_store_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()  # FIXME SIMPLIFY with App methods ???
-        cryptainer_decryption_screen = self.screen_manager.get_screen("CryptainerDecryption")  # FIXME simplify
+        cryptainer_decryption_screen = self.screen_manager.get_screen("cryptainer_decryption_process")  # FIXME simplify
         cryptainer_decryption_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
 
-        remote_decryption_request_screen = self.screen_manager.get_screen("DecryptionRequestForm")  # FIXME simplify
+        remote_decryption_request_screen = self.screen_manager.get_screen("claimant_revelation_request_creation_form")  # FIXME simplify
         remote_decryption_request_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _insert_app_menu(self):
         screen_options = {
-            "MainPage": ("home", tr._("Recorder")),
-            "KeyManagement": ("key", tr._("Key Guardians")),
-            "CryptainerManagement": ("lock", tr._("Video Containers")),
+            "recorder_homepage": ("home", tr._("Recorder")),
+            "foreign_keystore_management": ("key", tr._("Key Guardians")),
+            "cryptainer_storage_management": ("lock", tr._("Video Containers")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
             item_draw = NavigationDrawerItem(icon=icon_name, text=screen_title)
