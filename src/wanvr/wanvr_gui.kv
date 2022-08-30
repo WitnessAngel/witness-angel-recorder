@@ -9,42 +9,45 @@
 #:import WAScreenName wacomponents.screens.base.WAScreenName
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
-MDNavigationLayout:
+RelativeLayout:
+    MDNavigationLayout:
 
-    ScreenManager:
+        ScreenManager:
 
-        id: screen_manager
+            id: screen_manager
 
-        RecorderHomepageScreen:
-            name: "recorder_homepage"  # FIXME rename with "Screen", and rename ALL "name:" here
+            RecorderHomepageScreen:
+                name: "recorder_homepage"  # FIXME rename with "Screen", and rename ALL "name:" here
 
-        ForeignKeystoreManagementScreen:
-            id: foreign_keystore_management_id
-            name: WAScreenName.foreign_keystore_management
+            ForeignKeystoreManagementScreen:
+                id: foreign_keystore_management_id
+                name: WAScreenName.foreign_keystore_management
 
-        CryptainerStorageManagementScreen:
-            id: cryptainer_storage_management_id
-            name: WAScreenName.cryptainer_storage_management
+            CryptainerStorageManagementScreen:
+                id: cryptainer_storage_management_id
+                name: WAScreenName.cryptainer_storage_management
 
-        CryptainerDecryptionProcessScreen:
-            id: cryptainer_decryption_process_id
-            name: WAScreenName.cryptainer_decryption_process
-            ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
+            CryptainerDecryptionProcessScreen:
+                id: cryptainer_decryption_process_id
+                name: WAScreenName.cryptainer_decryption_process
+                ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
 
-        ClaimantRevelationRequestCreationFormScreen:
-            id: claimant_revelation_request_creation_form_id
-            name: WAScreenName.claimant_revelation_request_creation_form
-            ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
+            ClaimantRevelationRequestCreationFormScreen:
+                id: claimant_revelation_request_creation_form_id
+                name: WAScreenName.claimant_revelation_request_creation_form
+                ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
 
-        ClaimantRevelationRequestManagementScreen:
-            name: WAScreenName.claimant_revelation_request_management
+            ClaimantRevelationRequestManagementScreen:
+                name: WAScreenName.claimant_revelation_request_management
 
-        CryptainerDecryptionResultScreen:
-            name: WAScreenName.cryptainer_decryption_result
+            CryptainerDecryptionResultScreen:
+                name: WAScreenName.cryptainer_decryption_result
 
-    WaNavigationDrawer:
-        id: navigation_drawer
+        WaNavigationDrawer:
+            id: navigation_drawer
 
+    WaitSpinner:
+        id: wait_spinner
 
 
 
