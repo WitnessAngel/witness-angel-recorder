@@ -139,7 +139,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
         self._update_app_after_config_change()  # Force advanced setup of Screens
 
-        self._insert_app_menu()
+        self._reset_app_menu()
 
         # FIXME AWAITING REPAIR
         Clock.schedule_interval(
@@ -160,11 +160,13 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         remote_decryption_request_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
-    def _insert_app_menu(self):
+    def _reset_app_menu(self):
+        self.navigation_drawer.ids.content_drawer.ids.md_list.clear_widgets()
+
         screen_options = {
             WAScreenName.recorder_homepage: ("home", tr._("Recorder")),
             WAScreenName.foreign_keystore_management: ("key", tr._("Key Guardians")),
-            WAScreenName.cryptainer_storage_management: ("lock", tr._("Video Containers")),
+            WAScreenName.cryptainer_storage_management: ("lock", tr._("Containers")),
         }
         for screen_name, (icon_name, screen_title) in screen_options.items():
             item_draw = NavigationDrawerItem(icon=icon_name, text=screen_title)
@@ -176,6 +178,10 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         """Save to config file so that the Service can access the new list"""
         self.config["nvr"]["selected_keystore_uids"] = ",".join(keystore_uids)
         self.save_config()
+
+    def on_language_change(self, lang_code):
+        super().on_language_change(lang_code)
+        self._reset_app_menu()
 
     def get_config_schema_data(self) -> list:
         return [
