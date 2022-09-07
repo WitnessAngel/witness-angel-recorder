@@ -32,7 +32,7 @@ class WanvrRuntimeSupportMixin:
 
         # FIXME move at a better place
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
-        handler = RotatingFileHandler(log_path, maxBytes=10 * (1024 ** 2), backupCount=50)
+        handler = RotatingFileHandler(log_path, maxBytes=20 * (1024 ** 2), backupCount=100)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logging.root.addHandler(handler)
