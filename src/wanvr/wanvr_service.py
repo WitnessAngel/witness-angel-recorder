@@ -48,11 +48,6 @@ class PassthroughTarfileRecordAggregator(TarfileRecordAggregator):  #FIXME WRONG
 
 class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIXME RENAME THIS
 
-    # CLASS VARIABLES #
-    thread_pool_executor = ThreadPoolExecutor(
-        max_workers=1, thread_name_prefix="service_worker"  # SINGLE worker for now, to avoid concurrency
-    )
-
     _epaper_display = None  # Not always available
 
     def __init__(self):
