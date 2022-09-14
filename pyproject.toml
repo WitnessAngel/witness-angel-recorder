@@ -30,7 +30,7 @@ include = ["CHANGELOG", "tests/*.py"]
 exclude = ["_build", "__pycache__"]
 
 [tool.poetry.dependencies]
-python = ">=3.7, <3.11"
+python = ">=3.7, <4.0"
 
 # For now WA dependencies must be manually installed at selected versions !
 wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "wanvr_stable" }
@@ -38,12 +38,11 @@ wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components
 
 # Wacomponents dependencies
 Kivy = {version = "^2.0.0", extras = ["base"]}
-kivymd = "^0.104.1"
+kivymd = "^1.0"
 plyer = "^2.0.0"
 # BREAKS ALL DUE TO "aux" FOLDER IN GIT REPO : pyobjus = {version = "^1.2.1 ", platform = 'darwin'}
 oscpy = "^0.5.0"
-
-Pillow = "8.1.2"  # Fix bug with _imagingft.cp38-win_amd64.pyd crash of Pillow 8.3.2
+Pillow = "^9"
 
 # FIXME remove this asap!
 watchdog = "0.10.3"
