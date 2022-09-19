@@ -729,7 +729,7 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "wanvr_stable"
-resolved_reference = "58a314c54f205a2005227f7382f32319e68d962f"
+resolved_reference = "9e828b27877832036163e45bb20b328ec30e9076"
 
 [[package]]
 name = "wacryptolib"
