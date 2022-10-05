@@ -27,25 +27,6 @@ from wacomponents.sensors.camera.rtsp_stream import RtspCameraSensor
 logger = logging.getLogger(__name__)
 
 
-# FIXME move this to wacryptolib
-class PassthroughTarfileRecordAggregator(TarfileRecordAggregator):  #FIXME WRONG NAME
-
-    @synchronized
-    def add_record(self, sensor_name: str, from_datetime, to_datetime, extension: str, payload: bytes):
-
-        filename = self._build_record_filename(
-            sensor_name=sensor_name, from_datetime=from_datetime, to_datetime=to_datetime, extension=extension
-        )
-        self._cryptainer_storage.enqueue_file_for_encryption(
-            filename_base=filename, payload=payload, metadata={}
-        )
-
-    @synchronized
-    def finalize_tarfile(self):
-        pass  # DO NOTHING
-
-
-
 class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIXME RENAME THIS
 
     _epaper_display = None  # Not always available
