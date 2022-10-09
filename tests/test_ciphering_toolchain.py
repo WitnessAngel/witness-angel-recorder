@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import time
 
+# FIXME OBSOLETE #
+
 from client.ciphering_toolchain import (
     RecordingToolchain,
     NewVideoHandler,

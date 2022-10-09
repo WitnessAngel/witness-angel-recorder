@@ -5,6 +5,7 @@ from os import listdir
 import time
 import random
 
+# FIXME OBSOLETE #
 
 def test_display_video_stream():
     camera_url = "rtsp://viewer:SomePwd8162@92.89.82.156:554/Streaming/channels/2"
