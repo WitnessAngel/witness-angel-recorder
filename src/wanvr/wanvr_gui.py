@@ -144,7 +144,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
         # FIXME AWAITING REPAIR
         Clock.schedule_interval(
-            self._update_preview_image, 30  # FIXME repair this!
+            self._update_preview_image, 15  # FIXME repair this!
         )
         self._update_preview_image()  # Immediate call
 
