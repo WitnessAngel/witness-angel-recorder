@@ -118,7 +118,7 @@ class WanvrRuntimeSupportMixin:
             enabled_sensor_titles.append(tr._("local microphone"))
             microphone_names = list_pulseaudio_microphone_names()
             if not microphone_names:
-                return False, tr._("Local audio device not found")
+                return False, tr._("Local microphone not found")
 
         ip_camera_url = self.get_ip_camera_url()
         if ip_camera_url:

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WitnessAngelNVR\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-07 23:44+0200\n"
-"PO-Revision-Date: 2022-09-07 23:46+0200\n"
+"POT-Creation-Date: 2022-10-09 21:49+0200\n"
+"PO-Revision-Date: 2022-10-09 21:51+0200\n"
 "Last-Translator: Pascal <pythoniks@gmail.com>\n"
 "Language-Team: Nothing\n"
 "Language: fr\n"
@@ -17,74 +17,120 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Virtaal 0.7.1\n"
 
-#: src/wanvr/wanvr_gui.py:35
+#: src/wanvr/common_runtime.py:113
+msgid "local camera"
+msgstr "caméra locale"
+
+#: src/wanvr/common_runtime.py:118
+msgid "local microphone"
+msgstr "microphone local"
+
+#: src/wanvr/common_runtime.py:121
+msgid "Local microphone not found"
+msgstr "Microphone local non trouvé"
+
+#: src/wanvr/common_runtime.py:125
+#, python-format
+msgid "IP camera %s"
+msgstr "Caméra IP %s"
+
+#: src/wanvr/common_runtime.py:131
+msgid "No sensors are enabled"
+msgstr "Aucun capteur n'est activé"
+
+#: src/wanvr/common_runtime.py:133
+#, python-format
+msgid "Sensors: %s"
+msgstr "Capteurs : %s"
+
+#: src/wanvr/wanvr_gui.py:36
 msgid "Witness Angel - Network Video Recorder"
 msgstr "Witness Angel - Enregistreur Vidéo Réseau (NVR)"
 
-#: src/wanvr/wanvr_gui.py:36
+#: src/wanvr/wanvr_gui.py:37
 msgid "Recorder settings"
 msgstr "Paramètres d'enregistrement"
 
-#: src/wanvr/wanvr_gui.py:167
+#: src/wanvr/wanvr_gui.py:168
 msgid "Recorder"
 msgstr "Enregistreur"
 
-#: src/wanvr/wanvr_gui.py:168
+#: src/wanvr/wanvr_gui.py:169
 msgid "Key Guardians"
 msgstr "Gardiens des Clés"
 
-#: src/wanvr/wanvr_gui.py:169
+#: src/wanvr/wanvr_gui.py:170
 msgid "Containers"
 msgstr "Conteneurs"
 
-#: src/wanvr/wanvr_gui.py:191
+#: src/wanvr/wanvr_gui.py:195
+msgid "Local camera"
+msgstr "Caméra locale"
+
+#: src/wanvr/wanvr_gui.py:196
+msgid "Enable attached camera"
+msgstr "Activer la caméra attachée"
+
+#: src/wanvr/wanvr_gui.py:202
+msgid "Local microphone"
+msgstr "Microphone local"
+
+#: src/wanvr/wanvr_gui.py:203
+msgid "Enable attached microphone"
+msgstr "Activer le microphone attaché"
+
+#: src/wanvr/wanvr_gui.py:212
 msgid "IP Camera URL"
 msgstr "URL Caméra IP"
 
-#: src/wanvr/wanvr_gui.py:192
-msgid "URL to the RTSP stream"
+#: src/wanvr/wanvr_gui.py:213
+msgid "RTSP stream (optional)"
+msgstr "Flux RTSP (optionnel)"
+
+#: src/wanvr/wanvr_gui.py:213
+msgid "URL of the RTSP stream"
 msgstr "URL vers le flux RTSP"
 
-#: src/wanvr/wanvr_gui.py:198
+#: src/wanvr/wanvr_gui.py:219
 msgid "Key guardian threshold"
 msgstr "Seuil de gardiens de clés"
 
-#: src/wanvr/wanvr_gui.py:199
+#: src/wanvr/wanvr_gui.py:220
 msgid "Count of key guardians required to decrypt data"
 msgstr "Nombre de gardiens de clés requis pour déchiffrer les données"
 
-#: src/wanvr/wanvr_gui.py:205
+#: src/wanvr/wanvr_gui.py:226
 msgid "Containers folder"
 msgstr "Dossier des conteneurs"
 
-#: src/wanvr/wanvr_gui.py:206
+#: src/wanvr/wanvr_gui.py:227
 msgid "Folder to store containers (defaults to user profile)"
 msgstr "Dossier de stockage des conteneurs (par défaut, le profil utilisateur)"
 
-#: src/wanvr/wanvr_gui.py:212
+#: src/wanvr/wanvr_gui.py:233
 msgid "Max retention period (days)"
 msgstr "Période de rétention max (jours)"
 
-#: src/wanvr/wanvr_gui.py:213
+#: src/wanvr/wanvr_gui.py:234
 msgid "For how long to keep a container before deletion"
 msgstr "Combien de temps garder les conteneurs avant suppression"
 
-#: src/wanvr/wanvr_gui.py:219
+#: src/wanvr/wanvr_gui.py:240
 msgid "Video recording duration (mn)"
 msgstr "Durée des enregistrements vidéo (mn)"
 
-#: src/wanvr/wanvr_gui.py:220
+#: src/wanvr/wanvr_gui.py:241
 msgid "How long each video clip must last"
 msgstr "Combien de temps chaque clip vidéo doit durer"
 
-#: src/wanvr/wanvr_gui.py:226
+#: src/wanvr/wanvr_gui.py:247
 msgid "Witness Angel Gateway URL"
 msgstr "URL de la Passerelle Witness Angel"
 
-#: src/wanvr/wanvr_gui.py:227
+#: src/wanvr/wanvr_gui.py:248
 msgid "Registry of key guardians"
 msgstr "Registre des gardiens de clés"
 
-#: src/wanvr/wanvr_service.py:72
+#: src/wanvr/wanvr_service.py:55
 msgid "N/A"
 msgstr "N/A"
