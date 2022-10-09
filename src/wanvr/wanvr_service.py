@@ -7,6 +7,8 @@ import time
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
+from wacomponents.sensors.camera.raspberrypi_camera_audio import RaspberryLibcameraSensor, \
+    RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
     CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
@@ -174,16 +176,41 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
         assert cryptainer_storage is not None, cryptainer_storage
 
-        ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
+        sensors = []
+        recording_duration_s = self.get_video_recording_duration_mn()*60
 
-        rtsp_camera_sensor = RtspCameraSensor(
-                interval_s=self.get_video_recording_duration_mn()*60,
+        ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
+        if ip_camera_url:
+            rtsp_camera_sensor = RtspCameraSensor(
+                interval_s=recording_duration_s,
                 cryptainer_storage=cryptainer_storage,
                 video_stream_url=ip_camera_url,
                 preview_image_path=self.preview_image_path)
+            sensors.append(rtsp_camera_sensor)
 
-        sensors_manager = SensorManager(sensors=[rtsp_camera_sensor])
- 
+        enable_local_camera = self.get_enable_local_camera()
+        enable_local_microphone = self.get_enable_local_microphone()
+
+        if enable_local_camera:
+            alsa_device_name = list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
+            raspberry_libcamera_sensor = RaspberryLibcameraSensor(
+                interval_s=recording_duration_s,
+                cryptainer_storage=cryptainer_storage,
+                preview_image_path=self.preview_image_path,
+                alsa_device_name=alsa_device_name,
+            )
+            sensors.append(raspberry_libcamera_sensor)
+
+        elif enable_local_microphone:  # Standalone audio recording
+            alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
+                interval_s=recording_duration_s,
+                cryptainer_storage=cryptainer_storage,
+            )
+            sensors.append(alsa_microphone_sensor)
+
+        assert sensors, sensors  # Conf checkers should ensure this
+        sensors_manager = SensorManager(sensors=sensors)
+
         toolchain = dict(
             sensors_manager=sensors_manager,
             data_aggregators=[],

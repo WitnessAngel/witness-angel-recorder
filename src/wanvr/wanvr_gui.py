@@ -7,6 +7,7 @@ import functools
 from kivy.clock import Clock
 
 from wacomponents.application.recorder_gui import WaRecorderGui
+from wacomponents.default_settings import IS_RASPBERRY_PI
 from wacomponents.screens.base import WAScreenName
 from wacomponents.widgets.navigation_drawer import NavigationDrawerItem
 from wacomponents.i18n import tr
@@ -184,12 +185,32 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         self._reset_app_menu()
 
     def get_config_schema_data(self) -> list:
-        return [
+        specific_config_schema = []
+
+        if IS_RASPBERRY_PI:
+            specific_config_schema += [
+                {
+                    "key": "enable_local_camera",
+                    "type": "bool",
+                    "title": tr._("Local camera"),
+                    "desc": tr._("Enable attached camera"),
+                    "section": "nvr"
+                },
+                {
+                    "key": "enable_local_microphone",
+                    "type": "bool",
+                    "title": tr._("Local microphone"),
+                    "desc": tr._("Enable attached microphone"),
+                    "section": "nvr"
+                }
+            ]
+
+        return specific_config_schema + [
             {
                 "key": "ip_camera_url",
                 "type": "string_truncated",
                 "title": tr._("IP Camera URL"),
-                "desc": tr._("URL to the RTSP stream"),
+                "desc": tr._("RTSP stream (optional)") if IS_RASPBERRY_PI else tr._("URL of the RTSP stream"),
                 "section": "nvr"
             },
             {
