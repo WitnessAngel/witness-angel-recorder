@@ -8,6 +8,7 @@ from kivy.clock import Clock
 
 from wacomponents.application.recorder_gui import WaRecorderGui
 from wacomponents.default_settings import IS_RASPBERRY_PI
+from wacomponents.devices.epaper import EPAPER_TYPES
 from wacomponents.screens.base import WAScreenName
 from wacomponents.widgets.navigation_drawer import NavigationDrawerItem
 from wacomponents.i18n import tr
@@ -246,6 +247,14 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "type": "string_truncated",
                 "title": tr._("Witness Angel Gateway URL"),
                 "desc": tr._("Registry of key guardians"),
+                "section": "nvr"
+            },
+            {
+                "key": "epaper_type",
+                "type": "options",
+                "title": tr._("E-paper type"),
+                "desc": tr._("Optional E-ink display"),
+                "options": [""] + EPAPER_TYPES,
                 "section": "nvr"
             }
         ]
