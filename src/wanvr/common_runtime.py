@@ -101,6 +101,9 @@ class WanvrRuntimeSupportMixin:
     def get_wagateway_url(self):
         return self.config.get("nvr", "wagateway_url")
 
+    def get_epaper_type(self):
+        return self.config.get("nvr", "epaper_type")
+
     def get_min_ffmpeg_version(self):
         return 4.3
 

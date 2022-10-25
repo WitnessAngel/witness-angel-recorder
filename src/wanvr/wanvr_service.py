@@ -7,6 +7,8 @@ import time
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
+from wacomponents.default_settings import IS_RASPBERRY_PI
+from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
 from wacomponents.sensors.camera.raspberrypi_camera_audio import RaspberryLibcameraSensor, \
     RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
@@ -37,16 +39,22 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         super().__init__()
         self._setup_epaper_screen()
 
+
     def _setup_epaper_screen(self):
+        epaper_type = self.get_epaper_type()
+        epaper_type = epaper_type.strip().lower()
+        if not epaper_type:
+            return  # No e-paper expected on this installation
         try:
-            from wacomponents.devices.epaper import EpaperStatusDisplay
-        except ImportError:
-            logger.warning("Could not import EpaperStatusDisplay, aborting setup of epaper display")
+            self._epaper_display = get_epaper_instance(epaper_type)
+        except (ImportError, ValueError):
+            logger.warning("Could not import display of type %r, aborting setup of e-paper screen" % epaper_type)
             return
         logger.info("Setting up epaper screen and refresh/on-off buttons")
-        self._epaper_display = EpaperStatusDisplay()
-        register_button_callback(self._epaper_display.BUTTON_PIN_1, self._epaper_status_refresh_callback)
-        register_button_callback(self._epaper_display.BUTTON_PIN_2, self._epaper_switch_recording_callback)
+        if self._epaper_display.BUTTON_PIN_1 is not None:
+            register_button_callback(self._epaper_display.BUTTON_PIN_1, self._epaper_status_refresh_callback)
+        if self._epaper_display.BUTTON_PIN_2 is not None:
+            register_button_callback(self._epaper_display.BUTTON_PIN_2, self._epaper_switch_recording_callback)
 
     def _retrieve_epaper_display_information(self):
 
@@ -64,7 +72,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 _last_cryptainer_size_str = convert_bytes_to_human_representation(readonly_cryptainer_storage._get_cryptainer_size(_last_cryptainer_name))
                 _utcnow = datetime.utcnow().replace(tzinfo=timezone.utc)
                 _last_cryptainer_age_s = "%ds" % (_utcnow - readonly_cryptainer_storage._get_cryptainer_datetime_utc(_last_cryptainer_name)).total_seconds()
-                last_cryptainer_str = "%s (%s)" % (_last_cryptainer_age_s, _last_cryptainer_size_str)
+                last_cryptainer_str = "%s  (%s)" % (_last_cryptainer_age_s, _last_cryptainer_size_str)
 
         try:
             preview_image_age_s = "%ss" % int(time.time() - os.path.getmtime(self.preview_image_path))
@@ -74,10 +82,23 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         status_obj.update({  # Maps will-be-labels to values
             "recording_status": "ON" if self.is_recording else "OFF",
             "container_count": cryptainers_count_str,
-            "last_cryptainer": last_cryptainer_str,
+            "last_container": last_cryptainer_str,
             "last_thumbnail": preview_image_age_s
         })
-        return status_obj
+
+        # Put fields in importance order
+        sorted_field_names = [
+            "recording_status", "wifi_status", "ethernet_status", "now_datetime",
+            "last_thumbnail", "last_container", "container_count",
+            "disk_left", "ram_left",
+        ]
+        assert len(sorted_field_names) == len(status_obj)
+        status_obj_sorted = {
+            field_name: status_obj[field_name]
+            for field_name in sorted_field_names
+        }
+        #print("status_obj_sorted>>>>>", status_obj_sorted)
+        return status_obj_sorted
 
     @safe_catch_unhandled_exception
     def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
@@ -188,25 +209,28 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 preview_image_path=self.preview_image_path)
             sensors.append(rtsp_camera_sensor)
 
-        enable_local_camera = self.get_enable_local_camera()
-        enable_local_microphone = self.get_enable_local_microphone()
+        if IS_RASPBERRY_PI:
 
-        if enable_local_camera:
-            alsa_device_name = list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
-            raspberry_libcamera_sensor = RaspberryLibcameraSensor(
-                interval_s=recording_duration_s,
-                cryptainer_storage=cryptainer_storage,
-                preview_image_path=self.preview_image_path,
-                alsa_device_name=alsa_device_name,
-            )
-            sensors.append(raspberry_libcamera_sensor)
+            enable_local_camera = self.get_enable_local_camera()
+            enable_local_microphone = self.get_enable_local_microphone()
 
-        elif enable_local_microphone:  # Standalone audio recording
-            alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
-                interval_s=recording_duration_s,
-                cryptainer_storage=cryptainer_storage,
-            )
-            sensors.append(alsa_microphone_sensor)
+            if enable_local_camera:
+                # NO combined recording, too buggy for now on PI ZERO!
+                alsa_device_name = list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
+                raspberry_libcamera_sensor = RaspberryLibcameraSensor(
+                    interval_s=recording_duration_s,
+                    cryptainer_storage=cryptainer_storage,
+                    preview_image_path=self.preview_image_path,
+                    alsa_device_name=alsa_device_name,
+                )
+                sensors.append(raspberry_libcamera_sensor)
+
+            elif enable_local_microphone:  # Separate audio recording
+                alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
+                    interval_s=recording_duration_s,
+                    cryptainer_storage=cryptainer_storage,
+                )
+                sensors.append(alsa_microphone_sensor)
 
         assert sensors, sensors  # Conf checkers should ensure this
         sensors_manager = SensorManager(sensors=sensors)
