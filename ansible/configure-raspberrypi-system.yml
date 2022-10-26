@@ -32,7 +32,16 @@
     copy:
       src: hwclock-set
       dest: /lib/udev/hwclock-set
-  - name: Copy custom boot checkups script to /etc
+  - name: Install bcm2835 lib for Epaper screen
+    script:
+      cmd: files/install_bcm2835_lib.sh
+      chdir: "/var/tmp/"
+      creates: "/usr/local/lib/libbcm2835.a"
+  - name: Install setup/deactivation scripts for i2s-microphone
+    script:
+      cmd: install_i2smic_setup_scripts.sh
+      creates: "/home/pi/installers/i2smic_disable_on_boot.sh"
+  - name: Copy custom boot checkups script to /etc (e.g. to regeenrate SSH key if needed)
     copy:
       src: custom_boot_checkups.sh
       dest: /etc/custom_boot_checkups.sh
@@ -67,11 +76,6 @@
   - name: Setup UFW Firewall
     script:
       cmd: files/setup_ufw.sh
-  - name: Install bcm2835 lib for Epaper screen
-    script:
-      cmd: files/install_bcm2835_lib.sh
-      chdir: "/var/tmp/"
-      creates: "/usr/local/lib/libbcm2835.a"
 
 - name: Install and configure python dependencies of wa-nvr, as user
   hosts: all
@@ -84,12 +88,17 @@
   - name: Install misc dependencies into venv
     pip:
       name: ["poetry", "pillow", "numpy", "wiringpi==2.60.1",  # For E-paper control
-             "git+https://github.com/waveshare/e-Paper.git#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python"]
-             # e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware!
+             "git+https://github.com/waveshare/e-Paper.git#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python",
+             # Waveshare e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware!
+             "adafruit-python-shell"]  # For i2smic setup script below
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"
     environment:
       CFLAGS: "-fcommon"  # Necessary for RPi.GPIO compilation
+  - name: Put DFRobot e-paper V2 driver into venv (not pip-installable)
+    script:
+      cmd: files/install_dfrobot_2in13_v2_python_lib.sh
+      creates: "~/venv/lib/python3.9/site-packages/dfrobot_rpi_display_v2_driver.pth"
   - name: Clone wa-nvr git repository
     git:
       repo: 'https://github.com/WitnessAngel/witness-angel-nvr.git'
