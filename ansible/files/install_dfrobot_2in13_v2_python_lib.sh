@@ -1,4 +1,4 @@
-
+#!/bin/bash
 # Download and link to python3 this DFRobot driver, which is not pip-installable...
 
 mkdir -p ~/installers/

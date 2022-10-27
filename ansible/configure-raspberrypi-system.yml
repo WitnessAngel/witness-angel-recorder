@@ -37,10 +37,6 @@
       cmd: files/install_bcm2835_lib.sh
       chdir: "/var/tmp/"
       creates: "/usr/local/lib/libbcm2835.a"
-  - name: Install setup/deactivation scripts for i2s-microphone
-    script:
-      cmd: install_i2smic_setup_scripts.sh
-      creates: "/home/pi/installers/i2smic_disable_on_boot.sh"
   - name: Copy custom boot checkups script to /etc (e.g. to regeenrate SSH key if needed)
     copy:
       src: custom_boot_checkups.sh
@@ -80,6 +76,10 @@
 - name: Install and configure python dependencies of wa-nvr, as user
   hosts: all
   tasks:
+  - name: Install setup/deactivation scripts for i2s-microphone into local home
+    script:
+      cmd: files/install_i2smic_setup_scripts.sh
+      creates: "/home/pi/installers/i2smic_disable_on_boot.sh"
   - name: Upgrade pip and basic build helpers in venv
     pip:
       name: ["pip==21.3.1", "setuptools", "wheel", ]
