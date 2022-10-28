@@ -737,11 +737,11 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "wanvr_stable"
-resolved_reference = "9e828b27877832036163e45bb20b328ec30e9076"
+resolved_reference = "46acd7a01b5f41896a92e24f22bfce79ef261027"
 
 [[package]]
 name = "wacryptolib"
-version = "0.9"
+version = "0.10"
 description = "Witness Angel Cryptolib"
 category = "main"
 optional = false
@@ -768,7 +768,7 @@ wmi = {version = "^1.5.1 ", markers = "sys_platform == \"win32\""}
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-cryptolib.git"
 reference = "wanvr_stable"
-resolved_reference = "6028dfbab49d48848cfaa66b122aae5a70ea9225"
+resolved_reference = "efc3bfa7c95eb56c94ae973927f918c3e2da787f"
 
 [[package]]
 name = "watchdog"
