@@ -216,7 +216,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
             if enable_local_camera:
                 # NO combined recording, too buggy for now on PI ZERO!
-                alsa_device_name = list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
+                alsa_device_name = None  ##list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
                 raspberry_libcamera_sensor = RaspberryLibcameraSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
@@ -225,7 +225,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 )
                 sensors.append(raspberry_libcamera_sensor)
 
-            elif enable_local_microphone:  # Separate audio recording
+            if enable_local_microphone:  # Separate audio recording
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
@@ -240,7 +240,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             data_aggregators=[],
             tarfile_aggregators=[],
             cryptainer_storage=cryptainer_storage,
-            free_keys_generator_worker=None,  # For now
+            free_keys_generator_worker=None,  # For now, no pregeneration of local keys
         )
         return toolchain
 
