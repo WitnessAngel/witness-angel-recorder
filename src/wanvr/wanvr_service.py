@@ -9,8 +9,9 @@ from datetime import timedelta, datetime, timezone
 
 from wacomponents.default_settings import IS_RASPBERRY_PI
 from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
-from wacomponents.sensors.camera.raspberrypi_camera_audio import RaspberryLibcameraSensor, \
-    RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names
+from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryLibcameraSensor, \
+    RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names, is_legacy_rpi_camera_enabled, \
+    RaspberryRaspividSensor
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
     CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
@@ -38,7 +39,6 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
     def __init__(self):
         super().__init__()
         self._setup_epaper_screen()
-
 
     def _setup_epaper_screen(self):
         epaper_type = self.get_epaper_type()
@@ -211,24 +211,51 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
         if IS_RASPBERRY_PI:
 
+            legacy_rpi_camera_enabled = is_legacy_rpi_camera_enabled()
+
             enable_local_camera = self.get_enable_local_camera()
             enable_local_microphone = self.get_enable_local_microphone()
+            compress_standalone_microphone_recording = self.get_compress_standalone_microphone_recording()
+            use_media_container = self.get_use_media_container()
+
+            _audio_is_already_handled = False
 
             if enable_local_camera:
-                # NO combined recording, too buggy for now on PI ZERO!
-                alsa_device_name = None  ##list_pulseaudio_microphone_names()[0] if enable_local_microphone else None
-                raspberry_libcamera_sensor = RaspberryLibcameraSensor(
-                    interval_s=recording_duration_s,
-                    cryptainer_storage=cryptainer_storage,
-                    preview_image_path=self.preview_image_path,
-                    alsa_device_name=alsa_device_name,
-                )
-                sensors.append(raspberry_libcamera_sensor)
 
-            if enable_local_microphone:  # Separate audio recording
+                if legacy_rpi_camera_enabled:
+
+                    logging.warning("Using LEGACY raspivid sensor")
+
+                    raspberry_raspivid_sensor = RaspberryRaspividSensor(
+                        interval_s=recording_duration_s,
+                        cryptainer_storage=cryptainer_storage,
+                        preview_image_path=self.preview_image_path,
+                    )
+
+                    sensors.append(raspberry_raspivid_sensor)
+
+                else:
+
+                    logging.warning("Using MODERN libcamera sensor")
+
+                    alsa_device_name = None
+                    if use_media_container and enable_local_microphone:
+                        alsa_device_name = list_pulseaudio_microphone_names()[0]
+                        _audio_is_already_handled = True
+
+                    raspberry_libcamera_sensor = RaspberryLibcameraSensor(
+                        interval_s=recording_duration_s,
+                        cryptainer_storage=cryptainer_storage,
+                        preview_image_path=self.preview_image_path,
+                        alsa_device_name=alsa_device_name,
+                    )
+                    sensors.append(raspberry_libcamera_sensor)
+
+            if enable_local_microphone and not _audio_is_already_handled:  # Separate audio recording
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
+                    compress_recording=compress_standalone_microphone_recording
                 )
                 sensors.append(alsa_microphone_sensor)
 

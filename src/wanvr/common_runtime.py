@@ -6,7 +6,7 @@ import os
 from uuid import UUID
 
 from wacomponents.i18n import tr
-from wacomponents.sensors.camera.raspberrypi_camera_audio import list_pulseaudio_microphone_names
+from wacomponents.sensors.camera.raspberrypi_camera_microphone import list_pulseaudio_microphone_names
 from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
 from wacomponents.default_settings import INTERNAL_CACHE_DIR, IS_RASPBERRY_PI
@@ -92,8 +92,16 @@ class WanvrRuntimeSupportMixin:
     def get_enable_local_microphone(self):
         return self.config.getboolean("nvr", "enable_local_microphone")
 
+    def get_compress_standalone_microphone_recording(self):
+        return self.config.getboolean("nvr", "compress_standalone_microphone_recording")
+
+    def get_use_media_container(self):
+        return self.config.getboolean("nvr", "use_media_container")
+
     def get_video_recording_duration_mn(self):
-        return int(self.config.get("nvr", "video_recording_duration_mn"))
+        return int(self.config.get("nvr", "video_recording_duration_mn"))  # FIXME rename this since it's used for standalone audio too?? Or separate these settings ?
+
+    # FIXME add "extra command line" settings for each sensor, and use shlex.split()
 
     def get_max_cryptainer_age_day(self):
         return int(self.config.get("nvr", "max_cryptainer_age_day"))

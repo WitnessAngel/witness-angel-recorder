@@ -203,6 +203,20 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                     "title": tr._("Local microphone"),
                     "desc": tr._("Enable attached microphone"),
                     "section": "nvr"
+                },
+                {
+                    "key": "compress_standalone_microphone_recording",
+                    "type": "bool",
+                    "title": tr._("Compress standalone audio"),
+                    "desc": tr._("Compress audio when recorded separately"),
+                    "section": "nvr"
+                },
+                {
+                    "key": "use_media_container",
+                    "type": "bool",
+                    "title": tr._("Use media container"),
+                    "desc": tr._("Combine video and audio into media file"),
+                    "section": "nvr"
                 }
             ]
 
