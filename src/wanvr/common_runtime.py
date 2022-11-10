@@ -85,7 +85,6 @@ class WanvrRuntimeSupportMixin:
 
         return selected_keystore_uids_filtered
 
-
     def get_enable_local_camera(self):
         return self.config.getboolean("sensor", "enable_local_camera")
 
@@ -102,21 +101,21 @@ class WanvrRuntimeSupportMixin:
         return self.config.getboolean("sensor", "enable_ip_camera")
 
     def get_ip_camera_url(self):
-        return self.config.get("sensor", "ip_camera_url")
+        return self.config.get("sensor", "ip_camera_url").strip()
 
     def get_recording_duration_mn(self):
-        return int(self.config.get("sensor", "recording_duration_mn"))
+        return int(self.config.getint("sensor", "recording_duration_mn"))
 
     # FIXME add "extra command line" settings for each sensor, and use shlex.split()
 
     def get_max_cryptainer_age_day(self):
-        return int(self.config.get("storage", "max_cryptainer_age_day"))
+        return int(self.config.getint("storage", "max_cryptainer_age_day"))
 
     def get_epaper_type(self):
-        return self.config.get("peripheral", "epaper_type")
+        return self.config.get("peripheral", "epaper_type").strip()
 
     def get_wagateway_url(self):
-        return self.config.get("network", "wagateway_url")
+        return self.config.get("network", "wagateway_url").strip()
 
     def get_min_ffmpeg_version(self):
         return 4.3
@@ -137,8 +136,9 @@ class WanvrRuntimeSupportMixin:
             if not microphone_names:
                 return False, tr._("Local microphone not found")
 
+        enable_local_camera = self.get_enable_local_camera()
         ip_camera_url = self.get_ip_camera_url()
-        if ip_camera_url:
+        if enable_local_camera:
             enabled_sensor_titles.append(tr._("IP camera %s") % ip_camera_url)
             ip_camera_res, ip_camera_msg = self.check_camera_url(ip_camera_url)
             if not ip_camera_res:
