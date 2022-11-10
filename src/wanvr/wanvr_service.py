@@ -120,7 +120,6 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         else:
             self.start_recording()
 
-
     def _get_cryptoconf(self):
         """Return a wacryptolib-compatible encryption configuration"""
         keyguardian_threshold = self.get_keyguardian_threshold()
@@ -188,7 +187,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
         #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_cryptainer_age_day())
 
-        cryptainer_storage = CryptainerStorage(  # FIXME deduplicate paramaters with default (readonly) CryptainerStorage
+        cryptainer_storage = CryptainerStorage(
                        default_cryptoconf=self._get_cryptoconf(),
                        cryptainer_dir=cryptainer_dir,
                        keystore_pool=self.filesystem_keystore_pool,
@@ -200,8 +199,9 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         sensors = []
         recording_duration_s = self.get_recording_duration_mn()*60
 
-        ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
-        if ip_camera_url:
+        enable_ip_camera = self.get_enable_ip_camera()
+        ip_camera_url = self.get_ip_camera_url()
+        if enable_ip_camera:
             rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=recording_duration_s,
                 cryptainer_storage=cryptainer_storage,

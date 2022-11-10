@@ -120,25 +120,27 @@ class WanvrRuntimeSupportMixin:
     def get_min_ffmpeg_version(self):
         return 4.3
 
-    def check_all_raspberry_pi_sensors(self):
+    def check_all_sensors(self):
         enabled_sensor_titles = []
 
-        enable_local_camera = self.get_enable_local_camera()
-        #print(">>>>>>>>>>>enable_local_camera", enable_local_camera)
-        if enable_local_camera:
-            enabled_sensor_titles.append(tr._("local camera"))
+        if IS_RASPBERRY_PI:
 
-        enable_local_microphone = self.get_enable_local_microphone()
-        #print(">>>>>>>>>>>enable_local_microphone", enable_local_microphone)
-        if enable_local_microphone:
-            enabled_sensor_titles.append(tr._("local microphone"))
-            microphone_names = list_pulseaudio_microphone_names()
-            if not microphone_names:
-                return False, tr._("Local microphone not found")
+            enable_local_camera = self.get_enable_local_camera()
+            #print(">>>>>>>>>>>enable_local_camera", enable_local_camera)
+            if enable_local_camera:
+                enabled_sensor_titles.append(tr._("local camera"))
 
-        enable_local_camera = self.get_enable_local_camera()
+            enable_local_microphone = self.get_enable_local_microphone()
+            #print(">>>>>>>>>>>enable_local_microphone", enable_local_microphone)
+            if enable_local_microphone:
+                enabled_sensor_titles.append(tr._("local microphone"))
+                microphone_names = list_pulseaudio_microphone_names()
+                if not microphone_names:
+                    return False, tr._("Local microphone not found")
+
+        enable_ip_camera = self.get_enable_ip_camera()
         ip_camera_url = self.get_ip_camera_url()
-        if enable_local_camera:
+        if enable_ip_camera:
             enabled_sensor_titles.append(tr._("IP camera %s") % ip_camera_url)
             ip_camera_res, ip_camera_msg = self.check_camera_url(ip_camera_url)
             if not ip_camera_res:
@@ -150,13 +152,8 @@ class WanvrRuntimeSupportMixin:
         return True, tr._("Sensors: %s") % (", ".join(enabled_sensor_titles))
 
     def _get_status_checkers(self):
-
-        if IS_RASPBERRY_PI:
-            specific_checkers = [self.check_all_raspberry_pi_sensors]
-        else:
-            specific_checkers = [lambda: self.check_camera_url(self.get_ip_camera_url())]
-
-        return specific_checkers + [
+        return [
+            self.check_all_sensors,
             lambda: self.check_keyguardian_counts(
                     keyguardian_threshold=self.get_keyguardian_threshold(),
                     keyguardian_count=len(self._load_selected_keystore_uids())),
