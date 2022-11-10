@@ -202,13 +202,15 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         enable_ip_camera = self.get_enable_ip_camera()
         ip_camera_url = self.get_ip_camera_url()
         ffmpeg_rtsp_parameters = self.get_ffmpeg_rtsp_parameters()
+        ffmpeg_rtsp_output_format = self.get_ffmpeg_rtsp_output_format()
         if enable_ip_camera:
             rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=recording_duration_s,
                 cryptainer_storage=cryptainer_storage,
                 video_stream_url=ip_camera_url,
                 preview_image_path=self.preview_image_path,
-                ffmpeg_rtsp_parameters=ffmpeg_rtsp_parameters)
+                ffmpeg_rtsp_parameters=ffmpeg_rtsp_parameters,
+                ffmpeg_rtsp_output_format=ffmpeg_rtsp_output_format)
             sensors.append(rtsp_camera_sensor)
 
         if IS_RASPBERRY_PI:

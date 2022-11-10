@@ -95,9 +95,6 @@ class WanvrRuntimeSupportMixin:
     def get_recording_duration_mn(self):
         return self.config.getint("sensor", "recording_duration_mn")
 
-    def get_ffmpeg_rtsp_parameters(self):
-        return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_parameters"))
-
     def get_libcameravid_video_parameters(self):
         return shlex.split(self.config.get("sensor", "libcameravid_video_parameters"))
 
@@ -118,6 +115,12 @@ class WanvrRuntimeSupportMixin:
 
     def get_ffmpeg_alsa_output_format(self):
         return self.config.get("sensor", "ffmpeg_alsa_output_format").strip()
+
+    def get_ffmpeg_rtsp_parameters(self):
+        return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_parameters"))
+
+    def get_ffmpeg_rtsp_output_format(self):
+        return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_output_format"))
 
     def get_keyguardian_threshold(self):
         return self.config.getint("keyguardian", "keyguardian_threshold")

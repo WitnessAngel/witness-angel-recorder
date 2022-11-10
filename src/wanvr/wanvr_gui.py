@@ -293,7 +293,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "options": [""] + EPAPER_TYPES,
                 "section": "peripheral"
             },
-
+            # ---
             {
                 "type": "title",
                 "title": tr._("Network")
@@ -304,6 +304,74 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "title": tr._("Witness Angel Gateway URL"),
                 "desc": tr._("Registry of key guardians"),
                 "section": "network"
+            },
+            # ---
+            {
+                "type": "title",
+                "title": tr._("Advanced")
+            },
+            {
+                "key": "libcameravid_video_parameters",
+                "type": "string_truncated",
+                "title": tr._("Libcameravid video params"),
+                "desc": tr._("Replace libcameravid video parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "libcameravid_audio_parameters",
+                "type": "string_truncated",
+                "title": tr._("Libcameravid audio params"),
+                "desc": tr._("Replace libcameravid audio parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "raspivid_parameters",
+                "type": "string_truncated",
+                "title": tr._("Raspivid params"),
+                "desc": tr._("Replace raspivid parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "arecord_parameters",
+                "type": "string_truncated",
+                "title": tr._("Arecord params"),
+                "desc": tr._("Replace arecord parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "arecord_output_format",
+                "type": "string_truncated",
+                "title": tr._("Arecord format"),
+                "desc": tr._("Replace arecord output format (default: wav)"),
+                "section": "sensor"
+            },
+            {
+                "key": "ffmpeg_alsa_parameters",
+                "type": "string_truncated",
+                "title": tr._("Ffmpeg alsa params"),
+                "desc": tr._("Replace ffmpeg alsa parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "ffmpeg_alsa_output_format",
+                "type": "string_truncated",
+                "title": tr._("Ffmpeg alsa format"),
+                "desc": tr._("Replace ffmpeg alsa output format (default: mp3)"),
+                "section": "sensor"
+            },
+            {
+                "key": "ffmpeg_rtsp_parameters",
+                "type": "string_truncated",
+                "title": tr._("FFmpeg rtsp params"),
+                "desc": tr._("Replace ffmpeg rtsp audio/video parameters"),
+                "section": "sensor"
+            },
+            {
+                "key": "ffmpeg_rtsp_output_format",
+                "type": "string_truncated",
+                "title": tr._("Ffmpeg rtsp format"),
+                "desc": tr._("Replace ffmpeg rtsp output format (default: mp4)"),
+                "section": "sensor"
             },
         ]
 
