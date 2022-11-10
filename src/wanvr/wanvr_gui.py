@@ -178,7 +178,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
     # FIXME rename these "authdevice" functions
     def _handle_selected_authdevice_changed(self, event, keystore_uids, *args):
         """Save to config file so that the Service can access the new list"""
-        self.config["nvr"]["selected_keystore_uids"] = ",".join(keystore_uids)
+        self.config["keyguardian"]["selected_keyguardians"] = ",".join(keystore_uids)
         self.save_config()
 
     def on_language_change(self, lang_code):
@@ -186,82 +186,104 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         self._reset_app_menu()
 
     def get_config_schema_data(self) -> list:
-        specific_config_schema = []
+        config_schema = []
+
+        config_schema += [
+            {
+                "type": "title",
+                "title": tr._("Sensors")
+            },
+        ]
 
         if IS_RASPBERRY_PI:
-            specific_config_schema += [
+            config_schema += [
                 {
                     "key": "enable_local_camera",
                     "type": "bool",
                     "title": tr._("Local camera"),
                     "desc": tr._("Enable attached camera"),
-                    "section": "nvr"
+                    "section": "sensor"
                 },
                 {
                     "key": "enable_local_microphone",
                     "type": "bool",
                     "title": tr._("Local microphone"),
                     "desc": tr._("Enable attached microphone"),
-                    "section": "nvr"
+                    "section": "sensor"
                 },
                 {
-                    "key": "compress_standalone_microphone_recording",
+                    "key": "compress_local_microphone_recording",
                     "type": "bool",
-                    "title": tr._("Compress standalone audio"),
-                    "desc": tr._("Compress audio when recorded separately"),
-                    "section": "nvr"
+                    "title": tr._("Compress audio"),
+                    "desc": tr._("Encode audio recording"),
+                    "section": "sensor"
                 },
                 {
-                    "key": "use_media_container",
+                    "key": "enable_local_camera_microphone_muxing",
                     "type": "bool",
-                    "title": tr._("Use media container"),
-                    "desc": tr._("Combine video and audio into media file"),
-                    "section": "nvr"
+                    "title": tr._("Mux recordings"),
+                    "desc": tr._("Combine local video and audio into media file"),
+                    "section": "sensor"
                 }
             ]
 
-        return specific_config_schema + [
+        config_schema += [
+            {
+                "key": "enable_ip_camera",
+                "type": "bool",
+                "title": tr._("IP camera"),
+                "desc": tr._("Enable network camera"),
+                "section": "sensor"
+            },
             {
                 "key": "ip_camera_url",
                 "type": "string_truncated",
                 "title": tr._("IP Camera URL"),
-                "desc": tr._("RTSP stream (optional)") if IS_RASPBERRY_PI else tr._("URL of the RTSP stream"),
-                "section": "nvr"
+                "desc": tr._("RTSP stream address"),
+                "section": "sensor"
+            },
+            {
+                "key": "recording_duration_mn",
+                "type": "numeric",
+                "title": tr._("Media recording duration (mn)"),
+                "desc": tr._("How long each audio/video clip must last"),
+                "section": "sensor"
+            },
+            # ---
+            {
+                "type": "title",
+                "title": tr._("Key guardians")
             },
             {
                 "key": "keyguardian_threshold",
                 "type": "numeric",
                 "title": tr._("Key guardian threshold"),
                 "desc": tr._("Count of key guardians required to decrypt data"),
-                "section": "nvr"
+                "section": "keyguardian"
+            },
+            # ---
+            {
+                "type": "title",
+                "title": tr._("Storage")
             },
             {
                 "key": "cryptainer_dir",
                 "type": "string_truncated",
-                "title": tr._("Containers folder"),
+                "title": tr._("Container folder"),
                 "desc": tr._("Folder to store containers (defaults to user profile)"),
-                "section": "nvr"
+                "section": "storage"
             },
             {
                 "key": "max_cryptainer_age_day",
                 "type": "numeric",
                 "title": tr._("Max retention period (days)"),
                 "desc": tr._("For how long to keep a container before deletion"),
-                "section": "nvr"
+                "section": "storage"
             },
+            # ---
             {
-                "key": "video_recording_duration_mn",
-                "type": "numeric",
-                "title": tr._("Video recording duration (mn)"),
-                "desc": tr._("How long each video clip must last"),
-                "section": "nvr"
-            },
-            {
-                "key": "wagateway_url",
-                "type": "string_truncated",
-                "title": tr._("Witness Angel Gateway URL"),
-                "desc": tr._("Registry of key guardians"),
-                "section": "nvr"
+                "type": "title",
+                "title": tr._("Peripherals")
             },
             {
                 "key": "epaper_type",
@@ -269,9 +291,24 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "title": tr._("E-paper type"),
                 "desc": tr._("Optional E-ink display"),
                 "options": [""] + EPAPER_TYPES,
-                "section": "nvr"
-            }
+                "section": "peripheral"
+            },
+
+            {
+                "type": "title",
+                "title": tr._("Network")
+            },
+            {
+                "key": "wagateway_url",
+                "type": "string_truncated",
+                "title": tr._("Witness Angel Gateway URL"),
+                "desc": tr._("Registry of key guardians"),
+                "section": "network"
+            },
         ]
+
+        return config_schema
+
 
 def main():
     WardGuiApp().run()

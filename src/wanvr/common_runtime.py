@@ -54,10 +54,10 @@ class WanvrRuntimeSupportMixin:
         return klass(cryptainer_dir=self.get_cryptainer_dir(), keystore_pool=self.filesystem_keystore_pool)
 
     def get_keyguardian_threshold(self):
-        return int(self.config.get("nvr", "keyguardian_threshold"))
+        return int(self.config.get("keyguardian", "keyguardian_threshold"))
 
     def get_cryptainer_dir(self) -> Path:
-        cryptainer_dir_str = self.config.get("nvr", "cryptainer_dir")  # Might be wrong!
+        cryptainer_dir_str = self.config.get("storage", "cryptainer_dir")  # Might be wrong!
         if not cryptainer_dir_str:
             logger.info("Containers directory not configured, falling back to internal folder")
             from wacomponents.default_settings import INTERNAL_CRYPTAINER_DIR
@@ -68,7 +68,9 @@ class WanvrRuntimeSupportMixin:
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
 
         # Beware these are STRINGS
-        selected_keystore_uids = self.config.get("nvr", "selected_keystore_uids").split(",")
+        selected_keystore_uids = self.config.get("keyguardian", "selected_keyguardians").split(",")
+        selected_keystore_uids = [x.strip() for x in selected_keystore_uids if x.strip()]
+        print(">>>>> selected_keystore_uids", repr(selected_keystore_uids))
 
         available_keystore_uids = self.filesystem_keystore_pool.list_foreign_keystore_uids()
 
@@ -83,34 +85,38 @@ class WanvrRuntimeSupportMixin:
 
         return selected_keystore_uids_filtered
 
-    def get_ip_camera_url(self):
-        return self.config.get("nvr", "ip_camera_url")
 
     def get_enable_local_camera(self):
-        return self.config.getboolean("nvr", "enable_local_camera")
+        return self.config.getboolean("sensor", "enable_local_camera")
 
     def get_enable_local_microphone(self):
-        return self.config.getboolean("nvr", "enable_local_microphone")
+        return self.config.getboolean("sensor", "enable_local_microphone")
 
-    def get_compress_standalone_microphone_recording(self):
-        return self.config.getboolean("nvr", "compress_standalone_microphone_recording")
+    def get_compress_local_microphone_recording(self):
+        return self.config.getboolean("sensor", "compress_local_microphone_recording")
 
-    def get_use_media_container(self):
-        return self.config.getboolean("nvr", "use_media_container")
+    def get_enable_local_camera_microphone_muxing(self):
+        return self.config.getboolean("sensor", "enable_local_camera_microphone_muxing")
 
-    def get_video_recording_duration_mn(self):
-        return int(self.config.get("nvr", "video_recording_duration_mn"))  # FIXME rename this since it's used for standalone audio too?? Or separate these settings ?
+    def get_enable_ip_camera(self):
+        return self.config.getboolean("sensor", "enable_ip_camera")
+
+    def get_ip_camera_url(self):
+        return self.config.get("sensor", "ip_camera_url")
+
+    def get_recording_duration_mn(self):
+        return int(self.config.get("sensor", "recording_duration_mn"))
 
     # FIXME add "extra command line" settings for each sensor, and use shlex.split()
 
     def get_max_cryptainer_age_day(self):
-        return int(self.config.get("nvr", "max_cryptainer_age_day"))
-
-    def get_wagateway_url(self):
-        return self.config.get("nvr", "wagateway_url")
+        return int(self.config.get("storage", "max_cryptainer_age_day"))
 
     def get_epaper_type(self):
-        return self.config.get("nvr", "epaper_type")
+        return self.config.get("peripheral", "epaper_type")
+
+    def get_wagateway_url(self):
+        return self.config.get("network", "wagateway_url")
 
     def get_min_ffmpeg_version(self):
         return 4.3
@@ -155,7 +161,7 @@ class WanvrRuntimeSupportMixin:
                     keyguardian_threshold=self.get_keyguardian_threshold(),
                     keyguardian_count=len(self._load_selected_keystore_uids())),
             lambda: self.check_cryptainer_output_dir(self.get_cryptainer_dir()),
-            lambda: self.check_video_recording_duration_mn(self.get_video_recording_duration_mn()),
+            lambda: self.check_recording_duration_mn(self.get_recording_duration_mn()),
             lambda: self.check_max_cryptainer_age_day(self.get_max_cryptainer_age_day()),
             lambda: self.check_ffmpeg(self.get_min_ffmpeg_version()),
         ]

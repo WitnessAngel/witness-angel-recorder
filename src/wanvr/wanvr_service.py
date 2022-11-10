@@ -198,7 +198,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         assert cryptainer_storage is not None, cryptainer_storage
 
         sensors = []
-        recording_duration_s = self.get_video_recording_duration_mn()*60
+        recording_duration_s = self.get_recording_duration_mn()*60
 
         ip_camera_url = self.get_ip_camera_url()  #FIXME normalize names
         if ip_camera_url:
@@ -215,8 +215,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
             enable_local_camera = self.get_enable_local_camera()
             enable_local_microphone = self.get_enable_local_microphone()
-            compress_standalone_microphone_recording = self.get_compress_standalone_microphone_recording()
-            use_media_container = self.get_use_media_container()
+            compress_local_microphone_recording = self.get_compress_local_microphone_recording()
+            enable_local_camera_microphone_muxing = self.get_enable_local_camera_microphone_muxing()
 
             _audio_is_already_handled = False
 
@@ -239,7 +239,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                     logging.warning("Using MODERN libcamera sensor")
 
                     alsa_device_name = None
-                    if use_media_container and enable_local_microphone:
+                    if enable_local_camera_microphone_muxing and enable_local_microphone:
                         alsa_device_name = list_pulseaudio_microphone_names()[0]
                         _audio_is_already_handled = True
 
@@ -255,7 +255,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
-                    compress_recording=compress_standalone_microphone_recording
+                    compress_recording=compress_local_microphone_recording
                 )
                 sensors.append(alsa_microphone_sensor)
 
