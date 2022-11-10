@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+import shlex
 
 import os
 from uuid import UUID
@@ -40,37 +41,12 @@ class WanvrRuntimeSupportMixin:
 
         super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
-    def get_cryptainer_storage_or_none(self, read_only=False):
-        if not self.config:
-            return  # Too early inspection
-
-        cryptainer_dir = self.get_cryptainer_dir()
-
-        if not cryptainer_dir.is_dir():
-            logger.warning("No valid containers dir configured for readonly visualization")
-            return None
-
-        klass = ReadonlyCryptainerStorage if read_only else CryptainerStorage
-        return klass(cryptainer_dir=self.get_cryptainer_dir(), keystore_pool=self.filesystem_keystore_pool)
-
-    def get_keyguardian_threshold(self):
-        return int(self.config.get("keyguardian", "keyguardian_threshold"))
-
-    def get_cryptainer_dir(self) -> Path:
-        cryptainer_dir_str = self.config.get("storage", "cryptainer_dir")  # Might be wrong!
-        if not cryptainer_dir_str:
-            logger.info("Containers directory not configured, falling back to internal folder")
-            from wacomponents.default_settings import INTERNAL_CRYPTAINER_DIR
-            return INTERNAL_CRYPTAINER_DIR
-        return Path(cryptainer_dir_str)  # Might NOT exist!
-
     def _load_selected_keystore_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
 
         # Beware these are STRINGS
-        selected_keystore_uids = self.config.get("keyguardian", "selected_keyguardians").split(",")
-        selected_keystore_uids = [x.strip() for x in selected_keystore_uids if x.strip()]
-        print(">>>>> selected_keystore_uids", repr(selected_keystore_uids))
+        selected_keystore_uids = self.get_selected_keyguardians()
+        #print(">>>>> selected_keystore_uids", repr(selected_keystore_uids))
 
         available_keystore_uids = self.filesystem_keystore_pool.list_foreign_keystore_uids()
 
@@ -84,6 +60,19 @@ class WanvrRuntimeSupportMixin:
         # TODO issue warning() if some uids were wrong!
 
         return selected_keystore_uids_filtered
+
+    def get_cryptainer_storage_or_none(self, read_only=False):
+        if not self.config:
+            return  # Too early inspection
+
+        cryptainer_dir = self.get_cryptainer_dir()
+
+        if not cryptainer_dir.is_dir():
+            logger.warning("No valid containers dir configured for readonly visualization")
+            return None
+
+        klass = ReadonlyCryptainerStorage if read_only else CryptainerStorage
+        return klass(cryptainer_dir=self.get_cryptainer_dir(), keystore_pool=self.filesystem_keystore_pool)
 
     def get_enable_local_camera(self):
         return self.config.getboolean("sensor", "enable_local_camera")
@@ -104,12 +93,50 @@ class WanvrRuntimeSupportMixin:
         return self.config.get("sensor", "ip_camera_url").strip()
 
     def get_recording_duration_mn(self):
-        return int(self.config.getint("sensor", "recording_duration_mn"))
+        return self.config.getint("sensor", "recording_duration_mn")
 
-    # FIXME add "extra command line" settings for each sensor, and use shlex.split()
+    def get_ffmpeg_rtsp_parameters(self):
+        return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_parameters"))
+
+    def get_libcameravid_video_parameters(self):
+        return shlex.split(self.config.get("sensor", "libcameravid_video_parameters"))
+
+    def get_libcameravid_audio_parameters(self):
+        return shlex.split(self.config.get("sensor", "libcameravid_audio_parameters"))
+
+    def get_raspivid_parameters(self):
+        return shlex.split(self.config.get("sensor", "raspivid_parameters"))
+
+    def get_arecord_parameters(self):
+        return shlex.split(self.config.get("sensor", "arecord_parameters"))
+
+    def get_arecord_output_format(self):
+        return self.config.get("sensor", "arecord_output_format").strip()
+
+    def get_ffmpeg_alsa_parameters(self):
+        return shlex.split(self.config.get("sensor", "ffmpeg_alsa_parameters"))
+
+    def get_ffmpeg_alsa_output_format(self):
+        return self.config.get("sensor", "ffmpeg_alsa_output_format").strip()
+
+    def get_keyguardian_threshold(self):
+        return self.config.getint("keyguardian", "keyguardian_threshold")
+
+    def get_selected_keyguardians(self):
+        selected_keystore_uids =  self.config.get("keyguardian", "selected_keyguardians").split(",")
+        selected_keystore_uids = [x.strip() for x in selected_keystore_uids if x.strip()]
+        return selected_keystore_uids
+
+    def get_cryptainer_dir(self) -> Path:
+        cryptainer_dir_str = self.config.get("storage", "cryptainer_dir").strip()  # Might be wrong!
+        if not cryptainer_dir_str:
+            logger.info("Containers directory not configured, falling back to internal folder")
+            from wacomponents.default_settings import INTERNAL_CRYPTAINER_DIR
+            return INTERNAL_CRYPTAINER_DIR
+        return Path(cryptainer_dir_str)  # Might NOT exist!
 
     def get_max_cryptainer_age_day(self):
-        return int(self.config.getint("storage", "max_cryptainer_age_day"))
+        return self.config.getint("storage", "max_cryptainer_age_day")
 
     def get_epaper_type(self):
         return self.config.get("peripheral", "epaper_type").strip()

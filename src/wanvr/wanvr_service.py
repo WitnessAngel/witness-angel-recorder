@@ -201,12 +201,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
         enable_ip_camera = self.get_enable_ip_camera()
         ip_camera_url = self.get_ip_camera_url()
+        ffmpeg_rtsp_parameters = self.get_ffmpeg_rtsp_parameters()
         if enable_ip_camera:
             rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=recording_duration_s,
                 cryptainer_storage=cryptainer_storage,
                 video_stream_url=ip_camera_url,
-                preview_image_path=self.preview_image_path)
+                preview_image_path=self.preview_image_path,
+                ffmpeg_rtsp_parameters=ffmpeg_rtsp_parameters)
             sensors.append(rtsp_camera_sensor)
 
         if IS_RASPBERRY_PI:
@@ -226,10 +228,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
                     logging.warning("Using LEGACY raspivid sensor")
 
+                    raspivid_parameters = self.get_raspivid_parameters()
+
                     raspberry_raspivid_sensor = RaspberryRaspividSensor(
                         interval_s=recording_duration_s,
                         cryptainer_storage=cryptainer_storage,
                         preview_image_path=self.preview_image_path,
+                        raspivid_parameters=raspivid_parameters,
                     )
 
                     sensors.append(raspberry_raspivid_sensor)
@@ -243,19 +248,34 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                         alsa_device_name = list_pulseaudio_microphone_names()[0]
                         _audio_is_already_handled = True
 
+                    libcameravid_video_parameters = self.get_libcameravid_video_parameters()
+                    libcameravid_audio_parameters = self.get_libcameravid_audio_parameters()
+
                     raspberry_libcamera_sensor = RaspberryLibcameraSensor(
                         interval_s=recording_duration_s,
                         cryptainer_storage=cryptainer_storage,
                         preview_image_path=self.preview_image_path,
                         alsa_device_name=alsa_device_name,
+                        libcameravid_video_parameters=libcameravid_video_parameters,
+                        libcameravid_audio_parameters=libcameravid_audio_parameters,
                     )
                     sensors.append(raspberry_libcamera_sensor)
 
             if enable_local_microphone and not _audio_is_already_handled:  # Separate audio recording
+
+                arecord_parameters = self.get_arecord_parameters()
+                arecord_output_format = self.get_arecord_output_format()
+                ffmpeg_alsa_parameters = self.ffmpeg_alsa_parameters()
+                ffmpeg_alsa_output_format = self.get_ffmpeg_alsa_output_format()
+
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
-                    compress_recording=compress_local_microphone_recording
+                    compress_recording=compress_local_microphone_recording,
+                    arecord_parameters=arecord_parameters,
+                    arecord_output_format=arecord_output_format,
+                    ffmpeg_alsa_parameters=ffmpeg_alsa_parameters,
+                    ffmpeg_alsa_output_format=ffmpeg_alsa_output_format
                 )
                 sensors.append(alsa_microphone_sensor)
 
