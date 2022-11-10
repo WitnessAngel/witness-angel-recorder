@@ -108,10 +108,11 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         assert epaper_display, epaper_display
         epaper_display.initialize_display()
 
-        status_obj = self._retrieve_epaper_display_information()
-
-        epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
-        epaper_display.release_display()
+        try:
+            status_obj = self._retrieve_epaper_display_information()
+            epaper_display.display_status(status_obj, preview_image_path=str(self.preview_image_path))
+        finally:
+            epaper_display.release_display()  # Important to avoid harming the screen
 
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
         logger.info("Epaper recording switch callback  was triggered")
@@ -267,7 +268,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
                 arecord_parameters = self.get_arecord_parameters()
                 arecord_output_format = self.get_arecord_output_format()
-                ffmpeg_alsa_parameters = self.ffmpeg_alsa_parameters()
+                ffmpeg_alsa_parameters = self.get_ffmpeg_alsa_parameters()
                 ffmpeg_alsa_output_format = self.get_ffmpeg_alsa_output_format()
 
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
@@ -297,5 +298,11 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 def main():
     logger.info("Service process launches")
     server = WanvrBackgroundServer()
+
+    #import logging_tree; logging_tree.printout()
+    #print(">>>>> TRIGGER FORCE REFRESH CALLBACK OF EPAPE SOON")
+    #time.sleep(1)
+    #server._epaper_status_refresh_callback()
+
     server.join()
     logger.info("Service process exits")
