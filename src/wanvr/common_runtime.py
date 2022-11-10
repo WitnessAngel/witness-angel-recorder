@@ -120,7 +120,7 @@ class WanvrRuntimeSupportMixin:
         return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_parameters"))
 
     def get_ffmpeg_rtsp_output_format(self):
-        return shlex.split(self.config.get("sensor", "ffmpeg_rtsp_output_format"))
+        return self.config.get("sensor", "ffmpeg_rtsp_output_format")
 
     def get_keyguardian_threshold(self):
         return self.config.getint("keyguardian", "keyguardian_threshold")
