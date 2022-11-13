@@ -87,9 +87,12 @@
       virtualenv_python: "python3"
   - name: Install misc dependencies into venv
     pip:
-      name: ["poetry", "pillow", "numpy", "wiringpi==2.60.1",  # For E-paper control
+      # If problems with cryptography/asn1, rust/cargo and zlib corruption, see https://stackoverflow.com/a/70628807
+      name: ["poetry",
+             "pillow", "numpy", "wiringpi==2.60.1",  # For E-paper control
+              # Waveshare e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware:
              "git+https://github.com/waveshare/e-Paper.git#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python",
-             # Waveshare e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware!
+             "smbus==1.1.post2",  # For button-shim control
              "adafruit-python-shell"]  # For i2smic setup script below
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"

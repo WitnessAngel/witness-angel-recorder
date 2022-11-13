@@ -293,6 +293,14 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "options": [""] + EPAPER_TYPES,
                 "section": "peripheral"
             },
+            {
+                "key": "enable_button_shim",
+                "type": "bool",
+                "title": tr._(5 button shim"),
+                "desc": tr._("Enable Pimoroni buttonshim device"),
+                "section": "peripheral"
+            },
+
             # ---
             {
                 "type": "title",

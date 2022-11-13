@@ -56,6 +56,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         if self._epaper_display.BUTTON_PIN_2 is not None:
             register_button_callback(self._epaper_display.BUTTON_PIN_2, self._epaper_switch_recording_callback)
 
+        if self.get_enable_button_shim():
+            logger.info("Setting up buttonshim device")
+            import buttonshim  # Smbus-based driver for Raspberry
+            # This lib automatically cleans up thanks to atexit
+            buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_status_refresh_callback)
+            buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_switch_recording_callback)
+
+
     def _retrieve_epaper_display_information(self):
 
         status_obj = get_system_information(self.get_cryptainer_dir())

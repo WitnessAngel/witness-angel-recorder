@@ -144,6 +144,9 @@ class WanvrRuntimeSupportMixin:
     def get_epaper_type(self):
         return self.config.get("peripheral", "epaper_type").strip()
 
+    def get_enable_button_shim(self):
+        return self.config.getboolean("peripheral", "enable_button_shim")
+
     def get_wagateway_url(self):
         return self.config.get("network", "wagateway_url").strip()
 
