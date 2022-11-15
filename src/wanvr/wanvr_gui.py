@@ -222,7 +222,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                     "key": "enable_local_camera_microphone_muxing",
                     "type": "bool",
                     "title": tr._("Mux recordings"),
-                    "desc": tr._("Combine local video and audio into media file"),
+                    "desc": tr._("Merge local video and audio (requires libcamera)"),
                     "section": "sensor"
                 }
             ]
@@ -296,7 +296,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
             {
                 "key": "enable_button_shim",
                 "type": "bool",
-                "title": tr._(5 button shim"),
+                "title": tr._("5 button shim"),
                 "desc": tr._("Enable Pimoroni buttonshim device"),
                 "section": "peripheral"
             },
