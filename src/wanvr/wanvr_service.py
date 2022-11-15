@@ -1,5 +1,6 @@
 import logging
 import os.path
+import threading
 from concurrent.futures.thread import ThreadPoolExecutor
 
 import random
@@ -36,6 +37,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     _epaper_display = None  # Not always available
 
+    _led_callback = None  # Can be set to a function taking 0-255 color tuple (R,G,B) as argument
+
     def __init__(self):
         super().__init__()
         self._setup_epaper_screen()
@@ -63,6 +66,22 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_status_refresh_callback)
             buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_switch_recording_callback)
 
+            buttonshim.set_brightness(0.2)
+
+            def _buttonshim_led_callback(color):
+                buttonshim.set_pixel(*color)
+
+            self._led_callback = _buttonshim_led_callback
+            self._led_callback((100, 40, 40))
+
+    _led_lock = threading.Lock()
+    def _blink_on_recording(self, color):
+        print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for", self._led_callback)
+        if self._led_callback:
+            with self._led_lock:  # Beware of concurrent recorder threads colliding here
+                self._led_callback(color)
+                time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
+                self._led_callback((0, 0, 0))  # Turn LED off
 
     def _retrieve_epaper_display_information(self):
 
@@ -219,7 +238,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 video_stream_url=ip_camera_url,
                 preview_image_path=self.preview_image_path,
                 ffmpeg_rtsp_parameters=ffmpeg_rtsp_parameters,
-                ffmpeg_rtsp_output_format=ffmpeg_rtsp_output_format)
+                ffmpeg_rtsp_output_format=ffmpeg_rtsp_output_format,
+                activity_notification_callback=self._blink_on_recording)
             sensors.append(rtsp_camera_sensor)
 
         if IS_RASPBERRY_PI:
@@ -246,13 +266,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                         cryptainer_storage=cryptainer_storage,
                         preview_image_path=self.preview_image_path,
                         raspivid_parameters=raspivid_parameters,
+                        activity_notification_callback=self._blink_on_recording,
                     )
 
                     sensors.append(raspberry_raspivid_sensor)
 
                 else:
 
-                    logging.warning("Using MODERN libcamera sensor")
+                    logging.warning("Using MODERN libcamera sensor")  # Broken on raspberry pi zero V1, not enough power...
 
                     alsa_device_name = None
                     if enable_local_camera_microphone_muxing and enable_local_microphone:
@@ -269,6 +290,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                         alsa_device_name=alsa_device_name,
                         libcameravid_video_parameters=libcameravid_video_parameters,
                         libcameravid_audio_parameters=libcameravid_audio_parameters,
+                        # No activity_notification_callback for now, has to be integrated and tests
                     )
                     sensors.append(raspberry_libcamera_sensor)
 
@@ -286,7 +308,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                     arecord_parameters=arecord_parameters,
                     arecord_output_format=arecord_output_format,
                     ffmpeg_alsa_parameters=ffmpeg_alsa_parameters,
-                    ffmpeg_alsa_output_format=ffmpeg_alsa_output_format
+                    ffmpeg_alsa_output_format=ffmpeg_alsa_output_format,
+                    activity_notification_callback=self._blink_on_recording,
                 )
                 sensors.append(alsa_microphone_sensor)
 
