@@ -89,6 +89,16 @@
       name: ["pip==21.3.1", "setuptools", "wheel", ]
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"
+  - name: Create symbolic link to venv activation script
+    file:
+      src: "{{ ansible_env.HOME }}/.venv/bin/activate"
+      dest: "{{ ansible_env.HOME }}/activate_virtualenv"
+      state: link
+  - name: Create symbolic link to venv site-packages folder
+    file:
+      src: "{{ ansible_env.HOME }}/.venv/lib/python3.9/site-packages"
+      dest: "{{ ansible_env.HOME }}/site_packages_virtualenv"
+      state: link
   - name: Install misc dependencies into venv
     pip:
       # If problems with cryptography/asn1, rust/cargo and zlib corruption, see https://stackoverflow.com/a/70628807
