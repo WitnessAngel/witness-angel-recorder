@@ -44,10 +44,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         self._setup_epaper_screen()
 
     def _setup_epaper_screen(self):
+        if not IS_RASPBERRY_PI:
+            return  # No special display/buttons on PC
+
         epaper_type = self.get_epaper_type()
         epaper_type = epaper_type.strip().lower()
         if not epaper_type:
             return  # No e-paper expected on this installation
+
         try:
             self._epaper_display = get_epaper_instance(epaper_type)
         except (ImportError, ValueError):

@@ -280,28 +280,32 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                 "desc": tr._("For how long to keep a container before deletion"),
                 "section": "storage"
             },
-            # ---
-            {
-                "type": "title",
-                "title": tr._("Peripherals")
-            },
-            {
-                "key": "epaper_type",
-                "type": "options",
-                "title": tr._("E-paper type"),
-                "desc": tr._("Optional E-ink display"),
-                "options": [""] + EPAPER_TYPES,
-                "section": "peripheral"
-            },
-            {
-                "key": "enable_button_shim",
-                "type": "bool",
-                "title": tr._("5 button shim"),
-                "desc": tr._("Enable Pimoroni buttonshim device"),
-                "section": "peripheral"
-            },
+        ]
 
-            # ---
+        if IS_RASPBERRY_PI:
+            config_schema += [
+                {
+                    "type": "title",
+                    "title": tr._("Peripherals")
+                },
+                {
+                    "key": "epaper_type",
+                    "type": "options",
+                    "title": tr._("E-paper type"),
+                    "desc": tr._("Optional E-ink display"),
+                    "options": [""] + EPAPER_TYPES,
+                    "section": "peripheral"
+                },
+                {
+                    "key": "enable_button_shim",
+                    "type": "bool",
+                    "title": tr._("5 button shim"),
+                    "desc": tr._("Enable Pimoroni buttonshim device (requires e-paper too)"),
+                    "section": "peripheral"
+                },
+            ]
+
+        config_schema += [
             {
                 "type": "title",
                 "title": tr._("Network")
