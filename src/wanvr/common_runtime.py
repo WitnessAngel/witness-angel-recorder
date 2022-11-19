@@ -142,7 +142,10 @@ class WanvrRuntimeSupportMixin:
         return self.config.getint("storage", "max_cryptainer_age_day")
 
     def get_epaper_type(self):
-        return self.config.get("peripheral", "epaper_type").strip()
+        return self.config.get("peripheral", "epaper_type").strip().lower()
+
+    def get_lcd_type(self):
+        return self.config.get("peripheral", "lcd_type").strip().lower()
 
     def get_enable_button_shim(self):
         return self.config.getboolean("peripheral", "enable_button_shim")

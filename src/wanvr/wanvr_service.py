@@ -10,6 +10,7 @@ from datetime import timedelta, datetime, timezone
 
 from wacomponents.default_settings import IS_RASPBERRY_PI
 from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
+from wacomponents.devices.lcd import get_lcd_instance
 from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryLibcameraSensor, \
     RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names, is_legacy_rpi_camera_enabled, \
     RaspberryRaspividSensor, RaspberryPicameraSensor
@@ -36,40 +37,59 @@ logger = logging.getLogger(__name__)
 class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIXME RENAME THIS
 
     _epaper_display = None  # Not always available
+    _lcd_display = None  # Not always available
 
     _led_callback = None  # Can be set to a function taking 0-255 color tuple (R,G,B) as argument
 
     def __init__(self):
         super().__init__()
-        self._setup_epaper_screen()
+        self._setup_peripherals()
 
-    def _setup_epaper_screen(self):
+    def _setup_peripherals(self):
+
         if not IS_RASPBERRY_PI:
             return  # No special display/buttons on PC
 
-        epaper_type = self.get_epaper_type()
-        epaper_type = epaper_type.strip().lower()
-        if not epaper_type:
-            return  # No e-paper expected on this installation
+        recording_switch_pin = None
+        epaper_status_refresh_pin = None
 
-        try:
-            self._epaper_display = get_epaper_instance(epaper_type)
-        except (ImportError, ValueError):
-            logger.warning("Could not import display of type %r, aborting setup of e-paper screen" % epaper_type)
-            return
-        logger.info("Setting up epaper screen and refresh/on-off buttons")
-        if self._epaper_display.BUTTON_PIN_1 is not None:
-            register_button_callback(self._epaper_display.BUTTON_PIN_1, self._epaper_status_refresh_callback)
-        if self._epaper_display.BUTTON_PIN_2 is not None:
-            register_button_callback(self._epaper_display.BUTTON_PIN_2, self._epaper_switch_recording_callback)
+        epaper_type = self.get_epaper_type()
+        if epaper_type:
+            try:
+                epaper_display = get_epaper_instance(epaper_type)
+            except (ImportError, ValueError):
+                logger.warning("Could not import E-PAPER display of type %r, aborting" % epaper_type)
+            else:
+                recording_switch_pin = epaper_display.BUTTON_PIN_1
+                epaper_status_refresh_pin = epaper_display.BUTTON_PIN_2
+                self._epaper_display = epaper_display
+
+        lcd_type = self.get_lcd_type()
+        if lcd_type:
+            try:
+                lcd_display = get_lcd_instance(lcd_type)
+            except (ImportError, ValueError):
+                logger.warning("Could not import LCD display of type %r, aborting" % lcd_type)
+                raise
+            else:
+                recording_switch_pin = lcd_display.BUTTON_PIN_1
+                # No status display with LCD for now
+                self._lcd_display = lcd_display
+
+        logger.info("Setting up display and refresh/on-off buttons")
+        if recording_switch_pin is not None:
+            register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
+        if epaper_status_refresh_pin is not None:
+            assert self._epaper_display
+            register_button_callback(recording_switch_pin, self._epaper_status_refresh_callback)
 
         if self.get_enable_button_shim():
             logger.info("Setting up buttonshim device")
             import buttonshim  # Smbus-based driver for Raspberry
             # This lib automatically cleans up thanks to atexit
-            buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_status_refresh_callback)
-            buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_switch_recording_callback)
-
+            buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_switch_recording_callback)
+            if self._epaper_display:
+                buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
             buttonshim.set_brightness(0.2)
 
             def _buttonshim_led_callback(color):
@@ -282,7 +302,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                         raspberry_picamera_sensor = RaspberryPicameraSensor(
                             interval_s=recording_duration_s,
                             cryptainer_storage=cryptainer_storage,
-                            ###preview_image_path=self.preview_image_path,
+                            preview_image_path=self.preview_image_path,
                             ###raspivid_parameters=raspivid_parameters,
                             ###activity_notification_callback=self._blink_on_recording,
                         )
