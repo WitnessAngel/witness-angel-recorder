@@ -12,7 +12,7 @@ from wacomponents.default_settings import IS_RASPBERRY_PI
 from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
 from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryLibcameraSensor, \
     RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names, is_legacy_rpi_camera_enabled, \
-    RaspberryRaspividSensor
+    RaspberryRaspividSensor, RaspberryPicameraSensor
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
     CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
@@ -261,19 +261,34 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
                 if legacy_rpi_camera_enabled:
 
-                    logging.warning("Using LEGACY raspivid sensor")
+                    if False:
+                        logging.warning("Using LEGACY raspivid sensor")
 
-                    raspivid_parameters = self.get_raspivid_parameters()
+                        raspivid_parameters = self.get_raspivid_parameters()
 
-                    raspberry_raspivid_sensor = RaspberryRaspividSensor(
-                        interval_s=recording_duration_s,
-                        cryptainer_storage=cryptainer_storage,
-                        preview_image_path=self.preview_image_path,
-                        raspivid_parameters=raspivid_parameters,
-                        activity_notification_callback=self._blink_on_recording,
-                    )
+                        raspberry_raspivid_sensor = RaspberryRaspividSensor(
+                            interval_s=recording_duration_s,
+                            cryptainer_storage=cryptainer_storage,
+                            preview_image_path=self.preview_image_path,
+                            raspivid_parameters=raspivid_parameters,
+                            activity_notification_callback=self._blink_on_recording,
+                        )
 
-                    sensors.append(raspberry_raspivid_sensor)
+                        sensors.append(raspberry_raspivid_sensor)
+
+                    else:
+                        logging.warning("Using LEGACY picamera sensor")
+
+                        raspberry_picamera_sensor = RaspberryPicameraSensor(
+                            interval_s=recording_duration_s,
+                            cryptainer_storage=cryptainer_storage,
+                            ###preview_image_path=self.preview_image_path,
+                            ###raspivid_parameters=raspivid_parameters,
+                            ###activity_notification_callback=self._blink_on_recording,
+                        )
+
+                        sensors.append(raspberry_picamera_sensor)
+
 
                 else:
 
