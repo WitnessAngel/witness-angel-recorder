@@ -78,6 +78,9 @@ class WanvrRuntimeSupportMixin:
     def get_enable_local_camera(self):
         return self.config.getboolean("sensor", "enable_local_camera")
 
+    def get_local_camera_rotation(self):
+        return self.config.getint("sensor", "local_camera_rotation")
+
     def get_enable_local_microphone(self):
         return self.config.getboolean("sensor", "enable_local_microphone")
 

@@ -206,6 +206,14 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                     "section": "sensor"
                 },
                 {
+                    "key": "local_camera_rotation",
+                    "type": "options",
+                    "title": tr._("Local camera rotation"),
+                    "desc": tr._("Rotation angle of camera (Picamera only)"),
+                    "options": ["0", "90", "180", "270"],
+                    "section": "sensor"
+                },
+                {
                     "key": "enable_local_microphone",
                     "type": "bool",
                     "title": tr._("Local microphone"),

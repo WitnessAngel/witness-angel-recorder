@@ -323,11 +323,13 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                     else:
                         logging.warning("Using LEGACY picamera sensor")
 
-                        picamera_parameters = self.get_picamera_parameters()
+                        local_camera_rotation = self.get_local_camera_rotation()
 
                         live_preview_interval_s = 0  # Disabled by default
                         if self._lcd_display:  # Optimization
                             live_preview_interval_s = self.get_live_preview_interval_s()
+
+                        picamera_parameters = self.get_picamera_parameters()
 
                         raspberry_picamera_sensor = RaspberryPicameraSensor(
                             interval_s=recording_duration_s,
@@ -335,7 +337,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                             preview_image_path=self.preview_image_path,
                             picamera_parameters=picamera_parameters,
                             activity_notification_callback=self._dispatch_activity_notification,
-                            live_preview_interval_s=live_preview_interval_s
+                            live_preview_interval_s=live_preview_interval_s,
+                            local_camera_rotation=local_camera_rotation,
                         )
 
                         sensors.append(raspberry_picamera_sensor)
