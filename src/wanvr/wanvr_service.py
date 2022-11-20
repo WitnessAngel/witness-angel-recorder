@@ -21,7 +21,8 @@ from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
 from wacryptolib.utilities import synchronized
 from wacomponents.application.recorder_service import WaRecorderService, ActivityNotificationType
 from wacomponents.logging.handlers import safe_catch_unhandled_exception
-from wacomponents.utilities import get_system_information, convert_bytes_to_human_representation
+from wacomponents.utilities import get_system_information, convert_bytes_to_human_representation, \
+    MONOTHREAD_POOL_EXECUTOR
 from wacomponents.i18n import tr
 try:
     from wacomponents.devices.gpio_buttons import register_button_callback
@@ -96,7 +97,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
             def _buttonshim_led_callback(color):
                 buttonshim.set_pixel(*color)
-                time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
+                time.sleep(0.1)  # FIXME problematic sleep(), as it blocks the recording thread...
                 buttonshim.set_pixel(0, 0, 0)  # Turn LED off
 
             self._led_callback = _buttonshim_led_callback
@@ -104,10 +105,11 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     def _dispatch_activity_notification(self, notification_type,
                                         notification_color=None, notification_image=None):
+        executor = MONOTHREAD_POOL_EXECUTOR.submit
         assert getattr(ActivityNotificationType, notification_type), notification_type
         if notification_type == ActivityNotificationType.RECORDING_PROGRESS:
             assert notification_color
-            self._blink_on_recording(notification_color)
+            executor(lambda: self._blink_on_recording(notification_color))
         else:
             print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
             assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
