@@ -336,6 +336,13 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         if IS_RASPBERRY_PI:
             config_schema += [
                 {
+                    "key": "live_preview_interval_s",
+                    "type": "numeric",
+                    "title": tr._("Live preview interval"),
+                    "desc": tr._("How many seconds between live previews of Picamera (0 to disable)"),
+                    "section": "sensor"
+                },
+                {
                     "key": "libcameravid_video_parameters",
                     "type": "string_truncated",
                     "title": tr._("Libcameravid video params"),

@@ -94,7 +94,11 @@ class WanvrRuntimeSupportMixin:
         return self.config.get("sensor", "ip_camera_url").strip()
 
     def get_recording_duration_mn(self):
-        return self.config.getint("sensor", "recording_duration_mn")
+        return self.config.getfloat("sensor", "recording_duration_mn")
+
+    def get_live_preview_interval_s(self):
+        print("^^^^^^^^^^get_live_preview_interval_s ", repr(self.config.get("sensor", "live_preview_interval_s")))
+        return self.config.getfloat("sensor", "live_preview_interval_s")
 
     def get_libcameravid_video_parameters(self):
         return shlex.split(self.config.get("sensor", "libcameravid_video_parameters"))
@@ -132,7 +136,7 @@ class WanvrRuntimeSupportMixin:
         return self.config.get("sensor", "ffmpeg_rtsp_output_format")
 
     def get_keyguardian_threshold(self):
-        return self.config.getint("keyguardian", "keyguardian_threshold")
+        return self.config.getint("keyguardian", "keyguardian_threshold")  # FIXME - will crash later if a float is entered!
 
     def get_selected_keyguardians(self):
         selected_keystore_uids =  self.config.get("keyguardian", "selected_keyguardians").split(",")

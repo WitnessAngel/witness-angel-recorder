@@ -8,7 +8,7 @@ import time
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
-from wacomponents.default_settings import IS_RASPBERRY_PI
+from wacomponents.default_settings import IS_RASPBERRY_PI, WIP_RECORDING_MARKER
 from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
 from wacomponents.devices.lcd import get_lcd_instance
 from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryLibcameraSensor, \
@@ -46,7 +46,12 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     def __init__(self):
         super().__init__()
+
         self._setup_peripherals()
+
+        if WIP_RECORDING_MARKER.exists():
+            self.start_recording()  # Autorecord e.g. after a restart due to closing of main android Activity
+
 
     def _setup_peripherals(self):
 
@@ -75,6 +80,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 logger.warning("Could not import LCD display of type %r, aborting" % lcd_type)
                 raise
             else:
+                print("Registering LCD screen", lcd_display)
                 recording_switch_pin = lcd_display.BUTTON_PIN_1
                 # No status display with LCD for now
                 self._lcd_display = lcd_display
@@ -119,7 +125,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     @synchronized
     def _blink_on_recording(self, notification_color):
-        print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for", self._led_callback)
+        print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for _led_callback", self._led_callback)
         if self._led_callback:
             self._led_callback(notification_color)
 
@@ -319,12 +325,17 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
                         picamera_parameters = self.get_picamera_parameters()
 
+                        live_preview_interval_s = 0  # Disabled by default
+                        if self._lcd_display:  # Optimization
+                            live_preview_interval_s = self.get_live_preview_interval_s()
+
                         raspberry_picamera_sensor = RaspberryPicameraSensor(
                             interval_s=recording_duration_s,
                             cryptainer_storage=cryptainer_storage,
                             preview_image_path=self.preview_image_path,
                             picamera_parameters=picamera_parameters,
                             activity_notification_callback=self._dispatch_activity_notification,
+                            live_preview_interval_s=live_preview_interval_s
                         )
 
                         sensors.append(raspberry_picamera_sensor)
