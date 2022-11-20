@@ -113,7 +113,9 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         else:
             print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
             assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
-            pass ####
+            assert notification_image
+            if self._lcd_display:
+                self._lcd_display.display_image(notification_image)
 
     @synchronized
     def _blink_on_recording(self, notification_color):
