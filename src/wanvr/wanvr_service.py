@@ -19,7 +19,7 @@ from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
 from wacryptolib.utilities import synchronized
-from wacomponents.application.recorder_service import WaRecorderService
+from wacomponents.application.recorder_service import WaRecorderService, ActivityNotificationType
 from wacomponents.logging.handlers import safe_catch_unhandled_exception
 from wacomponents.utilities import get_system_information, convert_bytes_to_human_representation
 from wacomponents.i18n import tr
@@ -81,7 +81,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
         if epaper_status_refresh_pin is not None:
             assert self._epaper_display
-            register_button_callback(recording_switch_pin, self._epaper_status_refresh_callback)
+            register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
 
         if self.get_enable_button_shim():
             logger.info("Setting up buttonshim device")
@@ -92,20 +92,32 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
             buttonshim.set_brightness(0.2)
 
+            _led_lock = threading.Lock()
+
             def _buttonshim_led_callback(color):
-                buttonshim.set_pixel(*color)
+                with _led_lock:  # Beware of concurrent recorder threads colliding here
+                    buttonshim.set_pixel(*color)
+                    time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
+                    buttonshim.set_pixel(0, 0, 0)  # Turn LED off
 
             self._led_callback = _buttonshim_led_callback
             self._led_callback((100, 40, 40))
 
-    _led_lock = threading.Lock()
-    def _blink_on_recording(self, color):
+    def _dispatch_activity_notification(self, notification_type,
+                                        notification_color=None, notification_image=None):
+        assert getattr(ActivityNotificationType, notification_type), notification_type
+        if notification_type == ActivityNotificationType.RECORDING_PROGRESS:
+            assert notification_color
+            self._blink_on_recording(color=notification_color)
+        else:
+            print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
+            assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
+            pass ####
+
+    def _blink_on_recording(self, notification_color):
         print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for", self._led_callback)
         if self._led_callback:
-            with self._led_lock:  # Beware of concurrent recorder threads colliding here
-                self._led_callback(color)
-                time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
-                self._led_callback((0, 0, 0))  # Turn LED off
+            self._led_callback(notification_color)
 
     def _retrieve_epaper_display_information(self):
 
@@ -263,7 +275,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 preview_image_path=self.preview_image_path,
                 ffmpeg_rtsp_parameters=ffmpeg_rtsp_parameters,
                 ffmpeg_rtsp_output_format=ffmpeg_rtsp_output_format,
-                activity_notification_callback=self._blink_on_recording)
+                activity_notification_callback=self._dispatch_activity_notification)
             sensors.append(rtsp_camera_sensor)
 
         if IS_RASPBERRY_PI:
@@ -291,7 +303,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                             cryptainer_storage=cryptainer_storage,
                             preview_image_path=self.preview_image_path,
                             raspivid_parameters=raspivid_parameters,
-                            activity_notification_callback=self._blink_on_recording,
+                            activity_notification_callback=self._dispatch_activity_notification,
                         )
 
                         sensors.append(raspberry_raspivid_sensor)
@@ -348,7 +360,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                     arecord_output_format=arecord_output_format,
                     ffmpeg_alsa_parameters=ffmpeg_alsa_parameters,
                     ffmpeg_alsa_output_format=ffmpeg_alsa_output_format,
-                    activity_notification_callback=self._blink_on_recording,
+                    activity_notification_callback=self._dispatch_activity_notification,
                 )
                 sensors.append(alsa_microphone_sensor)
 
