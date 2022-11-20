@@ -41,6 +41,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     _led_callback = None  # Can be set to a function taking 0-255 color tuple (R,G,B) as argument
 
+    _lock = threading.Lock()  # At class level is OK here
+
     def __init__(self):
         super().__init__()
         self._setup_peripherals()
@@ -92,13 +94,10 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
             buttonshim.set_brightness(0.2)
 
-            _led_lock = threading.Lock()
-
             def _buttonshim_led_callback(color):
-                with _led_lock:  # Beware of concurrent recorder threads colliding here
-                    buttonshim.set_pixel(*color)
-                    time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
-                    buttonshim.set_pixel(0, 0, 0)  # Turn LED off
+                buttonshim.set_pixel(*color)
+                time.sleep(0.2)  # FIXME problematic sleep(), as it blocks the recording thread...
+                buttonshim.set_pixel(0, 0, 0)  # Turn LED off
 
             self._led_callback = _buttonshim_led_callback
             self._led_callback((100, 40, 40))
@@ -114,6 +113,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
             pass ####
 
+    @synchronized
     def _blink_on_recording(self, notification_color):
         print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for", self._led_callback)
         if self._led_callback:
@@ -164,6 +164,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         return status_obj_sorted
 
     @safe_catch_unhandled_exception
+    @synchronized
     def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
 
         logger.info("Epaper status refresh callback was triggered")
@@ -177,6 +178,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         finally:
             epaper_display.release_display()  # Important to avoid harming the screen
 
+    @synchronized
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
         logger.info("Epaper recording switch callback  was triggered")
         if self.is_recording:
