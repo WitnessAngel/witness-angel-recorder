@@ -1,3 +1,4 @@
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -103,6 +104,14 @@ class WanvrRuntimeSupportMixin:
 
     def get_raspivid_parameters(self):
         return shlex.split(self.config.get("sensor", "raspivid_parameters"))
+
+    def get_picamera_parameters(self):
+        parameters = None
+        picamera_parameters_raw = self.config.get("sensor", "picamera_parameters").strip()
+        if picamera_parameters_raw:
+            parameters = json.loads(picamera_parameters_raw)
+            assert isinstance (parameters, dict) and "resolution" in parameters, parameters
+        return parameters
 
     def get_arecord_parameters(self):
         return shlex.split(self.config.get("sensor", "arecord_parameters"))

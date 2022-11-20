@@ -357,6 +357,13 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
                     "section": "sensor"
                 },
                 {
+                    "key": "picamera_parameters",
+                    "type": "string_truncated",
+                    "title": tr._("Picamera params"),
+                    "desc": tr._("Json object to replace picamera parameters"),
+                    "section": "sensor"
+                },
+                {
                     "key": "arecord_parameters",
                     "type": "string_truncated",
                     "title": tr._("Arecord params"),

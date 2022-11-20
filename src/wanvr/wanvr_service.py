@@ -108,7 +108,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         assert getattr(ActivityNotificationType, notification_type), notification_type
         if notification_type == ActivityNotificationType.RECORDING_PROGRESS:
             assert notification_color
-            self._blink_on_recording(color=notification_color)
+            self._blink_on_recording(notification_color)
         else:
             print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
             assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
@@ -311,12 +311,14 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                     else:
                         logging.warning("Using LEGACY picamera sensor")
 
+                        picamera_parameters = self.get_picamera_parameters()
+
                         raspberry_picamera_sensor = RaspberryPicameraSensor(
                             interval_s=recording_duration_s,
                             cryptainer_storage=cryptainer_storage,
                             preview_image_path=self.preview_image_path,
-                            ###raspivid_parameters=raspivid_parameters,
-                            ###activity_notification_callback=self._blink_on_recording,
+                            picamera_parameters=picamera_parameters,
+                            activity_notification_callback=self._dispatch_activity_notification,
                         )
 
                         sensors.append(raspberry_picamera_sensor)
