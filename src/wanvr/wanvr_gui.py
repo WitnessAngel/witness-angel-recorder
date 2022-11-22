@@ -54,8 +54,8 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         )
 
     def _update_preview_image(self, *args, **kwargs):
-        # FIXME we must only display image if RECENT ENOUGH!!!
-        print(">> We update_preview_image")
+        # TODO we should only display image if RECENT ENOUGH!!!
+        logger.debug("Updating preview image in GUI screen")
         main_page_ids = self.screen_manager.get_screen(
             WAScreenName.recorder_homepage
         ).ids

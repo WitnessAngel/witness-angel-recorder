@@ -40,7 +40,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
     _epaper_display = None  # Not always available
     _lcd_display = None  # Not always available
 
-    _led_callback = None  # Can be set to a function taking 0-255 color tuple (R,G,B) as argument
+    _direct_led_callback = None  # Can be set to a function taking 0-255 color tuple (R,G,B) as argument
 
     _lock = threading.Lock()  # At class level is OK here
 
@@ -65,9 +65,10 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         if epaper_type:
             try:
                 epaper_display = get_epaper_instance(epaper_type)
-            except (ImportError, ValueError):
-                logger.warning("Could not import E-PAPER display of type %r, aborting" % epaper_type)
+            except (ImportError, ValueError) as exc:
+                logger.warning("Could not setup E-paper display of type %r" % epaper_type, exc_info=True)
             else:
+                logger.info("Registering E-paper display of type %s", epaper_type)
                 recording_switch_pin = epaper_display.BUTTON_PIN_1
                 epaper_status_refresh_pin = epaper_display.BUTTON_PIN_2
                 self._epaper_display = epaper_display
@@ -76,60 +77,67 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         if lcd_type:
             try:
                 lcd_display = get_lcd_instance(lcd_type)
-            except (ImportError, ValueError):
-                logger.warning("Could not import LCD display of type %r, aborting" % lcd_type)
+            except (ImportError, ValueError) as exc:
+                logger.warning("Could not setup LCD display of type %r" % lcd_type, exc_info=True)
                 raise
             else:
-                print("Registering LCD screen", lcd_display)
+                logger.info("Registering LCD display of type %s", lcd_type)
                 recording_switch_pin = lcd_display.BUTTON_PIN_1
                 # No status display with LCD for now
                 self._lcd_display = lcd_display
 
-        logger.info("Setting up display and refresh/on-off buttons")
+
         if recording_switch_pin is not None:
+            logger.info("Setting up ON/OFF button on pin %s", recording_switch_pin)
             register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
         if epaper_status_refresh_pin is not None:
             assert self._epaper_display
+            logger.info("Setting up E-paper refresh button on pin %s", recording_switch_pin)
             register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
 
         if self.get_enable_button_shim():
-            logger.info("Setting up buttonshim device")
+            logger.info("Setting up buttonshim LED and buttons A and B")
             import buttonshim  # Smbus-based driver for Raspberry
             # This lib automatically cleans up thanks to atexit
             buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_switch_recording_callback)
             if self._epaper_display:
+                logger.debug("Skipping setup of button B, since no E-paper display is present", recording_switch_pin)
                 buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
             buttonshim.set_brightness(0.2)
 
             def _buttonshim_led_callback(color):
                 buttonshim.set_pixel(*color)
-                time.sleep(0.1)  # FIXME problematic sleep(), as it blocks the recording thread...
-                buttonshim.set_pixel(0, 0, 0)  # Turn LED off
+                time.sleep(0.1)  # Short sleep is OK, since an executor thread is handling this
+                buttonshim.set_pixel(0, 0, 0)  # Turn LED off after blink
 
-            self._led_callback = _buttonshim_led_callback
-            self._led_callback((100, 40, 40))
+            self._direct_led_callback = _buttonshim_led_callback
 
     def _dispatch_activity_notification(self, notification_type,
                                         notification_color=None, notification_image=None):
+        """No need to synchronize threads for these callbacks, since we use a mono-thread executor"""
+        treated= False
         executor = MONOTHREAD_POOL_EXECUTOR.submit
         assert getattr(ActivityNotificationType, notification_type), notification_type
+
         if notification_type == ActivityNotificationType.RECORDING_PROGRESS:
             assert notification_color
-            executor(lambda: self._blink_on_recording(notification_color))
+            if self._direct_led_callback:
+                executor(lambda: self._direct_led_callback(notification_color))
+                treated = True
         else:
-            print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
+            #print(">>>>>>>>>>>>> _dispatch_activity_notification image preview")
             assert notification_type == ActivityNotificationType.IMAGE_PREVIEW
             assert notification_image
             if self._lcd_display:
-                self._lcd_display.display_image(notification_image)
+                executor(lambda: self._lcd_display.display_image(notification_image))
+                treated = True
 
-    @synchronized
-    def _blink_on_recording(self, notification_color):
-        print(">>>>>>>>>>>>>>>>> _blink_on_recording CALLED for _led_callback", self._led_callback)
-        if self._led_callback:
-            self._led_callback(notification_color)
+        logger.debug("Dispatch of new %s activity notification in service - %s",
+                     notification_type, "TREATED" if treated else "IGNORED")
 
     def _retrieve_epaper_display_information(self):
+
+        logger.debug("Retrieving miscellaneous status information for display")
 
         status_obj = get_system_information(self.get_cryptainer_dir())
 
@@ -173,11 +181,10 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         #print("status_obj_sorted>>>>>", status_obj_sorted)
         return status_obj_sorted
 
-    @safe_catch_unhandled_exception
     @synchronized
+    @safe_catch_unhandled_exception
     def _epaper_status_refresh_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
-
-        logger.info("Epaper status refresh callback was triggered")
+        logger.info("E-paper status refresh was requested")
         epaper_display = self._epaper_display
         assert epaper_display, epaper_display
         epaper_display.initialize_display()
@@ -190,8 +197,9 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     @synchronized
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
-        logger.info("Epaper recording switch callback was triggered")
-        if self.is_recording:
+        is_recording = self.is_recording
+        logger.info("Epaper recording switch is requested (current status: %s)", is_recording)
+        if is_recording:
             self.stop_recording()
         else:
             self.start_recording()
@@ -255,13 +263,9 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     def _build_recording_toolchain(self):
 
-        #Was using rtsp://viewer:SomePwd8162@192.168.0.29:554/Streaming/Channels/101
-
         cryptainer_dir = self.get_cryptainer_dir()  # Might raise
         if not cryptainer_dir.is_dir():
             raise RuntimeError(f"Invalid containers dir setting: {cryptainer_dir}")
-
-        #print(">>>>>>>>>>>>>>ENCRYPTION TO", containers_dir, "with max age", self.get_max_cryptainer_age_day())
 
         cryptainer_storage = CryptainerStorage(
                        default_cryptoconf=self._get_cryptoconf(),
