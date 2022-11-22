@@ -270,19 +270,19 @@ requests = "*"
 
 [[package]]
 name = "kivymd"
-version = "1.0.2"
+version = "1.1.1"
 description = "Set of widgets for Kivy inspired by Google's Material Design"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 kivy = ">=2.0.0"
 pillow = "*"
 
 [package.extras]
-docs = ["sphinx-tabs", "sphinx-copybutton", "sphinx-notfound-page", "furo", "sphinx-autoapi (==1.4.0)", "sphinx"]
-dev = ["pyinstaller", "coveralls", "pytest-timeout", "pytest-asyncio", "pytest-cov", "pytest", "flake8", "isort", "black", "pre-commit"]
+dev = ["pre-commit", "black", "isort", "flake8", "pytest", "pytest-cov", "pytest-asyncio", "pytest-timeout", "coveralls", "pyinstaller"]
+docs = ["sphinx", "sphinx-autoapi (==1.4.0)", "furo", "sphinx-notfound-page", "sphinx-copybutton", "sphinx-tabs"]
 
 [[package]]
 name = "more-itertools"
