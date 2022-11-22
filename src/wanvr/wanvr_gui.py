@@ -120,6 +120,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         super().on_start()
 
         if False:
+            # Enable to display final logging config
             try:
                 import logging_tree
                 logging_tree.printout()

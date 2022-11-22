@@ -190,7 +190,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
     @synchronized
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
-        logger.info("Epaper recording switch callback  was triggered")
+        logger.info("Epaper recording switch callback was triggered")
         if self.is_recording:
             self.stop_recording()
         else:
@@ -280,6 +280,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
         ffmpeg_rtsp_parameters = self.get_ffmpeg_rtsp_parameters()
         ffmpeg_rtsp_output_format = self.get_ffmpeg_rtsp_output_format()
         if enable_ip_camera:
+            logger.info("Loading RTSP camera sensor")
             rtsp_camera_sensor = RtspCameraSensor(
                 interval_s=recording_duration_s,
                 cryptainer_storage=cryptainer_storage,
@@ -306,7 +307,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 if legacy_rpi_camera_enabled:
 
                     if False:
-                        logging.warning("Using LEGACY raspivid sensor")
+                        logger.info("Loading LEGACY raspivid sensor")
 
                         raspivid_parameters = self.get_raspivid_parameters()
 
@@ -321,7 +322,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                         sensors.append(raspberry_raspivid_sensor)
 
                     else:
-                        logging.warning("Using LEGACY picamera sensor")
+                        logger.info("Loading LEGACY picamera sensor")
 
                         local_camera_rotation = self.get_local_camera_rotation()
 
@@ -343,10 +344,9 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
                         sensors.append(raspberry_picamera_sensor)
 
-
                 else:
 
-                    logging.warning("Using MODERN libcamera sensor")  # Broken on raspberry pi zero V1, not enough power...
+                    logger.info("Loading MODERN libcamera sensor")  # Broken on raspberry pi zero V1, not enough CPU power...
 
                     alsa_device_name = None
                     if enable_local_camera_microphone_muxing and enable_local_microphone:
@@ -374,6 +374,8 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 ffmpeg_alsa_parameters = self.get_ffmpeg_alsa_parameters()
                 ffmpeg_alsa_output_format = self.get_ffmpeg_alsa_output_format()
 
+                logger.info("Loading alsa microphone sensor")
+
                 alsa_microphone_sensor = RaspberryAlsaMicrophoneSensor(
                     interval_s=recording_duration_s,
                     cryptainer_storage=cryptainer_storage,
@@ -400,13 +402,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
 
 def main():
-    logger.info("Service process launches")
+    logger.info("Service process is starting")
     server = WanvrBackgroundServer()
-
-    #import logging_tree; logging_tree.printout()
-    #print(">>>>> TRIGGER FORCE REFRESH CALLBACK OF EPAPE SOON")
-    #time.sleep(1)
-    #server._epaper_status_refresh_callback()
-
     server.join()
-    logger.info("Service process exits")
+    logger.info("Service process is exiting")

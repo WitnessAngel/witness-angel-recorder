@@ -26,21 +26,21 @@ class WanvrRuntimeSupportMixin:
     filesystem_keystore_pool = None
 
     def __init__(self, *args, **kwargs):
-
         assert self.internal_keys_dir, self.internal_keys_dir
         self.filesystem_keystore_pool = FilesystemKeystorePool(
             root_dir=self.internal_keys_dir
         )
+        self._configure_additional_logging()
+        super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
 
-        # FIXME move at a better place
+    def _configure_additional_logging(self):
+        # Since log file is shared by GUI and SERVICE, there might be some garbled content despite "append" mode of File stream
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
         handler = RotatingFileHandler(log_path, maxBytes=20 * (1024 ** 2), backupCount=100)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logging.root.addHandler(handler)
-        logging.root.setLevel(logging.DEBUG)
-
-        super().__init__(*args, **kwargs)  # ONLY NOW we call super class init
+        # logging.root.setLevel(logging.DEBUG) # To help debugging, use this or LOGGING_LEVEL environment variable
 
     def _load_selected_keystore_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
@@ -149,7 +149,7 @@ class WanvrRuntimeSupportMixin:
     def get_cryptainer_dir(self) -> Path:
         cryptainer_dir_str = self.config.get("storage", "cryptainer_dir").strip()  # Might be wrong!
         if not cryptainer_dir_str:
-            logger.info("Containers directory not configured, falling back to internal folder")
+            logger.debug("Containers directory not configured, falling back to internal folder")
             from wacomponents.default_settings import INTERNAL_CRYPTAINER_DIR
             return INTERNAL_CRYPTAINER_DIR
         return Path(cryptainer_dir_str)  # Might NOT exist!
