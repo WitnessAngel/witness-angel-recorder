@@ -66,7 +66,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             try:
                 epaper_display = get_epaper_instance(epaper_type)
             except (ImportError, ValueError) as exc:
-                logger.warning("Could not setup E-paper display of type %r" % epaper_type, exc_info=True)
+                logger.warning("Could not setup E-paper display of type %r", epaper_type, exc_info=True)
             else:
                 logger.info("Registering E-paper display of type %s", epaper_type)
                 recording_switch_pin = epaper_display.BUTTON_PIN_1
@@ -78,7 +78,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             try:
                 lcd_display = get_lcd_instance(lcd_type)
             except (ImportError, ValueError) as exc:
-                logger.warning("Could not setup LCD display of type %r" % lcd_type, exc_info=True)
+                logger.warning("Could not setup LCD display of type %r", lcd_type, exc_info=True)
                 raise
             else:
                 logger.info("Registering LCD display of type %s", lcd_type)
@@ -96,12 +96,12 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
             register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
 
         if self.get_enable_button_shim():
-            logger.info("Setting up buttonshim LED and buttons A and B")
+            logger.info("Setting up buttonshim LED and buttons A/B")
             import buttonshim  # Smbus-based driver for Raspberry
             # This lib automatically cleans up thanks to atexit
             buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_switch_recording_callback)
             if self._epaper_display:
-                logger.debug("Skipping setup of button B, since no E-paper display is present", recording_switch_pin)
+                logger.debug("Skipping setup of button B, since no E-paper display is present")
                 buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
             buttonshim.set_brightness(0.2)
 
@@ -133,7 +133,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
                 treated = True
 
         logger.debug("Dispatch of new %s activity notification in service - %s",
-                     notification_type, "TREATED" if treated else "IGNORED")
+                     notification_type, ("TREATED" if treated else "IGNORED"))
 
     def _retrieve_epaper_display_information(self):
 
@@ -198,7 +198,7 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
     @synchronized
     def _epaper_switch_recording_callback(self, *args, **kwargs):  # Might receive pin number and such as arguments
         is_recording = self.is_recording
-        logger.info("Epaper recording switch is requested (current status: %s)", is_recording)
+        logger.info("Epaper recording switch is requested (current recording status: %s)", is_recording)
         if is_recording:
             self.stop_recording()
         else:
