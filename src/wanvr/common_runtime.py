@@ -8,6 +8,7 @@ import os
 from uuid import UUID
 
 from wacomponents.i18n import tr
+from wacomponents.logging.formatters import SafeUtcFormatter, DEFAULT_UTC_LOG_FORMAT
 from wacomponents.sensors.camera.raspberrypi_camera_microphone import list_pulseaudio_microphone_names
 from wacryptolib.cryptainer import CryptainerStorage, ReadonlyCryptainerStorage
 from wacryptolib.keystore import FilesystemKeystorePool
@@ -36,11 +37,10 @@ class WanvrRuntimeSupportMixin:
     def _configure_additional_logging(self):
         # Since log file is shared by GUI and SERVICE, there might be some garbled content despite "append" mode of File stream
         log_path = os.path.join(self.internal_logs_dir, "log.txt")
-        handler = RotatingFileHandler(log_path, maxBytes=20 * (1024 ** 2), backupCount=100)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logging.root.addHandler(handler)
-        # logging.root.setLevel(logging.DEBUG) # To help debugging, use this or LOGGING_LEVEL environment variable
+        file_handler = RotatingFileHandler(log_path, maxBytes=20 * (1024 ** 2), backupCount=100)
+        file_formatter = SafeUtcFormatter(DEFAULT_UTC_LOG_FORMAT)
+        file_handler.setFormatter(file_formatter)
+        logging.root.addHandler(file_handler)
 
     def _load_selected_keystore_uids(self):
         """This setting is loaded from config file, but then dynamically updated in GUI app"""
