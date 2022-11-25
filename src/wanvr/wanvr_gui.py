@@ -112,7 +112,7 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
         #print("CONFIG CHANGE", section, key, value)
         self._update_app_after_config_change()  # We brutally reload everything, for now
 
-    def get_daemonize_service(self):
+    def should_daemonize_service(self):
         """We let the background service continue when we close the GUI"""
         return True
 
@@ -155,13 +155,16 @@ class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this 
 
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
+
+        cryptainer_storage = self.get_cryptainer_storage_or_none()
+
         cryptainer_store_screen = self.screen_manager.get_screen(WAScreenName.cryptainer_storage_management)  # FIXME simplify
-        cryptainer_store_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()  # FIXME SIMPLIFY with App methods ???
+        cryptainer_store_screen.filesystem_cryptainer_storage = cryptainer_storage  # FIXME SIMPLIFY with App methods ???
         cryptainer_decryption_screen = self.screen_manager.get_screen(WAScreenName.cryptainer_decryption_process)  # FIXME simplify
-        cryptainer_decryption_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
+        cryptainer_decryption_screen.filesystem_cryptainer_storage = cryptainer_storage
 
         remote_decryption_request_screen = self.screen_manager.get_screen(WAScreenName.claimant_revelation_request_creation_form)  # FIXME simplify
-        remote_decryption_request_screen.filesystem_cryptainer_storage = self.get_cryptainer_storage_or_none()
+        remote_decryption_request_screen.filesystem_cryptainer_storage = cryptainer_storage
         #print(">>>>>_update_app_after_config_change", container_store_screen.filesystem_cryptainer_storage)
 
     def _reset_app_menu(self):

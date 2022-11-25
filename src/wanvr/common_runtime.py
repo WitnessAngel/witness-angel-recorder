@@ -69,7 +69,7 @@ class WanvrRuntimeSupportMixin:
         cryptainer_dir = self.get_cryptainer_dir()
 
         if not cryptainer_dir.is_dir():
-            logger.warning("No valid containers dir configured for readonly visualization")
+            logger.warning("No valid containers dir configured")
             return None
 
         klass = ReadonlyCryptainerStorage if read_only else CryptainerStorage
@@ -149,7 +149,7 @@ class WanvrRuntimeSupportMixin:
     def get_cryptainer_dir(self) -> Path:
         cryptainer_dir_str = self.config.get("storage", "cryptainer_dir").strip()  # Might be wrong!
         if not cryptainer_dir_str:
-            logger.debug("Containers directory not configured, falling back to internal folder")
+            # Called too OFTEN - logger.debug("Containers directory not configured, falling back to internal folder")
             from wacomponents.default_settings import INTERNAL_CRYPTAINER_DIR
             return INTERNAL_CRYPTAINER_DIR
         return Path(cryptainer_dir_str)  # Might NOT exist!
