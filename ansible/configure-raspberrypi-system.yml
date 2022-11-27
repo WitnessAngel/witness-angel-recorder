@@ -22,7 +22,7 @@
   - name: Install dependencies for root python
     pip:
       name: ["adafruit-python-shell" ]  # For i2smic setup script below
-    executable: pip3
+      executable: pip3
   - name: Enable RTC overlay in config.txt
     lineinfile:
       path: /boot/config.txt
@@ -41,7 +41,7 @@
       cmd: files/install_bcm2835_lib.sh
       chdir: "/var/tmp/"
       creates: "/usr/local/lib/libbcm2835.a"
-  - name: Copy custom boot checkups script to /etc (e.g. to regeenrate SSH key if needed)
+  - name: Copy custom boot checkups script to /etc (e.g. to regenerate SSH key if needed)
     copy:
       src: custom_boot_checkups.sh
       dest: /etc/custom_boot_checkups.sh
@@ -117,7 +117,7 @@
       creates: "~/venv/lib/python3.9/site-packages/dfrobot_rpi_display_v2_driver.pth"
   - name: Clone wa-recorder git repository
     git:
-      repo: 'https://github.com/WitnessAngel/witness-angel-recorder.git'
+      repo: 'https://github.com/WitnessAngel/witness-angel-recorder-python.git'
       dest: "{{ ansible_env.HOME }}/witness-angel-recorder"
       version: "main"
       #depth: "1" - shallow clones are impractical
