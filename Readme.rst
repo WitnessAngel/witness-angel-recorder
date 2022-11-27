@@ -1,11 +1,16 @@
-Witness Angel Network Video recorder
+Witness Angel Recorder
 ######################################
 
-Application homepage: https://witnessangel.com/en/videotestimony-for-condominiums/
+
+
+Related solution homepages:
+
+- https://witnessangel.com/en/videotestimony-for-condominiums/
+- https://witnessangel.com/en/witness-angel-handbag/
 
 This is a proof-of-concept application of Network Video Recording, using Flightbox cryptosystem to secure recorded data in a "write-only" fashion.
 
-thus, RTSP streams can be recorded continuously, but only the agreement of a sufficient number of trusted third parties (called "trustees" or "key guardians") will allow to decrypt some recordings.
+Thus, RTSP streams can be recorded continuously, but only the agreement of a sufficient number of trusted third parties (called "trustees" or "key guardians") will allow to decrypt some recordings.
 
 
 Setup
@@ -13,7 +18,7 @@ Setup
 
 - Install a recent "ffmpeg" executable somewhere on your system PATH
 - Install all dependencies using Poetry, and add "Pyobjus" package with pip if you're on OSX
-- Launch "python main.py" for the GUI and its recorder service, or "python main.py --service" for the recorder service only
+- Launch "python main.py" for the GUI app and its recorder service, or "python main.py --service" for the recorder service only
 
 To generate a standalone version of the program::
 

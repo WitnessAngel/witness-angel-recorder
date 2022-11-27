@@ -77,7 +77,7 @@
     script:
       cmd: files/setup_ufw.sh
 
-- name: Install and configure python dependencies of wa-nvr, as user
+- name: Install and configure python dependencies of wa-recorder, as user
   hosts: all
   tasks:
   - name: Install setup/deactivation scripts for i2s-microphone into local home
@@ -115,10 +115,10 @@
     script:
       cmd: files/install_dfrobot_2in13_v2_python_lib.sh
       creates: "~/venv/lib/python3.9/site-packages/dfrobot_rpi_display_v2_driver.pth"
-  - name: Clone wa-nvr git repository
+  - name: Clone wa-recorder git repository
     git:
-      repo: 'https://github.com/WitnessAngel/witness-angel-nvr.git'
-      dest: "{{ ansible_env.HOME }}/witness-angel-nvr"
+      repo: 'https://github.com/WitnessAngel/witness-angel-recorder.git'
+      dest: "{{ ansible_env.HOME }}/witness-angel-recorder"
       version: "main"
       #depth: "1" - shallow clones are impractical
   - name: Remove git-based WA dependencies so that they are properly updated by poetry later
@@ -131,26 +131,26 @@
     file:
       path: "{{ ansible_env.HOME }}/.venv/src"
       state: "absent"
-  - name: Install wa-nvr dependencies with poetry
+  - name: Install wa-recorder dependencies with poetry
     script:
       cmd: files/install_poetry_dependencies.sh
-      chdir: "{{ ansible_env.HOME }}/witness-angel-nvr/"
+      chdir: "{{ ansible_env.HOME }}/witness-angel-recorder/"
     environment:
       MAKEFLAGS: "-j2"  # Prevent flood of memory by 4 GCC processes
-  - name: Create a cron entry for NVR service launch at boot
+  - name: Create a cron entry for Recorder service launch at boot
     cron:
-      name: "wanvr-launch-boot"
+      name: "warecorder-launch-boot"
       special_time: reboot
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/main.py --service"
-  - name: Create a cron entry for NVR service periodic re-launch
+      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+  - name: Create a cron entry for Recorder service periodic re-launch
     cron:
-      name: "wanvr-launch-periodic"
+      name: "warecorder-launch-periodic"
       minute: "*/5"
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-nvr/main.py --service"
-  - name: Copy desktop shortcut to WANVR GUI
+      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+  - name: Copy desktop shortcut to Recorder GUI
     copy:
-      src: wanvr.desktop
-      dest: "{{ ansible_env.HOME }}/Desktop/wanvr.desktop"
+      src: warecorder.desktop
+      dest: "{{ ansible_env.HOME }}/Desktop/warecorder.desktop"
   - name: Precreate .witnessangel/ data folder
     file:
       path: "{{ ansible_env.HOME }}/.witnessangel"

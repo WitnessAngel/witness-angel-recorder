@@ -15,11 +15,13 @@ pyproject_data = Path("../pyproject.toml").read_text()
 version = re.search(r'''version = ['"](.*)['"]''', pyproject_data).group(1)
 assert version, version
 
-sys.path.append(".")  # To find WANVR package
+sys.path.append(".")  # To find WARECORDER package
 
-hiddenimports= collect_submodules("wanvr") + collect_submodules("wacomponents") + collect_submodules("plyer")
+datas = collect_data_files("warecorder") + collect_data_files("wacomponents"),
 
-app_name = "witness_angel_nvr_%s" % version.replace(".","-")
+hiddenimports= collect_submodules("warecorder") + collect_submodules("wacomponents") + collect_submodules("plyer")
+
+app_name = "witness_angel_recorder_%s" % version.replace(".","-")
 
 extra_exe_params= []
 if sys.platform.startswith("win32"):
@@ -33,7 +35,7 @@ main_script = os.path.abspath(os.path.join(os.getcwd(), '../main.py'))
 a = Analysis([main_script],
              pathex=['.'],
              binaries=[],
-             datas=collect_data_files("wanvr") + collect_data_files("wacomponents"),
+             datas=datas,
              hiddenimports=hiddenimports,
              hookspath=[kivymd_hooks_path],
              runtime_hooks=[],

@@ -21,10 +21,10 @@
       creates: /var/tmp/pishrink.sh
   - name: Dump raw sdcard image to usb key
     shell:
-      cmd: dd if=/dev/mmcblk0 of=/media/pi/BigKey/raspberrypi_wanvr.img bs=1M
+      cmd: dd if=/dev/mmcblk0 of=/media/pi/BigKey/raspberrypi_warecorder.img bs=1M
   - name: Build cleaned-up and shrinked image from raw sdcard image (NOT gzipped)
     shell:
       # No need for option "-p", cleanup already done
-      cmd: bash /var/tmp/pishrink.sh -av /media/pi/BigKey/raspberrypi_wanvr.img
+      cmd: bash /var/tmp/pishrink.sh -av /media/pi/BigKey/raspberrypi_warecorder.img
 
 
