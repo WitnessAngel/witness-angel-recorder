@@ -28,14 +28,14 @@ try:
     from wacomponents.devices.gpio_buttons import register_button_callback
 except ImportError:
     register_button_callback = lambda *args, **kwargs: None
-from wanvr.common_runtime import WanvrRuntimeSupportMixin
+from warecorder.warecorder_common_runtime import WarecorderRuntimeSupportMixin
 from wacomponents.sensors.camera.rtsp_stream import RtspCameraSensor
 
 
 logger = logging.getLogger(__name__)
 
 
-class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIXME RENAME THIS
+class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderService):  # FIXME RENAME THIS
 
     _epaper_display = None  # Not always available
     _lcd_display = None  # Not always available
@@ -407,6 +407,6 @@ class WanvrBackgroundServer(WanvrRuntimeSupportMixin, WaRecorderService):  # FIX
 
 def main():
     logger.info("Service process is starting")
-    server = WanvrBackgroundServer()
+    server = WarecorderBackgroundServer()
     server.join()
     logger.info("Service process is exiting")

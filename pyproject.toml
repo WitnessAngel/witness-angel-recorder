@@ -4,13 +4,13 @@ build-backend = "poetry.masonry.api"
 
 
 [tool.poetry]
-name = "wanvr"
-description = "Witness Angel NVR"
-version = "0.2"
+name = "warecorder"
+description = "Witness Angel Recorder"
+version = "0.1"
 license = "MIT"
 readme = "Readme.rst"
 authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi", "Francinette Atchade"]
-homepage = "https://github.com/WitnessAngel/witness-angel-nvr"
+homepage = "https://github.com/WitnessAngel/witness-angel-recorder-python"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -25,15 +25,15 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
 ]
-include = ["CHANGELOG", "tests/*.py"]
-exclude = ["_build", "__pycache__"]
+include = ["CHANGELOG"]
+exclude = ["__pycache__"]
 
 [tool.poetry.dependencies]
 python = ">=3.7, <4.0"
 
 # For now WA dependencies must be manually installed at selected versions !
-wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "wanvr_stable" }
-wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components.git", branch = "wanvr_stable" }
+wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "warecorder_stable" }
+wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components.git", branch = "warecorder_stable" }
 
 # Wacomponents dependencies
 Kivy = {version = "^2.0.0", extras = ["base"]}
@@ -43,9 +43,6 @@ plyer = "^2.0.0"
 oscpy = "^0.5.0"
 Pillow = "^9"
 pulsectl = "^22.3.2"
-
-# FIXME remove this asap!
-watchdog = "0.10.3"
 
 [tool.poetry.dev-dependencies]
 

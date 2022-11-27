@@ -14,15 +14,15 @@ from wacomponents.screens.base import WAScreenName
 from wacomponents.widgets.navigation_drawer import NavigationDrawerItem
 from wacomponents.i18n import tr
 from wacomponents.locale import LOCALE_DIR as GUILIB_LOCALE_DIR  # DEFAULT LOCALE DIR
-from wanvr.common_runtime import WanvrRuntimeSupportMixin
+from warecorder.warecorder_common_runtime import WarecorderRuntimeSupportMixin
 
-WANVR_PACKAGE_DIR = Path(__file__).resolve().parent
+WARECORDER_PACKAGE_DIR = Path(__file__).resolve().parent
 
 # FIXME rename this file as foreground_app
 
 # TODO - add retro "ping" from toolchain when a new record is present
 
-LOCALE_DIR = WANVR_PACKAGE_DIR / "locale"
+LOCALE_DIR = WARECORDER_PACKAGE_DIR / "locale"
 tr.add_locale_dirs(LOCALE_DIR, GUILIB_LOCALE_DIR)
 
 logger = logging.getLogger(__name__)
@@ -33,15 +33,15 @@ if False:  #  ACTIVATE TO DEBUG GUI
     activate_widget_debug_outline()
 
 
-class WardGuiApp(WanvrRuntimeSupportMixin, WaRecorderGui):  # FIXME rename this to WANVR
+class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
 
     title_app_window = tr._("Witness Angel - Network Video Recorder")
     title_conf_panel = tr._("Recorder settings")
 
-    kv_file = str(WANVR_PACKAGE_DIR / "wanvr_gui.kv")
+    kv_file = str(WARECORDER_PACKAGE_DIR / "warecorder_gui.kv")
     icon = resource_find("icons/witness_angel_logo_blue_32x32.png")
 
-    app_logo_path = WANVR_PACKAGE_DIR.joinpath("desktop_icon_authenticator_512x512.png")  # E.g. for side menu
+    app_logo_path = WARECORDER_PACKAGE_DIR.joinpath("warecorder_desktop_icon_512x512.png")  # E.g. for side menu
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this

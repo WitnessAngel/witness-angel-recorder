@@ -17,9 +17,9 @@ from wacomponents.default_settings import INTERNAL_CACHE_DIR, IS_RASPBERRY_PI
 logger = logging.getLogger(__name__)
 
 
-class WanvrRuntimeSupportMixin:
+class WarecorderRuntimeSupportMixin:
 
-    config_file_basename = "wanvr_config.ini"
+    config_file_basename = "warecorder_config.ini"
 
     preview_image_path = INTERNAL_CACHE_DIR / "video_preview_image.jpg"
 
