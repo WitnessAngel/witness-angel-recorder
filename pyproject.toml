@@ -43,6 +43,7 @@ plyer = "^2.0.0"
 oscpy = "^0.5.0"
 Pillow = "^9"
 pulsectl = "^22.3.2"
+buttonshim = "^0.0.2"
 
 [tool.poetry.dev-dependencies]
 

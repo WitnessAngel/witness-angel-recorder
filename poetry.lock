@@ -48,6 +48,14 @@ python2 = ["typed-ast (>=1.4.3)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "buttonshim"
+version = "0.0.2"
+description = "Button SHIM Driver"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "certifi"
 version = "2022.9.24"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -354,6 +362,19 @@ description = "Utility library for gitignore style pattern matching of file path
 category = "dev"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "picamera"
+version = "1.13"
+description = "A pure Python interface for the Raspberry Pi camera module."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+test = ["coverage", "pytest", "mock", "pillow", "numpy"]
+doc = ["sphinx"]
+array = ["numpy"]
 
 [[package]]
 name = "pillow"
@@ -821,7 +842,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, <4.0"
-content-hash = "8f37754b2f9f42b0e08c676cf996097a8e96161db2ef46052f044de2c1a8d1cb"
+content-hash = "4ed7e1f561ed0e01691b7fe19b321e609304055cb478ddef220d61499add7624"
 
 [metadata.files]
 atomicwrites = []
@@ -830,6 +851,7 @@ black = [
     {file = "black-21.12b0-py3-none-any.whl", hash = "sha256:a615e69ae185e08fdd73e4715e260e2479c861b5740057fde6e8b4e3b7dd589f"},
     {file = "black-21.12b0.tar.gz", hash = "sha256:77b80f693a569e2e527958459634f18df9b0ba2625ba4e0c2d5da5be42e6f2b3"},
 ]
+buttonshim = []
 certifi = []
 charset-normalizer = []
 click = []
@@ -920,6 +942,7 @@ packaging = [
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 pathspec = []
+picamera = []
 pillow = []
 pkgutil-resolve-name = []
 platformdirs = []
