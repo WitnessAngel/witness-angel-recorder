@@ -10,7 +10,8 @@
     package:
       name: ["python3-pip", "virtualenv", "ffmpeg", "git", "i2c-tools", "chrony", "ufw",
              "build-essential", "python3-dev", "libssl-dev", "libffi-dev", "libjpeg-dev", "zlib1g-dev",
-             "cargo"]  # Rust is required by python-cryptography build system
+             "cargo",  # Rust is required by python-cryptography build system
+              "libatlas-base-dev",]  # For Numpy
       state: present
   - name: Install APT packages for Kivy
     package:
@@ -106,7 +107,8 @@
              "pillow", "numpy", "wiringpi==2.60.1",  # For E-paper control
               # Waveshare e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware:
              "git+https://github.com/waveshare/e-Paper.git#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python",
-             "smbus==1.1.post2"]  # For button-shim control
+             "smbus==1.1.post2",  # For button-shim control
+             "picamera"]
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"
     environment:
