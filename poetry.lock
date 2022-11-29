@@ -364,19 +364,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "picamera"
-version = "1.13"
-description = "A pure Python interface for the Raspberry Pi camera module."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.extras]
-test = ["coverage", "pytest", "mock", "pillow", "numpy"]
-doc = ["sphinx"]
-array = ["numpy"]
-
-[[package]]
 name = "pillow"
 version = "9.3.0"
 description = "Python Imaging Library (Fork)"
@@ -768,7 +755,7 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "warecorder_stable"
-resolved_reference = "fde311bb77ea1c8f289a6c01822a43705757e8ff"
+resolved_reference = "aa71de390f676b94b6d3c538c70f0bdae50a9979"
 
 [[package]]
 name = "wacryptolib"
@@ -842,7 +829,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, <4.0"
-content-hash = "4ed7e1f561ed0e01691b7fe19b321e609304055cb478ddef220d61499add7624"
+content-hash = "87f748df430e92d53e86c7e36468818e1be00c74e35b87cc13b2f6a79320450e"
 
 [metadata.files]
 atomicwrites = []
@@ -942,7 +929,6 @@ packaging = [
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 pathspec = []
-picamera = []
 pillow = []
 pkgutil-resolve-name = []
 platformdirs = []
