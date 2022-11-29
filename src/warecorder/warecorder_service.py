@@ -18,7 +18,7 @@ from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_
     CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
 from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
-from wacryptolib.utilities import synchronized
+from wacryptolib.utilities import synchronized, catch_and_log_exception
 from wacomponents.application.recorder_service import WaRecorderService, ActivityNotificationType
 from wacomponents.logging.handlers import safe_catch_unhandled_exception
 from wacomponents.utilities import get_system_information, convert_bytes_to_human_representation, \
@@ -112,6 +112,7 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
 
             self._direct_led_callback = _buttonshim_led_callback
 
+    @catch_and_log_exception("WarecorderBackgroundServer._dispatch_activity_notification")
     def _dispatch_activity_notification(self, notification_type,
                                         notification_color=None, notification_image=None):
         """No need to synchronize threads for these callbacks, since we use a mono-thread executor"""

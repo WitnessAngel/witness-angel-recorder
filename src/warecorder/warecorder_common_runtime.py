@@ -100,7 +100,6 @@ class WarecorderRuntimeSupportMixin:
         return self.config.getfloat("sensor", "recording_duration_mn")
 
     def get_live_preview_interval_s(self):
-        print("^^^^^^^^^^get_live_preview_interval_s ", repr(self.config.get("sensor", "live_preview_interval_s")))
         return self.config.getfloat("sensor", "live_preview_interval_s")
 
     def get_libcameravid_video_parameters(self):
