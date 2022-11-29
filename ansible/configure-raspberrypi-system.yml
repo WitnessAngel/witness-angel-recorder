@@ -8,7 +8,7 @@
       update_cache: yes
   - name: Install APT packages for python3, ffmpeg, PIL, RTC/I2C, NTP, UFW, and build tools
     package:
-      name: ["python3-pip", "virtualenv", "ffmpeg", "git", "i2c-tools", "chrony", "ufw",
+      name: ["python3-pip", "virtualenv", "ffmpeg", "git", "i2c-tools", "chrony", "ufw", "p7zip-full",
              "build-essential", "python3-dev", "libssl-dev", "libffi-dev", "libjpeg-dev", "zlib1g-dev",
              "cargo",  # Rust is required by python-cryptography build system
               "libatlas-base-dev",]  # For Numpy
@@ -84,7 +84,26 @@
   - name: Install setup/deactivation scripts for i2s-microphone into local home
     script:
       cmd: files/install_i2smic_setup_scripts.sh
-      creates: "/home/pi/installers/i2smic_disable_on_boot.sh"
+      creates: "{{ ansible_env.HOME }}/installers/i2smic_disable_on_boot.sh"
+  - name: Clone ButtonShim examples repository
+    git:
+      repo: 'https://github.com/pimoroni/button-shim.git'
+      dest: "{{ ansible_env.HOME }}/installers/pimoroni_buttonshim"
+      version: "master"
+  - name: Clone WaveShare examples repository
+    git:
+      repo: 'https://github.com/waveshare/e-Paper.git'
+      dest: "{{ ansible_env.HOME }}/installers/waveshare_epaper"
+      version: "master"
+  - name: Install Waveshare LCD usage examples
+    script:
+      cmd: files/install_waveshare_lcd_examples.sh
+      creates: "{{ ansible_env.HOME }}/installers/waveshare_1.3inch_lcd_hat_code"
+  - name: Clone WaveShare audio hat drivers repository
+    git:
+      repo: 'https://github.com/waveshare/WM8960-Audio-HAT.git'
+      dest: "{{ ansible_env.HOME }}/waveshare_wm8960_audio_hat.git"
+      version: "master"
   - name: Upgrade pip and basic build helpers in venv
     pip:
       name: ["pip==21.3.1", "setuptools", "wheel", ]
@@ -113,7 +132,7 @@
       virtualenv_python: "python3"
     environment:
       CFLAGS: "-fcommon"  # Necessary for RPi.GPIO compilation
-  - name: Put DFRobot e-paper V2 driver into venv (not pip-installable)
+  - name: Clone and link DFRobot e-paper V2 driver into venv (not pip-installable)
     script:
       cmd: files/install_dfrobot_2in13_v2_python_lib.sh
       creates: "~/venv/lib/python3.9/site-packages/dfrobot_rpi_display_v2_driver.pth"
@@ -143,12 +162,13 @@
     cron:
       name: "warecorder-launch-boot"
       special_time: reboot
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+      job: "XDG_RUNTIME_DIR=/run/user/$(id -u) {{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+      # XDG_RUNTIME_DIR is necessary for PulseAudio, see https://wiki.archlinux.org/title/PulseAudio#Play_sound_from_a_non-interactive_shell_(systemd_service,_cron)
   - name: Create a cron entry for Recorder service periodic re-launch
     cron:
       name: "warecorder-launch-periodic"
       minute: "*/5"
-      job: "{{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+      job: "XDG_RUNTIME_DIR=/run/user/$(id -u) {{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
   - name: Copy desktop shortcut to Recorder GUI
     copy:
       src: warecorder.desktop
