@@ -1,16 +1,17 @@
 Witness Angel Recorder
 ######################################
 
+This is a cross-platform software suite for Witness Angel devices relying on Python language.
 
+It allows recording data (from RTSP streams, for Raspberry Pi camera/mic...) in a "write-only" fashion,
+using Flightbox cryptosystem. Thus, any data can be continuously recorded, but only the agreement of a sufficient number of trusted third parties (called "trustees" or "key guardians") will allow to decrypt some recordings.
+
+The application also features interfaces to manage foreign trusted third parties, to manage stored containers, and to attempt decryption operations on them.
 
 Related solution homepages:
 
 - https://witnessangel.com/en/videotestimony-for-condominiums/
 - https://witnessangel.com/en/witness-angel-handbag/
-
-This is a proof-of-concept application of Network Video Recording, using Flightbox cryptosystem to secure recorded data in a "write-only" fashion.
-
-Thus, RTSP streams can be recorded continuously, but only the agreement of a sufficient number of trusted third parties (called "trustees" or "key guardians") will allow to decrypt some recordings.
 
 
 Setup
