@@ -1,4 +1,4 @@
-# Generate a Raspberry Pi image for Witness Angel NVR
+# How to generate a Raspberry Pi image for Witness Angel Recorder
 
 
 ## Step 1 : Manual configuration of Raspberry Pi OS
@@ -38,13 +38,15 @@ You might have to authorize the SSH hostkey of the Raspberry Pi (by attempting a
 
 Then run `ansible-playbook -i hosts configure-raspberrypi-system.yml`
 
-This will configure everything so that the Raspberry Pi can launch WA-NVR sotware (both service and GUI processes).
+This will configure everything so that the Raspberry Pi can launch WA-Recorder sotware (both service and GUI processes).
 
-Then REBOOT the raspberry pi, and test the good working of the system, especially regarding datetime handling : "date", "sudo hwclock", "timedatectl status" (set hardware clock to UTC if requested) etc. A
+Then REBOOT the raspberry pi, and test the good working of the system, especially regarding datetime handling : "date", "sudo hwclock", "timedatectl status" (set hardware clock to UTC if requested) etc.
 
 All clocks must be well synchronized when Internet is available, and when not, the Raspberry Pi must update its time from hardware clock on boot (but the hardware clock shouldn't auto-update itself when system time is manually changed).
 
-When testing RTSP with VLC, note that it might bug (dropped frames and grey images) on high-resolution streams due to insufficient CPU power, but these streams should still work ine with the NVR (which doesn't need to decode video). Installing hardware-accelerated VLC might help itsdisplay nonetheless.
+You can also check i2c busses and peripheralss with "i2cdetect -l" and "i2cdetect -y 1".
+
+When testing RTSP with VLC, note that it might bug (dropped frames and grey images) on high-resolution streams due to insufficient CPU power, but these streams should still work fine with the Recorder (which doesn't need to decode video). Installing hardware-accelerated VLC might help itsdisplay nonetheless.
 
 Beware system image creation, turn OFF Bluetooth and WIFI, for security.
 
@@ -53,3 +55,7 @@ Then run `ansible-playbook -i hosts export-raspberrypi-system-image.yml`
 This will cleanup sensitive information (hostkeys, wifi network...) and dump/shrink a whole system image to the USB storage.
 
 You can then burn the generated image to another SDCARD, and boot on it.
+
+
+
+SAY COMPATIBILITY WITH DS1307 and ds3231 too
