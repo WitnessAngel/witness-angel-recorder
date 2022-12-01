@@ -755,7 +755,7 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "warecorder_stable"
-resolved_reference = "aa71de390f676b94b6d3c538c70f0bdae50a9979"
+resolved_reference = "a0f927cede9160f423cd00dd2e6bfc8001d0214d"
 
 [[package]]
 name = "wacryptolib"
