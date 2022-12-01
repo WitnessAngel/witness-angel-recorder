@@ -92,7 +92,7 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
             register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
         if epaper_status_refresh_pin is not None:
             assert self._epaper_display
-            logger.info("Setting up E-paper refresh button on pin %s", recording_switch_pin)
+            logger.info("Setting up E-paper refresh button on pin %s", epaper_status_refresh_pin)
             register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
 
         if self.get_enable_button_shim():
@@ -138,7 +138,7 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
 
     def _retrieve_epaper_display_information(self):
 
-        logger.debug("Retrieving miscellaneous status information for display")
+        logger.debug("Starting retrieval of miscellaneous status information for display")
 
         status_obj = get_system_information(self.get_cryptainer_dir())
 
@@ -175,11 +175,11 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
             "disk_left", "ram_left",
         ]
         assert len(sorted_field_names) == len(status_obj)
-        status_obj_sorted = {
+        status_obj_sorted = {  # Now python keeps order of creation of dict
             field_name: status_obj[field_name]
             for field_name in sorted_field_names
         }
-        #print("status_obj_sorted>>>>>", status_obj_sorted)
+        logger.debug("Finished retrieval of miscellaneous status information for display: %s", status_obj_sorted)
         return status_obj_sorted
 
     @synchronized
