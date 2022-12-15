@@ -162,6 +162,9 @@ class WarecorderRuntimeSupportMixin:
     def get_lcd_type(self):
         return self.config.get("peripheral", "lcd_type").strip().lower()
 
+    def get_enable_screen_buttons(self):
+        return self.config.getboolean("peripheral", "enable_screen_buttons")
+
     def get_enable_button_shim(self):
         return self.config.getboolean("peripheral", "enable_button_shim")
 

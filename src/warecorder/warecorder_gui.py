@@ -318,9 +318,16 @@ class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
                     "section": "peripheral"
                 },
                 {
+                    "key": "enable_screen_buttons",
+                    "type": "bool",
+                    "title": tr._("Screen buttons"),
+                    "desc": tr._("Enable epaper/lcd screen buttons"),
+                    "section": "peripheral"
+                },
+                {
                     "key": "enable_button_shim",
                     "type": "bool",
-                    "title": tr._("5 button shim"),
+                    "title": tr._("5 buttons shim"),
                     "desc": tr._("Enable Pimoroni buttonshim device (requires e-paper too)"),
                     "section": "peripheral"
                 },

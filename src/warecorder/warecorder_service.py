@@ -86,14 +86,16 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
                 # No status display with LCD for now
                 self._lcd_display = lcd_display
 
-
-        if recording_switch_pin is not None:
-            logger.info("Setting up ON/OFF button on pin %s", recording_switch_pin)
-            register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
-        if epaper_status_refresh_pin is not None:
-            assert self._epaper_display
-            logger.info("Setting up E-paper refresh button on pin %s", epaper_status_refresh_pin)
-            register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
+        if self.get_enable_screen_buttons():
+            if recording_switch_pin is not None:
+                logger.info("Setting up ON/OFF button on pin %s", recording_switch_pin)
+                register_button_callback(recording_switch_pin, self._epaper_switch_recording_callback)
+            if epaper_status_refresh_pin is not None:
+                assert self._epaper_display
+                logger.info("Setting up E-paper refresh button on pin %s", epaper_status_refresh_pin)
+                register_button_callback(epaper_status_refresh_pin, self._epaper_status_refresh_callback)
+        else:
+            logger.info("Skipping setup of epaper/lcd screen buttons, per configuration")
 
         if self.get_enable_button_shim():
             logger.info("Setting up buttonshim LED and buttons A/B")
