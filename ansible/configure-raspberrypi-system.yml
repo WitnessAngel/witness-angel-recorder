@@ -10,6 +10,7 @@
     package:
       name: ["python3-pip", "virtualenv", "ffmpeg", "git", "i2c-tools", "chrony", "ufw", "p7zip-full",
              "build-essential", "python3-dev", "libssl-dev", "libffi-dev", "libjpeg-dev", "zlib1g-dev",
+             "xterm",  # Can disappear after system update...
              "cargo",  # Rust is required by python-cryptography build system
               "libatlas-base-dev",]  # For Numpy
       state: present
@@ -102,7 +103,7 @@
   - name: Clone WaveShare audio hat drivers repository
     git:
       repo: 'https://github.com/waveshare/WM8960-Audio-HAT.git'
-      dest: "{{ ansible_env.HOME }}/waveshare_wm8960_audio_hat.git"
+      dest: "{{ ansible_env.HOME }}/installer/waveshare_wm8960_audio_hat.git"
       version: "master"
   - name: Upgrade pip and basic build helpers in venv
     pip:
