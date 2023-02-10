@@ -4,7 +4,7 @@
   tasks:
   - name: Cleanup user files for sanity
     shell:
-      cmd: "rm -rvf /home/pi/.bash_history /home/pi/.witnessangel"
+      cmd: "rm -rvf /home/pi/.bash_history /home/pi/.witnessangel /home/pi/.local/share/Trash/*"
   - name: Remove configured wifi network if any
     shell:
       cmd: wpa_cli remove_network 0 && wpa_cli save_config # This still returns 0 on failure, weirdly

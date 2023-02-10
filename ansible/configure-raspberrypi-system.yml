@@ -163,8 +163,9 @@
     cron:
       name: "warecorder-launch-boot"
       special_time: reboot
-      job: "XDG_RUNTIME_DIR=/run/user/$(id -u) {{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
+      job: "sleep 60s ; XDG_RUNTIME_DIR=/run/user/$(id -u) {{ ansible_env.HOME }}/.venv/bin/python {{ ansible_env.HOME }}/witness-angel-recorder/main.py --service"
       # XDG_RUNTIME_DIR is necessary for PulseAudio, see https://wiki.archlinux.org/title/PulseAudio#Play_sound_from_a_non-interactive_shell_(systemd_service,_cron)
+      # We sleep so that USB drive mounting has time to mount too, before WA service attempts to access it
   - name: Create a cron entry for Recorder service periodic re-launch
     cron:
       name: "warecorder-launch-periodic"
