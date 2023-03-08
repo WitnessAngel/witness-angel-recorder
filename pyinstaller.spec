@@ -13,11 +13,22 @@ pyproject_data = Path("pyproject.toml").read_text()
 version = re.search(r'''version = ['"](.*)['"]''', pyproject_data).group(1)
 assert version, version
 
-sys.path.append(".")  # To find WARECORDER package
+root_dir = os.path.abspath(os.getcwd())
+assert os.path.isdir(os.path.join(root_dir, "warecorder"))
 
-datas = collect_data_files("warecorder") + collect_data_files("wacomponents")
+sys.path.append(root_dir)  # To find WARECORDER package
+
+''' Recent versions of pyinstaller have trouble importing warecorder - to be investigated
+print("\n\n>>>>>>>>>>sys.path")
+from pprint import pprint
+pprint(sys.path)
+
+import warecorder
+print("\n\n>>>> warecorder", warecorder)
+'''
 
 hiddenimports = collect_submodules("warecorder") + collect_submodules("wacomponents") + collect_submodules("plyer")
+#print("\n\n>>>>>>>>>>hiddenimports", hiddenimports)
 
 app_name = "witness_angel_recorder_%s" % version.replace(".","-")
 
@@ -28,12 +39,13 @@ if sys.platform.startswith("win32"):
 
 USE_CONSOLE = True  # Change this if needed, to debug
 
-main_script = os.path.abspath(os.path.join(os.getcwd(), 'main.py'))
+main_script = os.path.join(root_dir, 'main.py')
+
 
 a = Analysis([main_script],
              pathex=['.'],
              binaries=[],
-             datas=datas,
+             datas=collect_data_files("warecorder") + collect_data_files("wacomponents"),
              hiddenimports=hiddenimports,
              hookspath=[kivymd_hooks_path],
              runtime_hooks=[],
@@ -73,7 +85,7 @@ coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
-               *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
+               *extra_exe_params,
                strip=False,
                upx=True,
                upx_exclude=[],
