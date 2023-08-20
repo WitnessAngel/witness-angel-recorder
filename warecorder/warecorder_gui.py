@@ -35,7 +35,7 @@ if False:  #  ACTIVATE TO DEBUG GUI
 
 class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
 
-    title_app_window = tr._("Witness Angel - Network Video Recorder")
+    title_app_window = tr._("Witness Angel - Recorder")
     title_conf_panel = tr._("Recorder settings")
 
     kv_file = str(WARECORDER_PACKAGE_DIR / "warecorder_gui.kv")
@@ -152,6 +152,9 @@ class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
         self._update_preview_image()  # Immediate call
 
         ##self.fps_monitor_start()  # FPS display for debugging, requires FpsMonitoring mixin
+
+        # HACK SHORTCUT if needed
+        #self.root.ids.screen_manager.current = WAScreenName.claimant_revelation_request_management
 
     def _update_app_after_config_change(self):
         super()._update_app_after_config_change()
