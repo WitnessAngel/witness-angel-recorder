@@ -17,10 +17,10 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
@@ -38,7 +38,7 @@ wacomponents = { git = "https://github.com/WitnessAngel/witness-angel-components
 
 # Wacomponents dependencies
 Kivy = {version = "^2.2.1", extras = ["base"]}
-kivymd = "^1.1.1"
+kivymd = { url = "https://github.com/kivymd/kivymd/archive/1152d3c312.zip" }
 plyer = "^2.1.0"
 Pillow = "^10.0.0"
 # BREAKS ALL DUE TO "aux" FOLDER IN GIT REPO: pyobjus = {version = "^1.2.1 ", platform = 'darwin'}
