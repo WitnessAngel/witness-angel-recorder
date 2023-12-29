@@ -215,7 +215,7 @@ fabric.properties
 /media/
 /static/
 /backups/
-__*
+___*
 
 # django-extensions runserver_plus SSL
 cert.crt
