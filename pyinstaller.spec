@@ -98,5 +98,5 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='witness_angel_authenticator')
+               name='witness_angel_recorder')
 '''
