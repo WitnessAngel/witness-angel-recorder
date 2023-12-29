@@ -18,24 +18,25 @@ assert os.path.isdir(os.path.join(root_dir, "warecorder"))
 
 sys.path.append(root_dir)  # To find WARECORDER package
 
-''' Recent versions of pyinstaller have trouble importing warecorder - to be investigated
-print("\n\n>>>>>>>>>>sys.path")
-from pprint import pprint
-pprint(sys.path)
-
-import warecorder
-print("\n\n>>>> warecorder", warecorder)
-'''
-
 hiddenimports = collect_submodules("warecorder") + collect_submodules("wacomponents") + collect_submodules("plyer")
-#print("\n\n>>>>>>>>>>hiddenimports", hiddenimports)
 
 app_name = "witness_angel_recorder_%s" % version.replace(".","-")
 
+program_icon = "assets/icon_recorder_512x512.png"
 extra_exe_params= []
+
+is_macos = sys.platform.startswith("darwin")
+
+codesign_identity = os.environ.get("MACOS_CODESIGN_IDENTITY", None)
+print(">>> macosx codesign identity is", codesign_identity)
+
 if sys.platform.startswith("win32"):
+    program_icon = "assets/icon_recorder_64x64.ico"
     from kivy_deps import sdl2, glew
     extra_exe_params = [Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)]
+elif is_macos:
+    program_icon = "assets/icon_recorder_512x512.icns"
+print(">>>> PROGRAM ICON", program_icon)
 
 USE_CONSOLE = True  # Change this if needed, to debug
 
@@ -72,13 +73,21 @@ exe = EXE(pyz,
           upx=True,
           runtime_tmpdir=None,
           console=USE_CONSOLE,
-          icon='assets/windows_icon_authenticator_64x64.ico')
+          icon=program_icon,
+          codesign_identity=codesign_identity,
+          entitlements_file="assets/entitlements.plist",  # For MacOS only
+          # This fails because of non-fat dep libs... target_arch="universal2" if is_macos else None,
+)
 
-if sys.platform.startswith("darwin"):
+if is_macos:
     app = BUNDLE(exe,
              name=app_name+".app",
-             icon=None,
-             bundle_identifier=None)
+             icon=program_icon,
+             bundle_identifier="org.witnessangel.recorder",
+             codesign_identity=codesign_identity,
+             entitlements_file="assets/entitlements.plist", # For MacOS only
+    )
+
 
 ''' UNUSED - FOR DIRECTORY BUILD ONLY
 coll = COLLECT(exe,
