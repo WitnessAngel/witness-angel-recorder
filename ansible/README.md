@@ -44,7 +44,7 @@ Then REBOOT the raspberry pi, and test the good working of the system, especiall
 
 All clocks must be well synchronized when Internet is available, and when not, the Raspberry Pi must update its time from hardware clock on boot (but the hardware clock shouldn't auto-update itself when system time is manually changed).
 
-You can also check i2c busses and peripheralss with "i2cdetect -l" and "i2cdetect -y 1".
+You can also check i2c busses and peripherals with "i2cdetect -l" and "i2cdetect -y 1".
 
 When testing RTSP with VLC, note that it might bug (dropped frames and grey images) on high-resolution streams due to insufficient CPU power, but these streams should still work fine with the Recorder (which doesn't need to decode video). Installing hardware-accelerated VLC might help itsdisplay nonetheless.
 
@@ -58,4 +58,4 @@ You can then burn the generated image to another SDCARD, and boot on it.
 
 
 
-SAY COMPATIBILITY WITH DS1307 and ds3231 too
+SAY COMPATIBILITY WITH DS1307 and ds3231 too  <<<<<<<<<
