@@ -7,7 +7,7 @@ build-backend = "poetry.masonry.api"
 name = "warecorder"
 description = "Witness Angel Recorder"
 version = "1.0"
-license = "MIT"
+license = { file = "LICENSE.txt" }
 readme = "Readme.rst"
 authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi", "Francinette Atchade"]
 homepage = "https://github.com/WitnessAngel/witness-angel-recorder-python"
@@ -15,7 +15,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
