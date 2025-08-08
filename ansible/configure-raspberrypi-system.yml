@@ -91,11 +91,15 @@
       repo: 'https://github.com/pimoroni/button-shim.git'
       dest: "{{ ansible_env.HOME }}/installers/pimoroni_buttonshim"
       version: "master"
+      single_branch: true
+      depth: 1
   - name: Clone WaveShare examples repository
     git:
       repo: 'https://github.com/waveshare/e-Paper.git'
       dest: "{{ ansible_env.HOME }}/installers/waveshare_epaper"
       version: "master"
+      single_branch: true
+      depth: 1
   - name: Install Waveshare LCD usage examples
     script:
       cmd: files/install_waveshare_lcd_examples.sh
@@ -103,8 +107,10 @@
   - name: Clone WaveShare audio hat drivers repository
     git:
       repo: 'https://github.com/waveshare/WM8960-Audio-HAT.git'
-      dest: "{{ ansible_env.HOME }}/installer/waveshare_wm8960_audio_hat.git"
+      dest: "{{ ansible_env.HOME }}/installers/waveshare_wm8960_audio_hat.git"
       version: "master"
+      single_branch: true
+      depth: 1
   - name: Upgrade pip and basic build helpers in venv
     pip:
       name: ["pip==21.3.1", "setuptools", "wheel", ]
@@ -123,7 +129,7 @@
   - name: Install misc dependencies into venv
     pip:
       # If problems with cryptography/asn1, rust/cargo and zlib corruption, see https://stackoverflow.com/a/70628807
-      name: ["poetry",
+      name: ["poetry==1.8.1",
              "pillow", "numpy", "wiringpi==2.60.1",  # For E-paper control
               # Waveshare e-Paper.git installs RPi.GPIO and spidev, but without pinned versions so beware:
              "git+https://github.com/waveshare/e-Paper.git#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python",
@@ -142,7 +148,8 @@
       repo: 'https://github.com/WitnessAngel/witness-angel-recorder-python.git'
       dest: "{{ ansible_env.HOME }}/witness-angel-recorder"
       version: "main"
-      #depth: "1" - shallow clones are impractical
+      single_branch: true
+      depth: 1
   - name: Remove git-based WA dependencies so that they are properly updated by poetry later
     pip:
       name: ["wacryptolib", "wacomponents"]

@@ -1,5 +1,6 @@
 #!/bin/bash
 source ~/.venv/bin/activate
+poetry -V  # Display version
 # See https://github.com/python-poetry/poetry/issues/3662 for PYTHON_KEYRING_BACKEND
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 # Beware, keep that in sync with Kivy version of pyproject.toml, we must install it without multiprocessing else RAM explodes

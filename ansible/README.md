@@ -23,7 +23,7 @@ So that desktop icon works fine, in pcmanfm file explorer, menu "Edit -> Prefere
 
 Connect an USB storage named "BigKey", where the exported image will be stored.
 
-Parallel GCC compilation of big python modules might overflow memory, so it's better to increase the SWAP to 1GB and reboot: https://wpitchoune.net/tricks/raspberry_pi3_increase_swap_size.html
+Parallel GCC compilation of big python modules might overflow memory, so it's better to increase the SWAP to 1GB and reboot: https://itsfoss.com/pi-swap-increase/
 
 
 ## Step 2 : Software provisioning with ansible
@@ -38,17 +38,17 @@ You might have to authorize the SSH hostkey of the Raspberry Pi (by attempting a
 
 Then run `ansible-playbook -i hosts configure-raspberrypi-system.yml`
 
-This will configure everything so that the Raspberry Pi can launch WA-Recorder sotware (both service and GUI processes).
+This will configure everything so that the Raspberry Pi can launch WA-Recorder software (both service and GUI processes).
 
 Then REBOOT the raspberry pi, and test the good working of the system, especially regarding datetime handling : "date", "sudo hwclock", "timedatectl status" (set hardware clock to UTC if requested) etc.
 
 All clocks must be well synchronized when Internet is available, and when not, the Raspberry Pi must update its time from hardware clock on boot (but the hardware clock shouldn't auto-update itself when system time is manually changed).
 
-You can also check i2c busses and peripherals with "i2cdetect -l" and "i2cdetect -y 1".
+You can also check i2c bus and peripherals with "i2cdetect -l" and "i2cdetect -y 1".
 
 When testing RTSP with VLC, note that it might bug (dropped frames and grey images) on high-resolution streams due to insufficient CPU power, but these streams should still work fine with the Recorder (which doesn't need to decode video). Installing hardware-accelerated VLC might help itsdisplay nonetheless.
 
-Beware system image creation, turn OFF Bluetooth and WIFI, for security.
+Before system image creation, you might want to turn OFF Bluetooth, and WIFI (if connected via Ethernet), for security.
 
 Then run `ansible-playbook -i hosts export-raspberrypi-system-image.yml`
 
