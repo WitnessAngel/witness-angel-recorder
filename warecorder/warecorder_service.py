@@ -107,8 +107,9 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
             # This lib automatically cleans up thanks to atexit
             buttonshim.on_press(buttonshim.BUTTON_A, self._epaper_switch_recording_callback)
             if self._epaper_display:
-                logger.debug("Skipping setup of button B, since no E-paper display is present")
                 buttonshim.on_press(buttonshim.BUTTON_B, self._epaper_status_refresh_callback)
+            else:
+                logger.debug("Skipping setup of button B, since no E-paper display is present")
             buttonshim.set_brightness(0.2)
 
             def _buttonshim_led_callback(color):
@@ -255,12 +256,12 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
                                          key_shared_secret_shards=info_trustees,
                                       )
                                    ]
-        payload_signatures = []
+        payload_ciphertext_signatures = []
         payload_cipher_layers = [
             dict(
                  payload_cipher_algo="AES_CBC",
                  key_cipher_layers=shared_secret_encryption,
-                 payload_signatures=payload_signatures)
+                 payload_ciphertext_signatures=payload_ciphertext_signatures)
         ]
         cryptoconf = dict(payload_cipher_layers=payload_cipher_layers)
         check_cryptoconf_sanity(cryptoconf)  # Sanity check
