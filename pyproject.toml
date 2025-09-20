@@ -7,7 +7,7 @@ build-backend = "poetry.masonry.api"
 name = "warecorder"
 description = "Witness Angel Recorder"
 version = "1.0"
-license = { file = "LICENSE.txt" }
+license = "GPL-2.0-or-later"
 readme = "Readme.rst"
 authors = ["Pascal Chambon", "Manon Michelet", "Akram Bourichi", "Francinette Atchade"]
 homepage = "https://github.com/WitnessAngel/witness-angel-recorder-python"
@@ -16,10 +16,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
@@ -29,7 +30,7 @@ exclude = []
 
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.13"
+python = ">=3.9, <3.14"
 
 # For now WA dependencies must be manually installed at selected versions !
 wacryptolib = { git = "https://github.com/WitnessAngel/witness-angel-cryptolib.git", branch = "warecorder_stable" }
