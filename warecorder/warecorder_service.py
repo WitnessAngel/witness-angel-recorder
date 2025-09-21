@@ -256,12 +256,12 @@ class WarecorderBackgroundServer(WarecorderRuntimeSupportMixin, WaRecorderServic
                                          key_shared_secret_shards=info_trustees,
                                       )
                                    ]
-        payload_ciphertext_signatures = []
+        payload_signatures = []
         payload_cipher_layers = [
             dict(
                  payload_cipher_algo="AES_CBC",
                  key_cipher_layers=shared_secret_encryption,
-                 payload_ciphertext_signatures=payload_ciphertext_signatures)
+                 payload_signatures=payload_signatures)
         ]
         cryptoconf = dict(payload_cipher_layers=payload_cipher_layers)
         check_cryptoconf_sanity(cryptoconf)  # Sanity check
