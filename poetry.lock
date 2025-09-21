@@ -1303,7 +1303,7 @@ name = "wacomponents"
 version = "0.1"
 description = "Witness Angel Components"
 optional = false
-python-versions = ">=3.7, <4.0"
+python-versions = ">=3.9, <3.14"
 groups = ["main"]
 files = []
 develop = false
@@ -1312,7 +1312,7 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "warecorder_stable"
-resolved_reference = "53e302954a1e99e9cfdfbdf67e6191d0dfca5b25"
+resolved_reference = "506d0d03daa2da101172c894159d7f7134461ea5"
 
 [[package]]
 name = "wacryptolib"
