@@ -131,7 +131,8 @@
     pip:
       # If problems with cryptography/asn1, rust/cargo and zlib corruption, see https://stackoverflow.com/a/70628807
       name: ["poetry",
-             "pillow", "numpy", #######"wiringpi==2.60.1",  # For E-paper control
+             "pillow", "olefile==0.47",  # Olefile is used to load some formats
+             "numpy", #######"wiringpi==2.60.1",  # For E-paper control
              "spidev==3.8",
              "rpi-lgpio==0.6",   # Overrides RPi.GPIO package
               # Waveshare e-Paper.git installed RPi.GPIO and spidev o Bullseye,
@@ -139,6 +140,7 @@
              "smbus==1.1.post2",  # For button-shim control
              "picamera",
              "freetype-py==2.5.1",  # For DFRobot E-paper examples
+             "kivy_examples",  # To debug graphics, if troubles
              "adafruit-python-shell==1.10.0" ]  # For i2smic setup script
       virtualenv: "{{ ansible_env.HOME }}/.venv"
       virtualenv_python: "python3"
