@@ -1303,7 +1303,7 @@ name = "wacomponents"
 version = "0.1"
 description = "Witness Angel Components"
 optional = false
-python-versions = ">=3.7, <4.0"
+python-versions = ">=3.9, <3.14"
 groups = ["main"]
 files = []
 develop = false
@@ -1312,14 +1312,14 @@ develop = false
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-components.git"
 reference = "warecorder_stable"
-resolved_reference = "53e302954a1e99e9cfdfbdf67e6191d0dfca5b25"
+resolved_reference = "af4b8a01707cc403814fd4e6845a6c48c20a5a49"
 
 [[package]]
 name = "wacryptolib"
-version = "0.11"
+version = "0.12"
 description = "Witness Angel Cryptolib"
 optional = false
-python-versions = ">=3.7, <4.0"
+python-versions = ">=3.9, <4.0"
 groups = ["main"]
 files = []
 develop = false
@@ -1346,7 +1346,7 @@ wmi = {version = "^1.5.1 ", markers = "sys_platform == \"win32\""}
 type = "git"
 url = "https://github.com/WitnessAngel/witness-angel-cryptolib.git"
 reference = "warecorder_stable"
-resolved_reference = "e8b942a6a84b9e03f868b7e1e601f29eacf4dbc4"
+resolved_reference = "b91aaf40b4629e49eb156cf8fcb75bc3737a2008"
 
 [[package]]
 name = "wcwidth"
