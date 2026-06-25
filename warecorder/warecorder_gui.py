@@ -8,9 +8,10 @@ from pathlib import Path
 import functools
 
 from kivy.clock import Clock
+from kivy.properties import ListProperty
 
 from wacomponents.application.recorder_gui import WaRecorderGui
-from wacomponents.default_settings import IS_RASPBERRY_PI
+from wacomponents.default_settings import IS_ANDROID, IS_RASPBERRY_PI
 from wacomponents.devices.epaper import EPAPER_TYPES
 from wacomponents.devices.lcd import LCD_TYPES
 from wacomponents.screens.base import WAScreenName
@@ -46,6 +47,10 @@ class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
 
     app_logo_path = WARECORDER_PACKAGE_DIR.joinpath("warecorder_desktop_icon_512x512.png")  # E.g. for side menu
     fallback_preview_image_path = app_logo_path  # If no recording exists yet to be shown
+
+    # Format: [padding_left, padding_top, padding_right, padding_bottom].
+    # Filled with the OS safe-area insets on mobile (status/navigation bars); stays 0 elsewhere.
+    application_margins = ListProperty([0, 0, 0, 0])
 
     def log_output(self, msg, *args, **kwargs):  # FIXME restore this
         return  # DISABLED FOR NOW
@@ -121,6 +126,15 @@ class WardGuiApp(WarecorderRuntimeSupportMixin, WaRecorderGui):
 
     def on_start(self):
         super().on_start()
+
+        if IS_ANDROID:
+            # Keep app content out of the status/navigation bars (edge-to-edge on Android 15+).
+            # Keep a reference on self so the JNI listener proxy is not garbage-collected.
+            from wacomponents.application.android_helpers import monitor_android_safe_area_insets
+
+            self._android_insets_listener = monitor_android_safe_area_insets(
+                lambda margins: setattr(self, "application_margins", margins)
+            )
 
         if False:
             # Enable to display final logging config

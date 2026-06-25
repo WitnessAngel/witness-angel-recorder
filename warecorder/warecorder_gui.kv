@@ -10,52 +10,49 @@
 #:import WAScreenName wacomponents.screens.base.WAScreenName
 #:import WaNavigationDrawer wacomponents.widgets.navigation_drawer
 
-RelativeLayout:
-    MDNavigationLayout:
+BoxLayout:
 
-        ScreenManager:
+    padding: app.application_margins  # Android/iOS safe-area insets (status/navigation bars)
 
-            id: screen_manager
+    RelativeLayout:
+        MDNavigationLayout:
 
-            RecorderHomepageScreen:
-                name: "recorder_homepage"  # FIXME rename with "Screen", and rename ALL "name:" here
+            ScreenManager:
 
-            ForeignKeystoreManagementScreen:
-                id: foreign_keystore_management_id
-                name: WAScreenName.foreign_keystore_management
+                id: screen_manager
 
-            CryptainerStorageManagementScreen:
-                id: cryptainer_storage_management_id
-                name: WAScreenName.cryptainer_storage_management
+                RecorderHomepageScreen:
+                    name: "recorder_homepage"  # FIXME rename with "Screen", and rename ALL "name:" here
 
-            CryptainerDecryptionProcessScreen:
-                id: cryptainer_decryption_process_id
-                name: WAScreenName.cryptainer_decryption_process
-                ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
+                ForeignKeystoreManagementScreen:
+                    id: foreign_keystore_management_id
+                    name: WAScreenName.foreign_keystore_management
 
-            ClaimantRevelationRequestCreationFormScreen:
-                id: claimant_revelation_request_creation_form_id
-                name: WAScreenName.claimant_revelation_request_creation_form
-                ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
+                CryptainerStorageManagementScreen:
+                    id: cryptainer_storage_management_id
+                    name: WAScreenName.cryptainer_storage_management
 
-            ClaimantRevelationRequestManagementScreen:
-                name: WAScreenName.claimant_revelation_request_management
+                CryptainerDecryptionProcessScreen:
+                    id: cryptainer_decryption_process_id
+                    name: WAScreenName.cryptainer_decryption_process
+                    ## FIXME selected_cryptainer_names: cryptainer_storage_management_screen_id.selected_cryptainer_names
 
-            ClaimantRevelationRequestDetailScreen:
-                name: WAScreenName.claimant_revelation_request_detail
+                ClaimantRevelationRequestCreationFormScreen:
+                    id: claimant_revelation_request_creation_form_id
+                    name: WAScreenName.claimant_revelation_request_creation_form
+                    ## FIXME selected_cryptainer_names: cryptainer_decryption_process_screen_id.selected_cryptainer_names
 
-            CryptainerDecryptionResultScreen:
-                name: WAScreenName.cryptainer_decryption_result
+                ClaimantRevelationRequestManagementScreen:
+                    name: WAScreenName.claimant_revelation_request_management
 
-        WaNavigationDrawer:
-            id: navigation_drawer
+                ClaimantRevelationRequestDetailScreen:
+                    name: WAScreenName.claimant_revelation_request_detail
 
-    WaitSpinner:
-        id: wait_spinner
+                CryptainerDecryptionResultScreen:
+                    name: WAScreenName.cryptainer_decryption_result
 
+            WaNavigationDrawer:
+                id: navigation_drawer
 
-
-
-
-
-
+        WaitSpinner:
+            id: wait_spinner
