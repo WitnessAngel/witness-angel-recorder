@@ -1,15 +1,15 @@
 # Witness Angel Recorder — Specification
 
-Specification of the Witness Angel Recorder application (v1.0): a GUI plus a background service that records media (IP camera everywhere; camera and microphone on a Raspberry Pi) and stores it only as cryptainers that a quorum of key guardians must agree to decrypt. It is detailed enough to reimplement the app in another framework, and in another language subject to the scope decision below (planned target: Flet, sharing [`waflet_components`](../../witness-angel-authenticator/flet_reimplementation/waflet_components/) with the Authenticator) while staying interoperable with existing cryptainers, keystores, the Witness Angel gateway, `wacryptolib` and the Authenticator app.
+Specification of the Witness Angel Recorder application (v1.0): a GUI plus a background service that records media (IP camera everywhere; camera and microphone on a Raspberry Pi) and stores it only as cryptainers that a quorum of key guardians must agree to decrypt. It is detailed enough to reimplement the app in another framework, in Python on `wacryptolib` `warecorder_stable` (decisions below; planned target: Flet, sharing [`waflet_components`](../../witness-angel-authenticator/flet_reimplementation/waflet_components/) with the Authenticator) while staying interoperable with existing cryptainers, keystores, the Witness Angel gateway, `wacryptolib` and the Authenticator app.
 
-## Decisions pending before a reimplementation starts
+## Reimplementation baseline decisions
 
-Three product decisions are open. Each has a requirement that applies whichever option is chosen.
+Two of the three baseline decisions are taken (decided 2026-10-26); OI-102 is still open. Each carries a requirement the reimplementation MUST meet.
 
-| Decision | Constraint until it is taken | Requirement in any case |
+| Decision | Status / constraint | Requirement |
 |---|---|---|
-| **Cryptolib baseline** ([OI-100](05-open-issues.md#oi-100)) | Crypto MUST go through `wacryptolib`, but **not** the Authenticator's branch `poc/pure-python-crypto-utils` as is: it cannot decrypt 1.0 cryptainers, and `warecorder_stable` cannot decrypt what it writes ([04 §4.5](04-data-and-protocols.md#45-naming-history-payload_signatures-vs-payload_ciphertext_signatures), [OI-63](05-open-issues.md#oi-63)). Recommended: `warecorder_stable` (= `main` @ `b91aaf4`). | Cross-decryption acceptance test, [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test-whichever-oi-100-option-is-chosen). |
-| **Scope: Python only or any language** ([OI-101](05-open-issues.md#oi-101)) | Recommended target: Python + `wacryptolib`. 04 is normative for bytes and serves verification and non-Python readers; the decryptor's report vocabulary is not specified for a non-Python decryptor. | Fixture tests of [04 §14](04-data-and-protocols.md#14-test-vectors-fixtures) and [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test-whichever-oi-100-option-is-chosen). |
+| **Cryptolib baseline** ([OI-100](05-open-issues.md#oi-100)) | **Decided: pin `wacryptolib` `warecorder_stable`** (= `main` @ `b91aaf4`). Not the Authenticator's `poc/pure-python-crypto-utils` as is: the two generations cannot decrypt each other's cryptainers ([04 §4.5](04-data-and-protocols.md#45-naming-history-payload_signatures-vs-payload_ciphertext_signatures), [OI-63](05-open-issues.md#oi-63)). `waflet_components` MUST be tested against `warecorder_stable`. | Cross-decryption acceptance test, [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test). |
+| **Scope** ([OI-101](05-open-issues.md#oi-101)) | **Decided: Python + `wacryptolib`.** 04 stays normative for bytes, for verification and third-party readers; the decryptor's report vocabulary comes from the library. | Fixture tests of [04 §14](04-data-and-protocols.md#14-test-vectors-fixtures) and [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test). |
 | **GUI on the Raspberry Pi** ([OI-102](05-open-issues.md#oi-102)) | Flet's desktop client targets x64/arm64 Linux only; the 1.0 image is 32-bit-era Bullseye and Pi Zero/3B devices exist. The operator GUI on a Pi is not guaranteed until this is decided. | Settings, guardian import and decryption demonstrated on every supported Pi model and OS ([01 §1.4](01-architecture-and-platform.md#14-deployment-targets)). |
 
 ## Documents

@@ -542,9 +542,9 @@ Timing constants (INFO): state poll 2 s (8 s Pi); service relaunch after 3 unans
 
 ## 13. Mapping to `waflet_components`
 
-The planned target is Flet, sharing the package `witness-angel-authenticator/flet_reimplementation/waflet_components/` with the Authenticator ([AUTHSPEC](../../witness-angel-authenticator/specifications/README.md)). Two pending decisions constrain this reuse:
+The planned target is Flet, sharing the package `witness-angel-authenticator/flet_reimplementation/waflet_components/` with the Authenticator ([AUTHSPEC](../../witness-angel-authenticator/specifications/README.md)). Two baseline decisions constrain this reuse:
 
-- **Cryptolib baseline** ([OI-100](05-open-issues.md#oi-100)): `waflet_components` is developed against the cryptolib branch `poc/pure-python-crypto-utils`, which is not interoperable with 1.0 cryptainers ([04 §4.5](04-data-and-protocols.md#45-naming-history-payload_signatures-vs-payload_ciphertext_signatures)). The recorder MUST NOT ship on that branch as is; recommended: `warecorder_stable`. The acceptance test of [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test-whichever-oi-100-option-is-chosen) MUST pass whichever option is chosen.
+- **Cryptolib baseline** ([OI-100](05-open-issues.md#oi-100), decided): the recorder pins `wacryptolib` `warecorder_stable`. `waflet_components` is developed against `poc/pure-python-crypto-utils`, which is not interoperable with 1.0 cryptainers ([04 §4.5](04-data-and-protocols.md#45-naming-history-payload_signatures-vs-payload_ciphertext_signatures)); it MUST therefore also be tested against `warecorder_stable`, and the acceptance test of [04 §14.1](04-data-and-protocols.md#141-cryptolib-acceptance-test) MUST pass.
 - **GUI on the Raspberry Pi** ([OI-102](05-open-issues.md#oi-102)): Flet's desktop client does not run on 32-bit ARM. Record here and in §1.4 which option is chosen (64-bit Pi OS only, Flet web app served by the Pi, or headless provisioning).
 
 Status per capability:
