@@ -1,0 +1,1 @@
+{"id": {"$numberLong": "5776600559367167158"}, "jsonrpc": "2.0", "method": "get_public_authenticator", "params": {"keystore_uid": {"$binary": {"base64": "EE66XJcrWRUDuvTyS3rmhw==", "subType": "04"}}}}

@@ -1,0 +1,1111 @@
+{
+ "type": "object",
+ "properties": {
+  "cryptainer_state": {
+   "enum": [
+    "STARTED",
+    "FINISHED"
+   ]
+  },
+  "cryptainer_format": {
+   "const": "cryptainer_1.0"
+  },
+  "cryptainer_uid": {
+   "type": "object",
+   "properties": {
+    "$binary": {
+     "type": "object",
+     "properties": {
+      "base64": {
+       "allOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "string",
+         "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+        }
+       ]
+      },
+      "subType": {
+       "enum": [
+        "03",
+        "04"
+       ]
+      }
+     },
+     "required": [
+      "base64",
+      "subType"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "$binary"
+   ],
+   "additionalProperties": false
+  },
+  "payload_ciphertext_struct": {
+   "anyOf": [
+    {
+     "type": "object",
+     "properties": {
+      "ciphertext_location": {
+       "const": "inline"
+      },
+      "ciphertext_value": {
+       "type": "object",
+       "properties": {
+        "$binary": {
+         "type": "object",
+         "properties": {
+          "base64": {
+           "allOf": [
+            {
+             "type": "string"
+            },
+            {
+             "type": "string",
+             "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+            }
+           ]
+          },
+          "subType": {
+           "const": "00"
+          }
+         },
+         "required": [
+          "base64",
+          "subType"
+         ],
+         "additionalProperties": false
+        }
+       },
+       "required": [
+        "$binary"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "ciphertext_location",
+      "ciphertext_value"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "object",
+     "properties": {
+      "ciphertext_location": {
+       "const": "offloaded"
+      }
+     },
+     "required": [
+      "ciphertext_location"
+     ],
+     "additionalProperties": false
+    }
+   ]
+  },
+  "cryptainer_metadata": {
+   "anyOf": [
+    {
+     "type": "object"
+    },
+    {
+     "const": null
+    }
+   ]
+  },
+  "payload_cipher_layers": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "payload_cipher_algo": {
+      "enum": [
+       "AES_CBC",
+       "AES_EAX",
+       "CHACHA20_POLY1305",
+       "RSA_OAEP"
+      ]
+     },
+     "payload_signatures": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "payload_digest_algo": {
+         "enum": [
+          "SHA256",
+          "SHA512",
+          "SHA3_256",
+          "SHA3_512"
+         ]
+        },
+        "payload_signature_algo": {
+         "enum": [
+          "DSA_DSS",
+          "ECC_DSS",
+          "RSA_PSS"
+         ]
+        },
+        "payload_signature_trustee": {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "trustee_type": {
+             "const": "local_keyfactory"
+            }
+           },
+           "required": [
+            "trustee_type"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "trustee_type": {
+             "const": "authenticator"
+            },
+            "keystore_uid": {
+             "type": "object",
+             "properties": {
+              "$binary": {
+               "type": "object",
+               "properties": {
+                "base64": {
+                 "allOf": [
+                  {
+                   "type": "string"
+                  },
+                  {
+                   "type": "string",
+                   "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                  }
+                 ]
+                },
+                "subType": {
+                 "enum": [
+                  "03",
+                  "04"
+                 ]
+                }
+               },
+               "required": [
+                "base64",
+                "subType"
+               ],
+               "additionalProperties": false
+              }
+             },
+             "required": [
+              "$binary"
+             ],
+             "additionalProperties": false
+            },
+            "keystore_owner": {
+             "type": "string"
+            }
+           },
+           "required": [
+            "trustee_type",
+            "keystore_uid"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "trustee_type": {
+             "const": "jsonrpc_api"
+            },
+            "jsonrpc_url": {
+             "type": "string"
+            }
+           },
+           "required": [
+            "trustee_type",
+            "jsonrpc_url"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        "keychain_uid": {
+         "type": "object",
+         "properties": {
+          "$binary": {
+           "type": "object",
+           "properties": {
+            "base64": {
+             "allOf": [
+              {
+               "type": "string"
+              },
+              {
+               "type": "string",
+               "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+              }
+             ]
+            },
+            "subType": {
+             "enum": [
+              "03",
+              "04"
+             ]
+            }
+           },
+           "required": [
+            "base64",
+            "subType"
+           ],
+           "additionalProperties": false
+          }
+         },
+         "required": [
+          "$binary"
+         ],
+         "additionalProperties": false
+        },
+        "payload_digest_value": {
+         "type": "object",
+         "properties": {
+          "$binary": {
+           "type": "object",
+           "properties": {
+            "base64": {
+             "allOf": [
+              {
+               "type": "string"
+              },
+              {
+               "type": "string",
+               "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+              }
+             ]
+            },
+            "subType": {
+             "const": "00"
+            }
+           },
+           "required": [
+            "base64",
+            "subType"
+           ],
+           "additionalProperties": false
+          }
+         },
+         "required": [
+          "$binary"
+         ],
+         "additionalProperties": false
+        },
+        "payload_signature_struct": {
+         "type": "object",
+         "properties": {
+          "signature_value": {
+           "type": "object",
+           "properties": {
+            "$binary": {
+             "type": "object",
+             "properties": {
+              "base64": {
+               "allOf": [
+                {
+                 "type": "string"
+                },
+                {
+                 "type": "string",
+                 "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                }
+               ]
+              },
+              "subType": {
+               "const": "00"
+              }
+             },
+             "required": [
+              "base64",
+              "subType"
+             ],
+             "additionalProperties": false
+            }
+           },
+           "required": [
+            "$binary"
+           ],
+           "additionalProperties": false
+          },
+          "signature_timestamp_utc": {
+           "anyOf": [
+            {
+             "type": "object",
+             "properties": {
+              "$numberInt": {
+               "allOf": [
+                {
+                 "type": "string"
+                },
+                {
+                 "type": "string",
+                 "pattern": "^[+-]?\\d+$"
+                }
+               ]
+              }
+             },
+             "required": [
+              "$numberInt"
+             ],
+             "additionalProperties": false
+            },
+            {
+             "type": "object",
+             "properties": {
+              "$numberLong": {
+               "allOf": [
+                {
+                 "type": "string"
+                },
+                {
+                 "type": "string",
+                 "pattern": "^[+-]?\\d+$"
+                }
+               ]
+              }
+             },
+             "required": [
+              "$numberLong"
+             ],
+             "additionalProperties": false
+            }
+           ]
+          }
+         },
+         "required": [
+          "signature_value",
+          "signature_timestamp_utc"
+         ],
+         "additionalProperties": false
+        }
+       },
+       "required": [
+        "payload_digest_algo",
+        "payload_signature_algo",
+        "payload_signature_trustee"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "key_ciphertext": {
+      "type": "object",
+      "properties": {
+       "$binary": {
+        "type": "object",
+        "properties": {
+         "base64": {
+          "allOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+           }
+          ]
+         },
+         "subType": {
+          "const": "00"
+         }
+        },
+        "required": [
+         "base64",
+         "subType"
+        ],
+        "additionalProperties": false
+       }
+      },
+      "required": [
+       "$binary"
+      ],
+      "additionalProperties": false
+     },
+     "payload_macs": {
+      "type": "object",
+      "properties": {
+       "tag": {
+        "type": "object",
+        "properties": {
+         "$binary": {
+          "type": "object",
+          "properties": {
+           "base64": {
+            "allOf": [
+             {
+              "type": "string"
+             },
+             {
+              "type": "string",
+              "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+             }
+            ]
+           },
+           "subType": {
+            "const": "00"
+           }
+          },
+          "required": [
+           "base64",
+           "subType"
+          ],
+          "additionalProperties": false
+         }
+        },
+        "required": [
+         "$binary"
+        ],
+        "additionalProperties": false
+       }
+      },
+      "required": [],
+      "additionalProperties": false
+     },
+     "key_cipher_layers": {
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "type": "object",
+         "properties": {
+          "key_cipher_algo": {
+           "enum": [
+            "DSA_DSS",
+            "ECC_DSS",
+            "RSA_OAEP",
+            "RSA_PSS"
+           ]
+          },
+          "key_cipher_trustee": {
+           "anyOf": [
+            {
+             "type": "object",
+             "properties": {
+              "trustee_type": {
+               "const": "local_keyfactory"
+              }
+             },
+             "required": [
+              "trustee_type"
+             ],
+             "additionalProperties": false
+            },
+            {
+             "type": "object",
+             "properties": {
+              "trustee_type": {
+               "const": "authenticator"
+              },
+              "keystore_uid": {
+               "type": "object",
+               "properties": {
+                "$binary": {
+                 "type": "object",
+                 "properties": {
+                  "base64": {
+                   "allOf": [
+                    {
+                     "type": "string"
+                    },
+                    {
+                     "type": "string",
+                     "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                    }
+                   ]
+                  },
+                  "subType": {
+                   "enum": [
+                    "03",
+                    "04"
+                   ]
+                  }
+                 },
+                 "required": [
+                  "base64",
+                  "subType"
+                 ],
+                 "additionalProperties": false
+                }
+               },
+               "required": [
+                "$binary"
+               ],
+               "additionalProperties": false
+              },
+              "keystore_owner": {
+               "type": "string"
+              }
+             },
+             "required": [
+              "trustee_type",
+              "keystore_uid"
+             ],
+             "additionalProperties": false
+            },
+            {
+             "type": "object",
+             "properties": {
+              "trustee_type": {
+               "const": "jsonrpc_api"
+              },
+              "jsonrpc_url": {
+               "type": "string"
+              }
+             },
+             "required": [
+              "trustee_type",
+              "jsonrpc_url"
+             ],
+             "additionalProperties": false
+            }
+           ]
+          },
+          "keychain_uid": {
+           "type": "object",
+           "properties": {
+            "$binary": {
+             "type": "object",
+             "properties": {
+              "base64": {
+               "allOf": [
+                {
+                 "type": "string"
+                },
+                {
+                 "type": "string",
+                 "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                }
+               ]
+              },
+              "subType": {
+               "enum": [
+                "03",
+                "04"
+               ]
+              }
+             },
+             "required": [
+              "base64",
+              "subType"
+             ],
+             "additionalProperties": false
+            }
+           },
+           "required": [
+            "$binary"
+           ],
+           "additionalProperties": false
+          }
+         },
+         "required": [
+          "key_cipher_algo",
+          "key_cipher_trustee"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "$ref": "#/definitions/recursive_symmetric_cipher"
+        },
+        {
+         "$ref": "#/definitions/recursive_shared_secret"
+        }
+       ]
+      }
+     }
+    },
+    "required": [
+     "payload_cipher_algo",
+     "payload_signatures",
+     "key_ciphertext",
+     "payload_macs",
+     "key_cipher_layers"
+    ],
+    "additionalProperties": false
+   }
+  },
+  "keychain_uid": {
+   "type": "object",
+   "properties": {
+    "$binary": {
+     "type": "object",
+     "properties": {
+      "base64": {
+       "allOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "string",
+         "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+        }
+       ]
+      },
+      "subType": {
+       "enum": [
+        "03",
+        "04"
+       ]
+      }
+     },
+     "required": [
+      "base64",
+      "subType"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "$binary"
+   ],
+   "additionalProperties": false
+  }
+ },
+ "required": [
+  "cryptainer_state",
+  "cryptainer_format",
+  "cryptainer_uid",
+  "payload_ciphertext_struct",
+  "cryptainer_metadata",
+  "payload_cipher_layers"
+ ],
+ "additionalProperties": false,
+ "$id": "cryptainer_schema.json",
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "definitions": {
+  "recursive_symmetric_cipher": {
+   "type": "object",
+   "properties": {
+    "key_cipher_algo": {
+     "enum": [
+      "AES_CBC",
+      "AES_EAX",
+      "CHACHA20_POLY1305"
+     ]
+    },
+    "key_cipher_layers": {
+     "type": "array",
+     "items": {
+      "anyOf": [
+       {
+        "type": "object",
+        "properties": {
+         "key_cipher_algo": {
+          "enum": [
+           "DSA_DSS",
+           "ECC_DSS",
+           "RSA_OAEP",
+           "RSA_PSS"
+          ]
+         },
+         "key_cipher_trustee": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "trustee_type": {
+              "const": "local_keyfactory"
+             }
+            },
+            "required": [
+             "trustee_type"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "trustee_type": {
+              "const": "authenticator"
+             },
+             "keystore_uid": {
+              "type": "object",
+              "properties": {
+               "$binary": {
+                "type": "object",
+                "properties": {
+                 "base64": {
+                  "allOf": [
+                   {
+                    "type": "string"
+                   },
+                   {
+                    "type": "string",
+                    "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                   }
+                  ]
+                 },
+                 "subType": {
+                  "enum": [
+                   "03",
+                   "04"
+                  ]
+                 }
+                },
+                "required": [
+                 "base64",
+                 "subType"
+                ],
+                "additionalProperties": false
+               }
+              },
+              "required": [
+               "$binary"
+              ],
+              "additionalProperties": false
+             },
+             "keystore_owner": {
+              "type": "string"
+             }
+            },
+            "required": [
+             "trustee_type",
+             "keystore_uid"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "trustee_type": {
+              "const": "jsonrpc_api"
+             },
+             "jsonrpc_url": {
+              "type": "string"
+             }
+            },
+            "required": [
+             "trustee_type",
+             "jsonrpc_url"
+            ],
+            "additionalProperties": false
+           }
+          ]
+         },
+         "keychain_uid": {
+          "type": "object",
+          "properties": {
+           "$binary": {
+            "type": "object",
+            "properties": {
+             "base64": {
+              "allOf": [
+               {
+                "type": "string"
+               },
+               {
+                "type": "string",
+                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+               }
+              ]
+             },
+             "subType": {
+              "enum": [
+               "03",
+               "04"
+              ]
+             }
+            },
+            "required": [
+             "base64",
+             "subType"
+            ],
+            "additionalProperties": false
+           }
+          },
+          "required": [
+           "$binary"
+          ],
+          "additionalProperties": false
+         }
+        },
+        "required": [
+         "key_cipher_algo",
+         "key_cipher_trustee"
+        ],
+        "additionalProperties": false
+       },
+       {
+        "$ref": "#/definitions/recursive_symmetric_cipher"
+       },
+       {
+        "$ref": "#/definitions/recursive_shared_secret"
+       }
+      ]
+     }
+    },
+    "key_ciphertext": {
+     "type": "object",
+     "properties": {
+      "$binary": {
+       "type": "object",
+       "properties": {
+        "base64": {
+         "allOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "string",
+           "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+          }
+         ]
+        },
+        "subType": {
+         "const": "00"
+        }
+       },
+       "required": [
+        "base64",
+        "subType"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "$binary"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "key_cipher_algo",
+    "key_cipher_layers",
+    "key_ciphertext"
+   ],
+   "additionalProperties": false
+  },
+  "recursive_shared_secret": {
+   "type": "object",
+   "properties": {
+    "key_cipher_algo": {
+     "const": "[SHARED_SECRET]"
+    },
+    "key_shared_secret_shards": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "key_cipher_layers": {
+        "type": "array",
+        "items": {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "key_cipher_algo": {
+             "enum": [
+              "DSA_DSS",
+              "ECC_DSS",
+              "RSA_OAEP",
+              "RSA_PSS"
+             ]
+            },
+            "key_cipher_trustee": {
+             "anyOf": [
+              {
+               "type": "object",
+               "properties": {
+                "trustee_type": {
+                 "const": "local_keyfactory"
+                }
+               },
+               "required": [
+                "trustee_type"
+               ],
+               "additionalProperties": false
+              },
+              {
+               "type": "object",
+               "properties": {
+                "trustee_type": {
+                 "const": "authenticator"
+                },
+                "keystore_uid": {
+                 "type": "object",
+                 "properties": {
+                  "$binary": {
+                   "type": "object",
+                   "properties": {
+                    "base64": {
+                     "allOf": [
+                      {
+                       "type": "string"
+                      },
+                      {
+                       "type": "string",
+                       "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                      }
+                     ]
+                    },
+                    "subType": {
+                     "enum": [
+                      "03",
+                      "04"
+                     ]
+                    }
+                   },
+                   "required": [
+                    "base64",
+                    "subType"
+                   ],
+                   "additionalProperties": false
+                  }
+                 },
+                 "required": [
+                  "$binary"
+                 ],
+                 "additionalProperties": false
+                },
+                "keystore_owner": {
+                 "type": "string"
+                }
+               },
+               "required": [
+                "trustee_type",
+                "keystore_uid"
+               ],
+               "additionalProperties": false
+              },
+              {
+               "type": "object",
+               "properties": {
+                "trustee_type": {
+                 "const": "jsonrpc_api"
+                },
+                "jsonrpc_url": {
+                 "type": "string"
+                }
+               },
+               "required": [
+                "trustee_type",
+                "jsonrpc_url"
+               ],
+               "additionalProperties": false
+              }
+             ]
+            },
+            "keychain_uid": {
+             "type": "object",
+             "properties": {
+              "$binary": {
+               "type": "object",
+               "properties": {
+                "base64": {
+                 "allOf": [
+                  {
+                   "type": "string"
+                  },
+                  {
+                   "type": "string",
+                   "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+                  }
+                 ]
+                },
+                "subType": {
+                 "enum": [
+                  "03",
+                  "04"
+                 ]
+                }
+               },
+               "required": [
+                "base64",
+                "subType"
+               ],
+               "additionalProperties": false
+              }
+             },
+             "required": [
+              "$binary"
+             ],
+             "additionalProperties": false
+            }
+           },
+           "required": [
+            "key_cipher_algo",
+            "key_cipher_trustee"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "$ref": "#/definitions/recursive_symmetric_cipher"
+          },
+          {
+           "$ref": "#/definitions/recursive_shared_secret"
+          }
+         ]
+        }
+       }
+      },
+      "required": [
+       "key_cipher_layers"
+      ],
+      "additionalProperties": false
+     }
+    },
+    "key_shared_secret_threshold": {
+     "anyOf": [
+      {
+       "type": "object",
+       "properties": {
+        "$numberInt": {
+         "allOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "string",
+           "pattern": "^[+-]?\\d+$"
+          }
+         ]
+        }
+       },
+       "required": [
+        "$numberInt"
+       ],
+       "additionalProperties": false
+      },
+      {
+       "type": "object",
+       "properties": {
+        "$numberLong": {
+         "allOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "string",
+           "pattern": "^[+-]?\\d+$"
+          }
+         ]
+        }
+       },
+       "required": [
+        "$numberLong"
+       ],
+       "additionalProperties": false
+      }
+     ]
+    }
+   },
+   "required": [
+    "key_cipher_algo",
+    "key_shared_secret_shards",
+    "key_shared_secret_threshold"
+   ],
+   "additionalProperties": false
+  }
+ }
+}

@@ -1,0 +1,62 @@
+[
+ {
+  "direction": "app->service",
+  "address": "/ping",
+  "python_values": "[]",
+  "datagram_hex": "2f70696e670000002c000000"
+ },
+ {
+  "direction": "app->service",
+  "address": "/switch_daemonize_service",
+  "python_values": "[True]",
+  "datagram_hex": "2f7377697463685f6461656d6f6e697a655f736572766963650000002c69000000000001"
+ },
+ {
+  "direction": "app->service",
+  "address": "/start_recording",
+  "python_values": "['']",
+  "datagram_hex": "2f73746172745f7265636f7264696e67000000002c73000000000000"
+ },
+ {
+  "direction": "app->service",
+  "address": "/stop_recording",
+  "python_values": "[]",
+  "datagram_hex": "2f73746f705f7265636f7264696e67002c000000"
+ },
+ {
+  "direction": "app->service",
+  "address": "/broadcast_recording_state",
+  "python_values": "[]",
+  "datagram_hex": "2f62726f6164636173745f7265636f7264696e675f737461746500002c000000"
+ },
+ {
+  "direction": "app->service",
+  "address": "/stop_server",
+  "python_values": "[]",
+  "datagram_hex": "2f73746f705f736572766572000000002c000000"
+ },
+ {
+  "direction": "service->app",
+  "address": "/receive_recording_state",
+  "python_values": "[True]",
+  "datagram_hex": "2f726563656976655f7265636f7264696e675f7374617465000000002c69000000000001"
+ },
+ {
+  "direction": "service->app",
+  "address": "/receive_recording_state",
+  "python_values": "[False]",
+  "datagram_hex": "2f726563656976655f7265636f7264696e675f7374617465000000002c69000000000000"
+ },
+ {
+  "direction": "service->app",
+  "address": "/receive_recording_state",
+  "python_values": "['']",
+  "datagram_hex": "2f726563656976655f7265636f7264696e675f7374617465000000002c73000000000000"
+ },
+ {
+  "direction": "service->app",
+  "address": "/log_output",
+  "python_values": "['Pong']",
+  "datagram_hex": "2f6c6f675f6f7574707574002c730000506f6e6700000000"
+ }
+]
