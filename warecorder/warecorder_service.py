@@ -13,7 +13,7 @@ from uuid import UUID
 from datetime import timedelta, datetime, timezone
 
 from wacomponents.default_settings import IS_RASPBERRY_PI, WIP_RECORDING_MARKER
-from wacomponents.devices.epaper import get_epaper_instance, EPAPER_TYPES
+from wacomponents.devices.epaper import get_epaper_instance
 from wacomponents.devices.lcd import get_lcd_instance
 from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryLibcameraSensor, \
     RaspberryAlsaMicrophoneSensor, list_pulseaudio_microphone_names, is_legacy_rpi_camera_enabled, \
@@ -21,7 +21,7 @@ from wacomponents.sensors.camera.raspberrypi_camera_microphone import RaspberryL
 from wacryptolib.cryptainer import CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, \
     CryptainerStorage, ReadonlyCryptainerStorage, check_cryptoconf_sanity
 from wacryptolib.keystore import KeystoreBase
-from wacryptolib.sensor import TarfileRecordAggregator, SensorManager
+from wacryptolib.sensor import SensorManager
 from wacryptolib.utilities import synchronized, catch_and_log_exception
 from wacomponents.application.recorder_service import WaRecorderService, ActivityNotificationType
 from wacomponents.logging.handlers import safe_catch_unhandled_exception

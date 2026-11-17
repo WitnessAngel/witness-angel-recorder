@@ -15,7 +15,6 @@ must pass.
 """
 
 import base64
-import hashlib
 import io
 import json
 import random
@@ -31,7 +30,7 @@ from wacryptolib.cipher import encrypt_bytestring, decrypt_bytestring
 from wacryptolib.cryptainer import (
     CRYPTAINER_TRUSTEE_TYPES, SHARED_SECRET_ALGO_MARKER, LOCAL_KEYFACTORY_TRUSTEE_MARKER, CryptainerStorage,
     CryptainerDecryptor, check_cryptoconf_sanity, check_cryptainer_sanity, gather_decryptable_symkeys,
-    gather_trustee_dependencies, get_trustee_id, load_cryptainer_from_filesystem, dump_cryptainer_to_filesystem,
+    load_cryptainer_from_filesystem, dump_cryptainer_to_filesystem,
     encrypt_payload_into_cryptainer, decrypt_payload_from_cryptainer, CRYPTAINER_SCHEMA_JSON, CRYPTOCONF_SCHEMA_JSON,
 )
 from wacryptolib.authenticator import initialize_authenticator
